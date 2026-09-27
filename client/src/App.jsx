@@ -79,7 +79,7 @@ const words = {
 
     portalFamily: "Family Portal",
     portalWelfare: "Welfare Portal",
-    portalDeath: "Birth & Death Portal",
+    portalDeath: "Youth & Sports Portal",
     portalHealth: "Health Portal",
     portalGN: "GN Officer Portal",
 
@@ -88,7 +88,7 @@ const words = {
     portalWelfareDesc:
       "Access welfare and assistance-related services.",
     portalDeathDesc:
-      "Manage birth and death related applications and information.",
+      "Manage Youth and Sports related applications and information.",
     portalHealthDesc:
       "Access public health related services and information.",
     portalGNDesc:
