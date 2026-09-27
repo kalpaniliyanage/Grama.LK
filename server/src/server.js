@@ -23,7 +23,8 @@ const JWT_SECRET =
    GEMINI
 ========================================================= */
 
-const geminiApiKey = process.env.GEMINI_API_KEY?.trim();
+const geminiApiKey =
+  process.env.GEMINI_API_KEY?.trim();
 
 const gemini = geminiApiKey
   ? new GoogleGenAI({
@@ -39,9 +40,15 @@ console.log(
    MONGODB ATLAS
 ========================================================= */
 
-const mongoUsername = process.env.MONGO_USERNAME;
-const mongoPassword = process.env.MONGO_PASSWORD;
-const mongoCluster = process.env.MONGO_CLUSTER;
+const mongoUsername =
+  process.env.MONGO_USERNAME;
+
+const mongoPassword =
+  process.env.MONGO_PASSWORD;
+
+const mongoCluster =
+  process.env.MONGO_CLUSTER;
+
 const mongoDatabase =
   process.env.MONGO_DATABASE || "gramalk";
 
@@ -53,26 +60,45 @@ if (
   console.error(
     "MongoDB environment variables are missing."
   );
+
   process.exit(1);
 }
 
 const mongoURI =
-  `mongodb+srv://${encodeURIComponent(mongoUsername)}:` +
-  `${encodeURIComponent(mongoPassword)}@${mongoCluster}/` +
+  `mongodb+srv://${encodeURIComponent(
+    mongoUsername
+  )}:` +
+  `${encodeURIComponent(
+    mongoPassword
+  )}@${mongoCluster}/` +
   `${mongoDatabase}?authSource=admin`;
 
 try {
   await mongoose.connect(mongoURI);
 
-  console.log("=================================");
+  console.log(
+    "================================="
+  );
+
   console.log(
     "MongoDB Atlas Connected Successfully!"
   );
-  console.log("Database:", mongoDatabase);
-  console.log("=================================");
+
+  console.log(
+    "Database:",
+    mongoDatabase
+  );
+
+  console.log(
+    "================================="
+  );
 } catch (error) {
-  console.error("MongoDB Connection Failed:");
+  console.error(
+    "MongoDB Connection Failed:"
+  );
+
   console.error(error.message);
+
   process.exit(1);
 }
 
@@ -80,25 +106,33 @@ try {
    DIRECTORIES
 ========================================================= */
 
-const complaintUploadDir = path.join(
-  ROOT,
-  "uploads",
-  "complaints"
+const complaintUploadDir =
+  path.join(
+    ROOT,
+    "uploads",
+    "complaints"
+  );
+
+const formUploadDir =
+  path.join(
+    ROOT,
+    "uploads",
+    "forms"
+  );
+
+fs.mkdirSync(
+  complaintUploadDir,
+  {
+    recursive: true,
+  }
 );
 
-const formUploadDir = path.join(
-  ROOT,
-  "uploads",
-  "forms"
+fs.mkdirSync(
+  formUploadDir,
+  {
+    recursive: true,
+  }
 );
-
-fs.mkdirSync(complaintUploadDir, {
-  recursive: true,
-});
-
-fs.mkdirSync(formUploadDir, {
-  recursive: true,
-});
 
 /* =========================================================
    MIDDLEWARE
@@ -128,22 +162,37 @@ app.use(
 
 app.use(
   "/uploads",
-  express.static(path.join(ROOT, "uploads"))
+  express.static(
+    path.join(ROOT, "uploads")
+  )
 );
 
 /* =========================================================
-   MULTER
+   MULTER - COMPLAINT UPLOADS
 ========================================================= */
 
 const complaintStorage =
   multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, complaintUploadDir);
+    destination: (
+      req,
+      file,
+      cb
+    ) => {
+      cb(
+        null,
+        complaintUploadDir
+      );
     },
 
-    filename: (req, file, cb) => {
+    filename: (
+      req,
+      file,
+      cb
+    ) => {
       const extension =
-        path.extname(file.originalname);
+        path.extname(
+          file.originalname
+        );
 
       cb(
         null,
@@ -154,22 +203,43 @@ const complaintStorage =
     },
   });
 
-const complaintUpload = multer({
-  storage: complaintStorage,
-  limits: {
-    fileSize: 5 * 1024 * 1024,
-  },
-});
+const complaintUpload =
+  multer({
+    storage:
+      complaintStorage,
+
+    limits: {
+      fileSize:
+        5 * 1024 * 1024,
+    },
+  });
+
+/* =========================================================
+   MULTER - FORM PDF UPLOADS
+========================================================= */
 
 const formStorage =
   multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, formUploadDir);
+    destination: (
+      req,
+      file,
+      cb
+    ) => {
+      cb(
+        null,
+        formUploadDir
+      );
     },
 
-    filename: (req, file, cb) => {
+    filename: (
+      req,
+      file,
+      cb
+    ) => {
       const extension =
-        path.extname(file.originalname);
+        path.extname(
+          file.originalname
+        );
 
       cb(
         null,
@@ -180,93 +250,218 @@ const formStorage =
     },
   });
 
-const formUpload = multer({
-  storage: formStorage,
+const formUpload =
+  multer({
+    storage: formStorage,
 
-  limits: {
-    fileSize: 15 * 1024 * 1024,
-  },
+    limits: {
+      fileSize:
+        15 * 1024 * 1024,
+    },
 
-  fileFilter: (req, file, cb) => {
-    const extension =
-      path.extname(file.originalname)
-        .toLowerCase();
+    fileFilter: (
+      req,
+      file,
+      cb
+    ) => {
+      const extension =
+        path.extname(
+          file.originalname
+        ).toLowerCase();
 
-    if (extension === ".pdf") {
-      cb(null, true);
-    } else {
-      cb(
-        new Error(
-          "Only PDF files are allowed."
-        )
-      );
-    }
-  },
-});
+      if (
+        extension === ".pdf"
+      ) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            "Only PDF files are allowed."
+          )
+        );
+      }
+    },
+  });
 
 /* =========================================================
-   USER
+   USER MODEL
 ========================================================= */
 
-const userSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
+const userSchema =
+  new mongoose.Schema(
+    {
+      username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+      },
 
-    password: {
-      type: String,
-      required: true,
-    },
+      password: {
+        type: String,
+        required: true,
+      },
 
-    role: {
-      type: String,
-      default: "family",
-    },
+      role: {
+        type: String,
+        default: "family",
+      },
 
-    houseNumber: {
-      type: String,
-      default: "",
-    },
+      houseNumber: {
+        type: String,
+        default: "",
+      },
 
-    fullName: {
-      type: String,
-      default: "",
-    },
+      fullName: {
+        type: String,
+        default: "",
+      },
 
-    email: {
-      type: String,
-      default: "",
+      email: {
+        type: String,
+        default: "",
+      },
     },
-  },
-  {
-    timestamps: true,
-    strict: false,
-  }
-);
+    {
+      timestamps: true,
+      strict: false,
+    }
+  );
 
 const User =
   mongoose.models.User ||
-  mongoose.model("User", userSchema);
+  mongoose.model(
+    "User",
+    userSchema
+  );
+
+/* =========================================================
+   DEFAULT PORTAL USERS
+========================================================= */
+
+/*
+   IMPORTANT:
+
+   Passwords below are ONLY used when the accounts
+   do not already exist.
+
+   They are NEVER stored as plain text.
+
+   bcrypt converts them into hashes before
+   saving them to MongoDB Atlas.
+*/
+
+async function createDefaultPortalUsers() {
+  const portalUsers = [
+    {
+      username: "gnadmin",
+      password: "ChangeMe123!",
+      role: "gnadmin",
+      fullName: "GN Officer",
+      email: "gnadmin@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "welfare",
+      password: "ChangeMe123!",
+      role: "welfare",
+      fullName: "Welfare Officer",
+      email: "welfare@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "health",
+      password: "ChangeMe123!",
+      role: "health",
+      fullName: "Health Officer",
+      email: "health@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "deathaid",
+      password: "ChangeMe123!",
+      role: "deathaid",
+      fullName: "Death Aid Officer",
+      email: "deathaid@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "family001",
+      password: "1234",
+      role: "family",
+      fullName: "Family User",
+      email: "family001@gramalk.lk",
+      houseNumber: "H001",
+    },
+  ];
+
+  for (const account of portalUsers) {
+    const hashedPassword = await bcrypt.hash(
+      account.password,
+      10
+    );
+
+    const existingUser = await User.findOne({
+      username: account.username,
+    });
+
+    if (!existingUser) {
+      await User.create({
+        username: account.username,
+        password: hashedPassword,
+        role: account.role,
+        fullName: account.fullName,
+        email: account.email,
+        houseNumber: account.houseNumber,
+      });
+
+      console.log(
+        `Created portal user: ${account.username}`
+      );
+    } else {
+      existingUser.password = hashedPassword;
+      existingUser.role = account.role;
+      existingUser.fullName = account.fullName;
+      existingUser.email = account.email;
+      existingUser.houseNumber = account.houseNumber;
+
+      await existingUser.save();
+
+      console.log(
+        `Updated portal user: ${account.username}`
+      );
+    }
+  }
+
+  console.log(
+    "Portal user setup completed."
+  );
+}
+
 
 /* =========================================================
    OFFICE
 ========================================================= */
 
-const officeSchema = new mongoose.Schema(
-  {},
-  {
-    timestamps: true,
-    strict: false,
-  }
-);
+const officeSchema =
+  new mongoose.Schema(
+    {},
+    {
+      timestamps: true,
+      strict: false,
+    }
+  );
 
 const Office =
   mongoose.models.Office ||
-  mongoose.model("Office", officeSchema);
+  mongoose.model(
+    "Office",
+    officeSchema
+  );
 
 /* =========================================================
    GOVERNMENT OFFICES
@@ -293,17 +488,21 @@ const GovernmentOffice =
    FORM
 ========================================================= */
 
-const formSchema = new mongoose.Schema(
-  {},
-  {
-    timestamps: true,
-    strict: false,
-  }
-);
+const formSchema =
+  new mongoose.Schema(
+    {},
+    {
+      timestamps: true,
+      strict: false,
+    }
+  );
 
 const Form =
   mongoose.models.Form ||
-  mongoose.model("Form", formSchema);
+  mongoose.model(
+    "Form",
+    formSchema
+  );
 
 /* =========================================================
    ANNOUNCEMENT
@@ -411,19 +610,22 @@ const VillageActivity =
   );
 
 /* =========================================================
-   AUTH
+   AUTHENTICATION
 ========================================================= */
 
 function createToken(user) {
   return jwt.sign(
     {
       id: user._id,
-      username: user.username,
+      username:
+        user.username,
       role: user.role,
       houseNumber:
         user.houseNumber || "",
     },
+
     JWT_SECRET,
+
     {
       expiresIn: "7d",
     }
@@ -459,10 +661,11 @@ function authMiddleware(
       });
     }
 
-    req.user = jwt.verify(
-      parts[1],
-      JWT_SECRET
-    );
+    req.user =
+      jwt.verify(
+        parts[1],
+        JWT_SECRET
+      );
 
     next();
   } catch (error) {
@@ -473,8 +676,14 @@ function authMiddleware(
   }
 }
 
-function roleMiddleware(...roles) {
-  return (req, res, next) => {
+function roleMiddleware(
+  ...roles
+) {
+  return (
+    req,
+    res,
+    next
+  ) => {
     if (!req.user) {
       return res.status(401).json({
         message:
@@ -483,7 +692,9 @@ function roleMiddleware(...roles) {
     }
 
     if (
-      !roles.includes(req.user.role)
+      !roles.includes(
+        req.user.role
+      )
     ) {
       return res.status(403).json({
         message:
@@ -496,7 +707,7 @@ function roleMiddleware(...roles) {
 }
 
 /* =========================================================
-   HEALTH
+   HEALTH CHECK
 ========================================================= */
 
 app.get(
@@ -504,11 +715,13 @@ app.get(
   (req, res) => {
     res.json({
       success: true,
+
       message:
         "GramaLK backend is running.",
+
       database:
-        mongoose.connection.readyState ===
-        1
+        mongoose.connection
+          .readyState === 1
           ? "connected"
           : "disconnected",
     });
@@ -524,29 +737,71 @@ app.post(
   async (req, res) => {
     try {
       const {
-        username,
-        password,
+        username = "",
+        password = "",
+        houseNumber = "",
       } = req.body;
 
-      if (!username || !password) {
+      const loginUsername =
+        username.trim();
+
+      const loginHouseNumber =
+        houseNumber.trim();
+
+      if (
+        !loginUsername &&
+        !loginHouseNumber
+      ) {
         return res.status(400).json({
           message:
-            "Username and password are required.",
+            "Username or house number is required.",
         });
       }
 
-      const user =
-        await User.findOne({
-          username:
-            username.trim(),
+      if (!password) {
+        return res.status(400).json({
+          message:
+            "Password is required.",
         });
+      }
+
+      let user = null;
+
+      /* -------------------------------------------------
+         LOGIN USING USERNAME
+      ------------------------------------------------- */
+
+      if (loginUsername) {
+        user = await User.findOne({
+          username: loginUsername,
+        });
+      }
+
+      /* -------------------------------------------------
+         IF USERNAME NOT FOUND, TRY HOUSE NUMBER
+      ------------------------------------------------- */
+
+      if (!user && loginHouseNumber) {
+        user = await User.findOne({
+          houseNumber:
+            loginHouseNumber,
+        });
+      }
+
+      /* -------------------------------------------------
+         USER NOT FOUND
+      ------------------------------------------------- */
 
       if (!user) {
         return res.status(401).json({
           message:
-            "Invalid username or password.",
+            "Invalid username, house number or password.",
         });
       }
+
+      /* -------------------------------------------------
+         CHECK PASSWORD
+      ------------------------------------------------- */
 
       const passwordMatch =
         await bcrypt.compare(
@@ -557,39 +812,104 @@ app.post(
       if (!passwordMatch) {
         return res.status(401).json({
           message:
-            "Invalid username or password.",
+            "Invalid username, house number or password.",
         });
       }
+
+      /* -------------------------------------------------
+         CREATE JWT TOKEN
+      ------------------------------------------------- */
 
       const token =
         createToken(user);
 
-      res.json({
+      /* -------------------------------------------------
+         SUCCESS
+      ------------------------------------------------- */
+
+      return res.json({
         success: true,
+
+        message:
+          "Login successful.",
+
         token,
 
         user: {
           id: user._id,
+
           username:
             user.username,
-          role: user.role,
+
+          role:
+            user.role,
+
           houseNumber:
             user.houseNumber || "",
+
           fullName:
             user.fullName || "",
+
           email:
             user.email || "",
         },
       });
+
     } catch (error) {
       console.error(
         "Login error:",
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
+        success: false,
+
         message:
           "Login failed.",
+      });
+    }
+  }
+);
+
+/* =========================================================
+   CURRENT USER
+========================================================= */
+
+app.get(
+  "/api/me",
+  authMiddleware,
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const user =
+        await User.findById(
+          req.user.id
+        ).select(
+          "-password"
+        );
+
+      if (!user) {
+        return res.status(404).json({
+          message:
+            "User not found.",
+        });
+      }
+
+      res.json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      console.error(
+        "Get current user error:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to load user.",
       });
     }
   }
@@ -601,12 +921,16 @@ app.post(
 
 app.get(
   "/api/offices",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const offices =
-        await Office.find().sort({
-          createdAt: -1,
-        });
+        await Office.find()
+          .sort({
+            createdAt: -1,
+          });
 
       res.json(offices);
     } catch (error) {
@@ -623,7 +947,10 @@ app.get(
 app.post(
   "/api/offices",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const office =
         await Office.create(
@@ -650,7 +977,10 @@ app.post(
 
 app.get(
   "/api/government-offices",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const offices =
         await GovernmentOffice
@@ -677,12 +1007,16 @@ app.get(
 
 app.get(
   "/api/forms",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const forms =
-        await Form.find().sort({
-          createdAt: -1,
-        });
+        await Form.find()
+          .sort({
+            createdAt: -1,
+          });
 
       res.json(forms);
     } catch (error) {
@@ -700,7 +1034,10 @@ app.post(
   "/api/forms",
   authMiddleware,
   formUpload.single("file"),
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const data = {
         ...req.body,
@@ -718,7 +1055,9 @@ app.post(
         req.user.username;
 
       const form =
-        await Form.create(data);
+        await Form.create(
+          data
+        );
 
       res.status(201).json(
         form
@@ -740,7 +1079,10 @@ app.post(
 
 app.get(
   "/api/announcements",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const announcements =
         await Announcement
@@ -766,7 +1108,10 @@ app.get(
 app.post(
   "/api/announcements",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const announcement =
         await Announcement.create(
@@ -794,8 +1139,13 @@ app.post(
 app.post(
   "/api/complaints",
   authMiddleware,
-  complaintUpload.single("image"),
-  async (req, res) => {
+  complaintUpload.single(
+    "image"
+  ),
+  async (
+    req,
+    res
+  ) => {
     try {
       const data = {
         ...req.body,
@@ -841,17 +1191,22 @@ app.post(
 app.get(
   "/api/complaints",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       let complaints;
 
+      const staffRoles = [
+        "gnadmin",
+        "welfare",
+        "health",
+        "deathaid",
+      ];
+
       if (
-        [
-          "gnadmin",
-          "welfare",
-          "health",
-          "deathaid",
-        ].includes(
+        staffRoles.includes(
           req.user.role
         )
       ) {
@@ -873,7 +1228,9 @@ app.get(
             });
       }
 
-      res.json(complaints);
+      res.json(
+        complaints
+      );
     } catch (error) {
       console.error(error);
 
@@ -892,7 +1249,10 @@ app.get(
 app.get(
   "/api/chats",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const chats =
         await Chat.find({
@@ -901,6 +1261,7 @@ app.get(
               username:
                 req.user.username,
             },
+
             {
               userId:
                 req.user.id,
@@ -928,13 +1289,18 @@ app.get(
 app.post(
   "/api/chats",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const chat =
         await Chat.create({
           ...req.body,
+
           username:
             req.user.username,
+
           userId:
             req.user.id,
         });
@@ -962,12 +1328,16 @@ app.post(
 
 app.get(
   "/api/officers",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const officers =
-        await Officer.find().sort({
-          createdAt: -1,
-        });
+        await Officer.find()
+          .sort({
+            createdAt: -1,
+          });
 
       res.json(officers);
     } catch (error) {
@@ -987,7 +1357,10 @@ app.get(
 app.post(
   "/api/officers",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const officer =
         await Officer.create(
@@ -1017,7 +1390,10 @@ app.post(
 
 app.get(
   "/api/village-activities",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const activities =
         await VillageActivity
@@ -1026,7 +1402,9 @@ app.get(
             createdAt: -1,
           });
 
-      res.json(activities);
+      res.json(
+        activities
+      );
     } catch (error) {
       console.error(
         "Get village activities error:",
@@ -1044,7 +1422,10 @@ app.get(
 app.post(
   "/api/village-activities",
   authMiddleware,
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const activity =
         await VillageActivity.create(
@@ -1083,11 +1464,22 @@ async function getWebsiteContext() {
       activities,
     ] = await Promise.all([
       Office.find().lean(),
-      GovernmentOffice.find().lean(),
+
+      GovernmentOffice
+        .find()
+        .lean(),
+
       Form.find().lean(),
-      Announcement.find().lean(),
+
+      Announcement
+        .find()
+        .lean(),
+
       Officer.find().lean(),
-      VillageActivity.find().lean(),
+
+      VillageActivity
+        .find()
+        .lean(),
     ]);
 
     return {
@@ -1128,22 +1520,21 @@ async function tryGemini(
   }
 
   const prompt = `
-You are the GramaLK government services
-assistant.
+You are the GramaLK government services assistant.
 
 Answer clearly and simply.
 
-Use only the information available
-in the GramaLK database when answering
-questions about GramaLK services.
+Use only the information available in the
+GramaLK database when answering questions
+about GramaLK services.
 
-Do not invent offices, officers,
-forms, announcements, activities,
-contacts or government information.
+Do not invent offices, officers, forms,
+announcements, activities, contacts or
+government information.
 
-If information is not available,
-say that it is not currently available
-in the GramaLK database.
+If information is not available, say that
+it is not currently available in the
+GramaLK database.
 
 OFFICES:
 ${JSON.stringify(
@@ -1191,36 +1582,29 @@ USER QUESTION:
 ${message}
 `;
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
-    "gemini-3.5-flash-lite",
-  ];
+  try {
+    const response =
+      await gemini.models.generateContent(
+        {
+          model:
+            "gemini-3.8-flash",
 
-  for (const model of models) {
-    try {
-      const response =
-        await gemini.models.generateContent(
-          {
-            model,
-            contents: prompt,
-          }
-        );
-
-      if (
-        response &&
-        response.text
-      ) {
-        return response.text;
-      }
-    } catch (error) {
-      console.error(
-        `Gemini ${model} failed:`,
-        error.message
+          contents:
+            prompt,
+        }
       );
+
+    if (
+      response &&
+      response.text
+    ) {
+      return response.text;
     }
+  } catch (error) {
+    console.error(
+      "Gemini error:",
+      error.message
+    );
   }
 
   return null;
@@ -1232,7 +1616,10 @@ ${message}
 
 app.post(
   "/api/chat",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const message =
         req.body.message;
@@ -1265,6 +1652,7 @@ app.post(
 
       res.json({
         success: true,
+
         reply:
           "Sorry, I could not process your request right now. Please try again.",
       });
@@ -1287,7 +1675,12 @@ app.post(
 ========================================================= */
 
 app.use(
-  (error, req, res, next) => {
+  (
+    error,
+    req,
+    res,
+    next
+  ) => {
     console.error(
       "Server error:",
       error
@@ -1317,26 +1710,18 @@ app.use(
 
 async function startServer() {
   try {
-    app.listen(
-      PORT,
-      () => {
-        console.log(
-          "================================"
-        );
+    await createDefaultPortalUsers();
 
-        console.log(
-          `GramaLK backend running on port ${PORT}`
-        );
+    app.listen(PORT, "0.0.0.0", () => {
+  console.log("================================");
+  console.log(`GramaLK backend running on port ${PORT}`);
+  console.log(`Local: http://localhost:${PORT}`);
+  console.log(`Network: http://0.0.0.0:${PORT}`);
+  console.log("MongoDB: Atlas");
+  console.log("Portals: Enabled");
+  console.log("================================");
+});
 
-        console.log(
-          `http://localhost:${PORT}`
-        );
-
-        console.log(
-          "================================"
-        );
-      }
-    );
   } catch (error) {
     console.error(
       "SERVER STARTUP ERROR:"

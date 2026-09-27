@@ -1243,93 +1243,256 @@ export default function App() {
   };
 
   /* =======================================================
-     PORTAL LOGIN
-  ======================================================= */
+   PORTAL LOGIN
+======================================================= */
 
-  const selectPortal = (
-    portal
-  ) => {
-    setSelectedPortal(portal);
-    setPortalModal(true);
-    setLoginMessage("");
+// Open the selected portal login modal
+const selectPortal = (portal) => {
+  setSelectedPortal(portal);
+  setPortalModal(true);
 
-    setLogin({
-      username: "",
-      password: "",
-      houseNumber: "",
+  // Clear previous login message
+  setLoginMessage("");
+
+  // Clear previous login details
+  setLogin({
+    username: "",
+    password: "",
+    houseNumber: "",
+  });
+};
+
+// Close the portal login modal
+const closePortalModal = () => {
+  setPortalModal(false);
+  setSelectedPortal(null);
+  setLoginMessage("");
+
+  setLogin({
+    username: "",
+    password: "",
+    houseNumber: "",
+  });
+};
+
+// Handle portal login
+const loginPortal = async (event) => {
+  event.preventDefault();
+
+  setLoginMessage("");
+
+  if (!selectedPortal) {
+    setLoginMessage("Please select a portal.");
+    return;
+  }
+
+  // For Family Portal use house number.
+  // For other portals use username.
+  const loginValue =
+    selectedPortal.id === "family"
+      ? login.houseNumber.trim()
+      : login.username.trim();
+
+  if (!loginValue) {
+    setLoginMessage(
+      selectedPortal.id === "family"
+        ? "Please enter your house number."
+        : "Please enter your username."
+    );
+    return;
+  }
+
+  if (!login.password) {
+    setLoginMessage("Please enter your password.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username:
+          selectedPortal.id === "family"
+            ? ""
+            : login.username.trim(),
+
+        houseNumber:
+          selectedPortal.id === "family"
+            ? login.houseNumber.trim()
+            : "",
+
+        password: login.password,
+      }),
     });
-  };
 
-  const loginPortal = async (
-    event
-  ) => {
-    event.preventDefault();
+    const responseText = await response.text();
 
-    setLoginMessage("");
+    let data = {};
 
     try {
-      const payload = {
-        portal:
-          selectedPortal?.id,
-        username:
-          login.username,
-        password:
-          login.password,
-        houseNumber:
-          login.houseNumber,
+      data = responseText
+        ? JSON.parse(responseText)
+        : {};
+    } catch {
+      data = {
+        message:
+          responseText ||
+          "The server returned an invalid response.",
       };
+    }
 
-      const response =
-        await fetch(
-          `${API}/login`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify(
-              payload
-            ),
-          }
-        );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Login failed"
-        );
-      }
-
+    if (!response.ok) {
       setLoginMessage(
-        data.message ||
-          t("loginSuccess")
+        data.message || t("loginFailed")
       );
+      return;
+    }
 
-      if (data.token) {
-        localStorage.setItem(
-          "gramalk_token",
-          data.token
-        );
-      }
-
-      if (data.redirect) {
-        window.location.href =
-          data.redirect;
-      }
-    } catch (error) {
-      console.error(error);
-
-      setLoginMessage(
-        error.message ||
-          t("loginFailed")
+    // Save JWT token
+    if (data.token) {
+      localStorage.setItem(
+        "gramalk_token",
+        data.token
       );
     }
-  };
 
+    // Save logged-in user
+    if (data.user) {
+      localStorage.setItem(
+        "gramalk_user",
+        JSON.stringify(data.user)
+      );
+    }
+
+    const role = data.user?.role;
+
+    if (!role) {
+  setLoginMessage(
+    "Login successful, but the server did not return the user role."
+  );
+  return;
+}
+
+localStorage.setItem(
+  "gramalk_token",
+  data.token
+);
+
+localStorage.setItem(
+  "gramalk_user",
+  JSON.stringify(data.user)
+);
+
+switch (role) {
+  case "gnadmin":
+    window.location.href = "/gn-portal";
+    break;
+
+  case "welfare":
+    window.location.href = "/welfare-portal";
+    break;
+
+  case "health":
+    window.location.href = "/health-portal";
+    break;
+
+  case "deathaid":
+    window.location.href = "/death-aid-portal";
+    break;
+
+  case "family":
+    window.location.href = "/family-portal";
+    break;
+
+  default:
+    setLoginMessage(
+      "Login successful, but no portal is assigned to this account."
+    );
+}
+
+
+    if (!role) {
+      setLoginMessage(
+        "Login successful, but the server did not return the user role."
+      );
+      return;
+    }
+
+    // Portal → backend role
+    const portalRoleMap = {
+      family: "family",
+      welfare: "welfare",
+      death: "deathaid",
+      health: "health",
+      gn: "gnadmin",
+    };
+
+    const expectedRole =
+      portalRoleMap[selectedPortal.id];
+
+    // Prevent an account from opening the wrong portal
+    if (
+      expectedRole &&
+      role !== expectedRole
+    ) {
+      setLoginMessage(
+        "This account does not belong to the selected portal."
+      );
+      return;
+    }
+
+    setLoginMessage(
+      data.message || t("loginSuccess")
+    );
+
+    // Redirect according to user role
+    switch (role) {
+      case "gnadmin":
+        window.location.href =
+          "/gn-portal";
+        break;
+
+      case "welfare":
+        window.location.href =
+          "/welfare-portal";
+        break;
+
+      case "health":
+        window.location.href =
+          "/health-portal";
+        break;
+
+      case "deathaid":
+        window.location.href =
+          "/death-aid-portal";
+        break;
+
+      case "family":
+        window.location.href =
+          "/family-portal";
+        break;
+
+      default:
+        setLoginMessage(
+          "Login successful, but no portal is assigned to this account."
+        );
+    }
+  } catch (error) {
+    console.error(
+      "GramaLK login error:",
+      error
+    );
+
+    setLoginMessage(
+      "Cannot connect to the GramaLK server. Please make sure the backend server is running."
+    );
+  }
+};
+
+  
   /* =======================================================
      CHATBOT
   ======================================================= */
