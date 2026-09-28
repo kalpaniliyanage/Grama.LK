@@ -37,7 +37,7 @@ console.log(
 );
 
 /* =========================================================
-   MONGODB ATLAS
+   MONGODB ATLAS CONFIGURATION
 ========================================================= */
 
 const mongoUsername =
@@ -72,35 +72,6 @@ const mongoURI =
     mongoPassword
   )}@${mongoCluster}/` +
   `${mongoDatabase}?authSource=admin`;
-
-try {
-  await mongoose.connect(mongoURI);
-
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "MongoDB Atlas Connected Successfully!"
-  );
-
-  console.log(
-    "Database:",
-    mongoDatabase
-  );
-
-  console.log(
-    "================================="
-  );
-} catch (error) {
-  console.error(
-    "MongoDB Connection Failed:"
-  );
-
-  console.error(error.message);
-
-  process.exit(1);
-}
 
 /* =========================================================
    DIRECTORIES
@@ -140,10 +111,7 @@ fs.mkdirSync(
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-    ],
+    origin: true,
     credentials: true,
   })
 );
@@ -252,7 +220,8 @@ const formStorage =
 
 const formUpload =
   multer({
-    storage: formStorage,
+    storage:
+      formStorage,
 
     limits: {
       fileSize:
@@ -322,6 +291,7 @@ const userSchema =
         default: "",
       },
     },
+
     {
       timestamps: true,
       strict: false,
@@ -338,18 +308,6 @@ const User =
 /* =========================================================
    DEFAULT PORTAL USERS
 ========================================================= */
-
-/*
-   IMPORTANT:
-
-   Passwords below are ONLY used when the accounts
-   do not already exist.
-
-   They are NEVER stored as plain text.
-
-   bcrypt converts them into hashes before
-   saving them to MongoDB Atlas.
-*/
 
 async function createDefaultPortalUsers() {
   const portalUsers = [
@@ -400,34 +358,57 @@ async function createDefaultPortalUsers() {
   ];
 
   for (const account of portalUsers) {
-    const hashedPassword = await bcrypt.hash(
-      account.password,
-      10
-    );
+    const existingUser =
+      await User.findOne({
+        username:
+          account.username,
+      });
 
-    const existingUser = await User.findOne({
-      username: account.username,
-    });
+    const hashedPassword =
+      await bcrypt.hash(
+        account.password,
+        10
+      );
 
     if (!existingUser) {
       await User.create({
-        username: account.username,
-        password: hashedPassword,
-        role: account.role,
-        fullName: account.fullName,
-        email: account.email,
-        houseNumber: account.houseNumber,
+        username:
+          account.username,
+
+        password:
+          hashedPassword,
+
+        role:
+          account.role,
+
+        fullName:
+          account.fullName,
+
+        email:
+          account.email,
+
+        houseNumber:
+          account.houseNumber,
       });
 
       console.log(
         `Created portal user: ${account.username}`
       );
     } else {
-      existingUser.password = hashedPassword;
-      existingUser.role = account.role;
-      existingUser.fullName = account.fullName;
-      existingUser.email = account.email;
-      existingUser.houseNumber = account.houseNumber;
+      existingUser.password =
+        hashedPassword;
+
+      existingUser.role =
+        account.role;
+
+      existingUser.fullName =
+        account.fullName;
+
+      existingUser.email =
+        account.email;
+
+      existingUser.houseNumber =
+        account.houseNumber;
 
       await existingUser.save();
 
@@ -441,7 +422,6 @@ async function createDefaultPortalUsers() {
     "Portal user setup completed."
   );
 }
-
 
 /* =========================================================
    OFFICE
@@ -589,15 +569,89 @@ const Officer =
   );
 
 /* =========================================================
-   VILLAGE ACTIVITIES
+   VILLAGE ACTIVITIES MODEL
 ========================================================= */
 
 const villageActivitySchema =
   new mongoose.Schema(
-    {},
+    {
+      title: {
+        en: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        si: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        ta: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+      },
+
+      description: {
+        en: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        si: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        ta: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+      },
+
+      category: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+
+      date: {
+        type: Date,
+        required: true,
+      },
+
+      location: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+
+      createdBy: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+
+      status: {
+        type: String,
+        default: "Published",
+        trim: true,
+      },
+
+      image: {
+        type: String,
+        default: "",
+      },
+    },
+
     {
       timestamps: true,
-      strict: false,
     }
   );
 
@@ -610,6 +664,277 @@ const VillageActivity =
   );
 
 /* =========================================================
+   SEED DEFAULT VILLAGE ACTIVITIES
+========================================================= */
+
+async function seedVillageActivities() {
+  try {
+    const count =
+      await VillageActivity.countDocuments();
+
+    if (count > 0) {
+      console.log(
+        `Village activities already exist. Count: ${count}`
+      );
+
+      return;
+    }
+
+    const activities = [
+      {
+        title: {
+          en: "Village Clean-Up Programme",
+
+          si: "ගම් පිරිසිදු කිරීමේ වැඩසටහන",
+
+          ta: "கிராம சுத்தப்படுத்தும் நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Residents work together to keep the village clean and beautiful.",
+
+          si: "ගමේ පිරිසිදුකම සහ අලංකාරය පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
+
+          ta: "கிராமத்தை சுத்தமாகவும் அழகாகவும் வைத்திருக்க மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
+        },
+
+        category: "Community",
+
+        date: new Date(
+          "2026-10-05"
+        ),
+
+        location: "Village",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity1.jpg",
+      },
+
+      {
+        title: {
+          en: "Community Health Programme",
+
+          si: "ප්‍රජා සෞඛ්‍ය වැඩසටහන",
+
+          ta: "சமூக சுகாதார நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Local residents participate in community health activities.",
+
+          si: "ප්‍රදේශවාසීන් ප්‍රජා සෞඛ්‍ය කටයුතුවලට සහභාගී වේ.",
+
+          ta: "உள்ளூர் மக்கள் சமூக சுகாதார நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
+        },
+
+        category: "Health",
+
+        date: new Date(
+          "2026-10-10"
+        ),
+
+        location:
+          "Community Hall",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity2.jpg",
+      },
+
+      {
+        title: {
+          en: "Village Cleaning Programme",
+
+          si: "ගම් පිරිසිදු කිරීමේ වැඩසටහන",
+
+          ta: "கிராம சுத்தப்படுத்தும் நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Local residents work together to maintain the cleanliness of the village.",
+
+          si: "ගමේ පිරිසිදුකම පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
+
+          ta: "கிராமத்தின் தூய்மையைப் பராமரிக்க உள்ளூர் மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
+        },
+
+        category: "Environment",
+
+        date: new Date(
+          "2026-10-15"
+        ),
+
+        location:
+          "Village Area",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity3.jpg",
+      },
+
+      {
+        title: {
+          en: "Community Awareness Programme",
+
+          si: "ප්‍රජා දැනුවත් කිරීමේ වැඩසටහන",
+
+          ta: "சமூக விழிப்புணர்வு நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Community members take part in programmes that improve village knowledge and awareness.",
+
+          si: "ගමේ දැනුම හා දැනුවත්භාවය වැඩිදියුණු කරන වැඩසටහන් සඳහා ප්‍රජා සාමාජිකයින් සහභාගී වේ.",
+
+          ta: "கிராம மக்களின் அறிவையும் விழிப்புணர்வையும் மேம்படுத்தும் நிகழ்ச்சிகளில் சமூக உறுப்பினர்கள் பங்கேற்கின்றனர்.",
+        },
+
+        category: "Awareness",
+
+        date: new Date(
+          "2026-10-20"
+        ),
+
+        location:
+          "Community Hall",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity4.jpg",
+      },
+
+      {
+        title: {
+          en: "Aid Distribution Programme",
+
+          si: "සහනාධාර ලබාදීමේ වැඩසටහන",
+
+          ta: "நிவாரண உதவி வழங்கும் நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Aid and support are provided to families who need assistance.",
+
+          si: "ආධාර අවශ්‍ය පවුල් සඳහා සහනාධාර සහ උපකාර ලබා දේ.",
+
+          ta: "உதவி தேவைப்படும் குடும்பங்களுக்கு நிவாரண உதவிகள் வழங்கப்படுகின்றன.",
+        },
+
+        category: "Welfare",
+
+        date: new Date(
+          "2026-10-25"
+        ),
+
+        location:
+          "GN Office",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity5.png",
+      },
+
+      {
+        title: {
+          en: "Women's Self-Employment Awareness Programme",
+
+          si: "කාන්තා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන",
+
+          ta: "பெண்களுக்கான சுயதொழில் விழிப்புணர்வு நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Awareness programmes on self-employment are conducted for women in the village.",
+
+          si: "ගමේ කාන්තාවන් සඳහා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන් පැවැත්වේ.",
+
+          ta: "கிராம பெண்களுக்காக சுயதொழில் தொடர்பான விழிப்புணர்வு நிகழ்ச்சிகள் நடத்தப்படுகின்றன.",
+        },
+
+        category: "Women",
+
+        date: new Date(
+          "2026-10-30"
+        ),
+
+        location:
+          "Community Hall",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity6.png",
+      },
+
+      {
+        title: {
+          en: "Tree Planting Programme",
+
+          si: "රුක් රෝපණ වැඩසටහන",
+
+          ta: "மர நடுகை நிகழ்ச்சி",
+        },
+
+        description: {
+          en: "Residents participate in tree planting activities to improve the village environment.",
+
+          si: "ගමේ පරිසරය වැඩිදියුණු කිරීම සඳහා ප්‍රදේශවාසීන් රුක් රෝපණ කටයුතුවලට සහභාගී වේ.",
+
+          ta: "கிராம சுற்றுச்சூழலை மேம்படுத்த மக்கள் மர நடுகை நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
+        },
+
+        category: "Environment",
+
+        date: new Date(
+          "2026-11-05"
+        ),
+
+        location:
+          "Village Area",
+
+        createdBy: "gnadmin",
+
+        status: "Published",
+
+        image:
+          "/images/activity7.png",
+      },
+    ];
+
+    await VillageActivity.insertMany(
+      activities
+    );
+
+    console.log(
+      "7 default village activities inserted into MongoDB."
+    );
+  } catch (error) {
+    console.error(
+      "Village activity seed error:",
+      error
+    );
+  }
+}
+
+/* =========================================================
    AUTHENTICATION
 ========================================================= */
 
@@ -619,7 +944,8 @@ function createToken(user) {
       id: user._id,
       username:
         user.username,
-      role: user.role,
+      role:
+        user.role,
       houseNumber:
         user.houseNumber || "",
     },
@@ -734,7 +1060,10 @@ app.get(
 
 app.post(
   "/api/login",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const {
         username = "",
@@ -767,30 +1096,28 @@ app.post(
 
       let user = null;
 
-      /* -------------------------------------------------
-         LOGIN USING USERNAME
-      ------------------------------------------------- */
+      /* USERNAME LOGIN */
 
       if (loginUsername) {
-        user = await User.findOne({
-          username: loginUsername,
-        });
+        user =
+          await User.findOne({
+            username:
+              loginUsername,
+          });
       }
 
-      /* -------------------------------------------------
-         IF USERNAME NOT FOUND, TRY HOUSE NUMBER
-      ------------------------------------------------- */
+      /* HOUSE NUMBER LOGIN */
 
-      if (!user && loginHouseNumber) {
-        user = await User.findOne({
-          houseNumber:
-            loginHouseNumber,
-        });
+      if (
+        !user &&
+        loginHouseNumber
+      ) {
+        user =
+          await User.findOne({
+            houseNumber:
+              loginHouseNumber,
+          });
       }
-
-      /* -------------------------------------------------
-         USER NOT FOUND
-      ------------------------------------------------- */
 
       if (!user) {
         return res.status(401).json({
@@ -799,9 +1126,7 @@ app.post(
         });
       }
 
-      /* -------------------------------------------------
-         CHECK PASSWORD
-      ------------------------------------------------- */
+      /* PASSWORD */
 
       const passwordMatch =
         await bcrypt.compare(
@@ -816,16 +1141,10 @@ app.post(
         });
       }
 
-      /* -------------------------------------------------
-         CREATE JWT TOKEN
-      ------------------------------------------------- */
+      /* TOKEN */
 
       const token =
         createToken(user);
-
-      /* -------------------------------------------------
-         SUCCESS
-      ------------------------------------------------- */
 
       return res.json({
         success: true,
@@ -836,7 +1155,8 @@ app.post(
         token,
 
         user: {
-          id: user._id,
+          id:
+            user._id,
 
           username:
             user.username,
@@ -854,7 +1174,6 @@ app.post(
             user.email || "",
         },
       });
-
     } catch (error) {
       console.error(
         "Login error:",
@@ -934,7 +1253,10 @@ app.get(
 
       res.json(offices);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get offices error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -961,7 +1283,10 @@ app.post(
         office
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create office error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -991,7 +1316,10 @@ app.get(
 
       res.json(offices);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get government offices error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -1020,7 +1348,10 @@ app.get(
 
       res.json(forms);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get forms error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -1063,7 +1394,10 @@ app.post(
         form
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create form error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -1095,7 +1429,10 @@ app.get(
         announcements
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get announcements error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -1122,7 +1459,10 @@ app.post(
         announcement
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create announcement error:",
+        error
+      );
 
       res.status(500).json({
         message:
@@ -1134,109 +1474,137 @@ app.post(
 
 /* =========================================================
    COMPLAINTS
+   PUBLIC - NO LOGIN REQUIRED
 ========================================================= */
 
 app.post(
   "/api/complaints",
-  authMiddleware,
-  complaintUpload.single(
-    "image"
-  ),
+  complaintUpload.single("image"),
   async (
     req,
     res
   ) => {
     try {
-      const data = {
-        ...req.body,
+      const {
+        type = "",
+        officer = "",
+        location = "",
+        description = "",
+        houseNumber = "",
+      } = req.body;
 
-        username:
-          req.user.username,
+      /* VALIDATION */
 
-        houseNumber:
-          req.body.houseNumber ||
-          req.user.houseNumber ||
-          "",
+      if (
+        !type.trim() ||
+        !officer.trim() ||
+        !location.trim() ||
+        !description.trim()
+      ) {
+        return res.status(400).json({
+          success: false,
 
-        status:
-          req.body.status ||
-          "Pending",
-      };
+          message:
+            "Please fill all required complaint fields.",
+        });
+      }
+
+      /* REFERENCE NUMBER */
+
+      const referenceNo =
+        "CMP-" +
+        Date.now() +
+        "-" +
+        Math.floor(
+          1000 +
+            Math.random() *
+              9000
+        );
+
+      /* IMAGE */
+
+      let imageUrl = "";
 
       if (req.file) {
-        data.imageUrl =
+        imageUrl =
           `/uploads/complaints/${req.file.filename}`;
       }
 
-      const complaint =
-        await Complaint.create(
-          data
-        );
+      /* SAVE */
 
-      res.status(201).json({
+      const complaint =
+        await Complaint.create({
+          referenceNo,
+
+          type:
+            type.trim(),
+
+          officer:
+            officer.trim(),
+
+          location:
+            location.trim(),
+
+          description:
+            description.trim(),
+
+          houseNumber:
+            houseNumber.trim(),
+
+          imageUrl,
+
+          status:
+            "Pending",
+
+          isAnonymous:
+            true,
+
+          submittedBy:
+            "Public User",
+        });
+
+      console.log(
+        "================================"
+      );
+
+      console.log(
+        "COMPLAINT SAVED TO MONGODB"
+      );
+
+      console.log(
+        "Reference:",
+        complaint.referenceNo
+      );
+
+      console.log(
+        "================================"
+      );
+
+      return res.status(201).json({
         success: true,
+
+        message:
+          "Complaint submitted successfully.",
+
+        referenceNo:
+          complaint.referenceNo,
+
         complaint,
       });
     } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        message:
-          "Failed to submit complaint.",
-      });
-    }
-  }
-);
-
-app.get(
-  "/api/complaints",
-  authMiddleware,
-  async (
-    req,
-    res
-  ) => {
-    try {
-      let complaints;
-
-      const staffRoles = [
-        "gnadmin",
-        "welfare",
-        "health",
-        "deathaid",
-      ];
-
-      if (
-        staffRoles.includes(
-          req.user.role
-        )
-      ) {
-        complaints =
-          await Complaint
-            .find()
-            .sort({
-              createdAt: -1,
-            });
-      } else {
-        complaints =
-          await Complaint
-            .find({
-              username:
-                req.user.username,
-            })
-            .sort({
-              createdAt: -1,
-            });
-      }
-
-      res.json(
-        complaints
+      console.error(
+        "COMPLAINT SAVE ERROR:",
+        error
       );
-    } catch (error) {
-      console.error(error);
 
-      res.status(500).json({
+      return res.status(500).json({
+        success: false,
+
         message:
-          "Failed to load complaints.",
+          "Failed to save complaint to database.",
+
+        error:
+          error.message,
       });
     }
   }
@@ -1385,8 +1753,10 @@ app.post(
 );
 
 /* =========================================================
-   VILLAGE ACTIVITIES
+   VILLAGE ACTIVITIES API
 ========================================================= */
+
+/* GET - PUBLIC */
 
 app.get(
   "/api/village-activities",
@@ -1397,9 +1767,11 @@ app.get(
     try {
       const activities =
         await VillageActivity
-          .find()
+          .find({
+            status: "Published",
+          })
           .sort({
-            createdAt: -1,
+            date: 1,
           });
 
       res.json(
@@ -1412,12 +1784,16 @@ app.get(
       );
 
       res.status(500).json({
+        success: false,
+
         message:
           "Failed to load village activities.",
       });
     }
   }
 );
+
+/* POST - LOGIN REQUIRED */
 
 app.post(
   "/api/village-activities",
@@ -1427,14 +1803,69 @@ app.post(
     res
   ) => {
     try {
-      const activity =
-        await VillageActivity.create(
-          req.body
-        );
+      const {
+        title,
+        description,
+        category,
+        date,
+        location,
+        status,
+        image,
+      } = req.body;
 
-      res.status(201).json(
-        activity
-      );
+      if (
+        !title?.en ||
+        !title?.si ||
+        !title?.ta ||
+        !description?.en ||
+        !description?.si ||
+        !description?.ta ||
+        !category ||
+        !date ||
+        !location
+      ) {
+        return res.status(400).json({
+          success: false,
+
+          message:
+            "Please fill all required activity fields.",
+        });
+      }
+
+      const activity =
+        await VillageActivity.create({
+          title,
+
+          description,
+
+          category:
+            category.trim(),
+
+          date:
+            new Date(date),
+
+          location:
+            location.trim(),
+
+          createdBy:
+            req.user.username,
+
+          status:
+            status?.trim() ||
+            "Published",
+
+          image:
+            image?.trim() || "",
+        });
+
+      res.status(201).json({
+        success: true,
+
+        message:
+          "Village activity created successfully.",
+
+        activity,
+      });
     } catch (error) {
       console.error(
         "Create village activity error:",
@@ -1442,8 +1873,13 @@ app.post(
       );
 
       res.status(500).json({
+        success: false,
+
         message:
           "Failed to create village activity.",
+
+        error:
+          error.message,
       });
     }
   }
@@ -1484,10 +1920,15 @@ async function getWebsiteContext() {
 
     return {
       offices,
+
       governmentOffices,
+
       forms,
+
       announcements,
+
       officers,
+
       activities,
     };
   } catch (error) {
@@ -1498,10 +1939,15 @@ async function getWebsiteContext() {
 
     return {
       offices: [],
+
       governmentOffices: [],
+
       forms: [],
+
       announcements: [],
+
       officers: [],
+
       activities: [],
     };
   }
@@ -1646,7 +2092,9 @@ app.post(
       if (answer) {
         return res.json({
           success: true,
-          reply: answer,
+
+          reply:
+            answer,
         });
       }
 
@@ -1691,12 +2139,32 @@ app.use(
       multer.MulterError
     ) {
       return res.status(400).json({
+        success: false,
+
         message:
           `Upload error: ${error.message}`,
+
+        field:
+          error.field || "",
+      });
+    }
+
+    if (
+      error &&
+      error.message ===
+        "Only PDF files are allowed."
+    ) {
+      return res.status(400).json({
+        success: false,
+
+        message:
+          error.message,
       });
     }
 
     res.status(500).json({
+      success: false,
+
       message:
         error.message ||
         "Internal server error.",
@@ -1710,27 +2178,112 @@ app.use(
 
 async function startServer() {
   try {
-    await createDefaultPortalUsers();
+    /* ---------------------------------------------
+       CONNECT TO MONGODB
+    --------------------------------------------- */
 
-    app.listen(PORT, "0.0.0.0", () => {
-  console.log("================================");
-  console.log(`GramaLK backend running on port ${PORT}`);
-  console.log(`Local: http://localhost:${PORT}`);
-  console.log(`Network: http://0.0.0.0:${PORT}`);
-  console.log("MongoDB: Atlas");
-  console.log("Portals: Enabled");
-  console.log("================================");
-});
-
-  } catch (error) {
-    console.error(
-      "SERVER STARTUP ERROR:"
+    await mongoose.connect(
+      mongoURI
     );
 
-    console.error(error);
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "MongoDB Atlas Connected Successfully!"
+    );
+
+    console.log(
+      "Database:",
+      mongoDatabase
+    );
+
+    console.log(
+      "================================="
+    );
+
+    /* ---------------------------------------------
+       CREATE / UPDATE DEFAULT USERS
+    --------------------------------------------- */
+
+    await createDefaultPortalUsers();
+
+    /* ---------------------------------------------
+       INSERT DEFAULT VILLAGE ACTIVITIES
+       ONLY IF COLLECTION IS EMPTY
+    --------------------------------------------- */
+
+    await seedVillageActivities();
+
+    /* ---------------------------------------------
+       START EXPRESS SERVER
+    --------------------------------------------- */
+
+    app.listen(
+      PORT,
+      "0.0.0.0",
+      () => {
+        console.log(
+          "================================"
+        );
+
+        console.log(
+          `GramaLK backend running on port ${PORT}`
+        );
+
+        console.log(
+          `Local: http://localhost:${PORT}`
+        );
+
+        console.log(
+          `Network: http://0.0.0.0:${PORT}`
+        );
+
+        console.log(
+          "MongoDB: Atlas"
+        );
+
+        console.log(
+          "Portals: Enabled"
+        );
+
+        console.log(
+          "Complaints: Public"
+        );
+
+        console.log(
+          "Village Activities: MongoDB"
+        );
+
+        console.log(
+          "================================"
+        );
+      }
+    );
+  } catch (error) {
+    console.error(
+      "================================"
+    );
+
+    console.error(
+      "SERVER STARTUP ERROR"
+    );
+
+    console.error(
+      error
+    );
+
+    console.error(
+      "================================"
+    );
 
     process.exit(1);
   }
 }
 
-startServer();
+/* =========================================================
+   START
+========================================================= */
+
+startServer(); 

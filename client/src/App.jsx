@@ -1173,7 +1173,7 @@ export default function App() {
 
       if (complaint.photo) {
         formData.append(
-          "photo",
+          "image", 
           complaint.photo
         );
       }
