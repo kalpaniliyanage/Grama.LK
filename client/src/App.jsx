@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
+import GNPortal from './components/pages/GNPortal';
 
 const API =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -404,107 +405,66 @@ const heroImages = [
 const activities = [
   {
     image: "/images/activity1.jpg",
-
     titleEn: "Village Clean-Up Programme",
     titleSi: "ගම් පිරිසිදු කිරීමේ වැඩසටහන",
     titleTa: "கிராம சுத்தப்படுத்தும் நிகழ்ச்சி",
-
-    descriptionEn:
-      "Residents work together to keep the village clean and beautiful.",
-    descriptionSi:
-      "ගමේ පිරිසිදුකම සහ අලංකාරය පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
-    descriptionTa:
-      "கிராமத்தை சுத்தமாகவும் அழகாகவும் வைத்திருக்க மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
+    descriptionEn: "Residents work together to keep the village clean and beautiful.",
+    descriptionSi: "ගමේ පිරිසිදුකම සහ අලංකාරය පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
+    descriptionTa: "கிராமத்தை சுத்தமாகவும் அழகாகவும் வைத்திருக்க மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
   },
-
   {
     image: "/images/activity2.jpg",
-
     titleEn: "Community Health Programme",
     titleSi: "ප්‍රජා සෞඛ්‍ය වැඩසටහන",
     titleTa: "சமூக சுகாதார நிகழ்ச்சி",
-
-    descriptionEn:
-      "Local residents participate in community health activities.",
-    descriptionSi:
-      "ප්‍රදේශවාසීන් ප්‍රජා සෞඛ්‍ය කටයුතුවලට සහභාගී වේ.",
-    descriptionTa:
-      "உள்ளூர் மக்கள் சமூக சுகாதார நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
+    descriptionEn: "Local residents participate in community health activities.",
+    descriptionSi: "ප්‍රදේශවාසීන් ප්‍රජා සෞඛ්‍ය කටයුතුවලට සහභාගී වේ.",
+    descriptionTa: "உள்ளூர் மக்கள் சமூக சுகாதார நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
   },
-
   {
     image: "/images/activity3.jpg",
-
     titleEn: "Village Cleaning Programme",
     titleSi: "ගම් පිරිසිදු කිරීමේ වැඩසටහන",
     titleTa: "கிராம சுத்தப்படுத்தும் நிகழ்ச்சி",
-
-    descriptionEn:
-      "Local residents work together to maintain the cleanliness of the village.",
-    descriptionSi:
-      "ගමේ පිරිසිදුකම පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
-    descriptionTa:
-      "கிராமத்தின் தூய்மையைப் பராமரிக்க உள்ளூர் மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
+    descriptionEn: "Local residents work together to maintain the cleanliness of the village.",
+    descriptionSi: "ගමේ පිරිසිදුකම පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
+    descriptionTa: "கிராமத்தின் தூய்மையைப் பராமரிக்க உள்ளூர் மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
   },
-
   {
     image: "/images/activity4.jpg",
-
     titleEn: "Community Awareness Programme",
     titleSi: "ප්‍රජා දැනුවත් කිරීමේ වැඩසටහන",
     titleTa: "சமூக விழிப்புணர்வு நிகழ்ச்சி",
-
-    descriptionEn:
-      "Community members take part in programmes that improve village knowledge and awareness.",
-    descriptionSi:
-      "ගමේ දැනුම හා දැනුවත්භාවය වැඩිදියුණු කරන වැඩසටහන් සඳහා ප්‍රජා සාමාජිකයින් සහභාගී වේ.",
-    descriptionTa:
-      "கிராம மக்களின் அறிவையும் விழிப்புணர்வையும் மேம்படுத்தும் நிகழ்ச்சிகளில் சமூக உறுப்பினர்கள் பங்கேற்கின்றனர்.",
+    descriptionEn: "Community members take part in programmes that improve village knowledge and awareness.",
+    descriptionSi: "ගමේ දැනුම හා දැනුවත්භාවය වැඩිදියුණු කරන වැඩසටහන් සඳහා ප්‍රජා සාමාජිකයින් සහභාගී වේ.",
+    descriptionTa: "கிராம மக்களின் அறிவையும் விழிப்புணர்வையும் மேம்படுத்தும் நிகழ்ச்சிகளில் சமூக உறுப்பினர்கள் பங்கேற்கின்றனர்.",
   },
-
   {
     image: "/images/activity5.png",
-
     titleEn: "Aid Distribution Programme",
     titleSi: "සහනාධාර ලබාදීමේ වැඩසටහන",
     titleTa: "நிவாரண உதவி வழங்கும் நிகழ்ச்சி",
-
-    descriptionEn:
-      "Aid and support are provided to families who need assistance.",
-    descriptionSi:
-      "ආධාර අවශ්‍ය පවුල් සඳහා සහනාධාර සහ උපකාර ලබා දේ.",
-    descriptionTa:
-      "உதவி தேவைப்படும் குடும்பங்களுக்கு நிவாரண உதவிகள் வழங்கப்படுகின்றன.",
+    descriptionEn: "Aid and support are provided to families who need assistance.",
+    descriptionSi: "ආධාර අවශ්‍ය පවුල් සඳහා සහනාධාර සහ උපකාර ලබා දේ.",
+    descriptionTa: "உதவி தேவைப்படும் குடும்பங்களுக்கு நிவாரண உதவிகள் வழங்கப்படுகின்றன.",
   },
-
   {
     image: "/images/activity6.png",
-
     titleEn: "Women's Self-Employment Awareness Programme",
     titleSi: "කාන්තා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන",
     titleTa: "பெண்களுக்கான சுயதொழில் விழிப்புணர்வு நிகழ்ச்சி",
-
-    descriptionEn:
-      "Awareness programmes on self-employment are conducted for women in the village.",
-    descriptionSi:
-      "ගමේ කාන්තාවන් සඳහා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන් පැවැත්වේ.",
-    descriptionTa:
-      "கிராம பெண்களுக்காக சுயதொழில் தொடர்பான விழிப்புணர்வு நிகழ்ச்சிகள் நடத்தப்படுகின்றன.",
+    descriptionEn: "Awareness programmes on self-employment are conducted for women in the village.",
+    descriptionSi: "ගමේ කාන්තාවන් සඳහා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන් පැවැත්වේ.",
+    descriptionTa: "கிராம பெண்களுக்காக சுயதொழில் தொடர்பான விழிப்புணர்வு நிகழ்ச்சிகள் நடத்தப்படுகின்றன.",
   },
-
   {
     image: "/images/activity7.png",
-
     titleEn: "Tree Planting Programme",
     titleSi: "රුක් රෝපණ වැඩසටහන",
     titleTa: "மர நடுகை நிகழ்ச்சி",
-
-    descriptionEn:
-      "Residents participate in tree planting activities to improve the village environment.",
-    descriptionSi:
-      "ගමේ පරිසරය වැඩිදියුණු කිරීම සඳහා ප්‍රදේශවාසීන් රුක් රෝපණ කටයුතුවලට සහභාගී වේ.",
-    descriptionTa:
-      "கிராம சுற்றுச்சூழலை மேம்படுத்த மக்கள் மர நடுகை நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
+    descriptionEn: "Residents participate in tree planting activities to improve the village environment.",
+    descriptionSi: "ගමේ පරිසරය වැඩිදියුණු කිරීම සඳහා ප්‍රදේශවාසීන් රුක් රෝපණ කටයුතුවලට සහභාගී වේ.",
+    descriptionTa: "கிராம சுற்றுச்சூழலை மேம்படுத்த மக்கள் மர நடுகை நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
   },
 ];
 
@@ -761,6 +721,14 @@ function formatDateTime(value, lang) {
 ========================================================= */
 
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => setCurrentPath(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const [lang, setLang] = useState(
     localStorage.getItem("gramalk_lang") || "en"
   );
@@ -1243,256 +1211,198 @@ export default function App() {
   };
 
   /* =======================================================
-   PORTAL LOGIN
-======================================================= */
+     PORTAL LOGIN
+  ======================================================= */
 
-// Open the selected portal login modal
-const selectPortal = (portal) => {
-  setSelectedPortal(portal);
-  setPortalModal(true);
-
-  // Clear previous login message
-  setLoginMessage("");
-
-  // Clear previous login details
-  setLogin({
-    username: "",
-    password: "",
-    houseNumber: "",
-  });
-};
-
-// Close the portal login modal
-const closePortalModal = () => {
-  setPortalModal(false);
-  setSelectedPortal(null);
-  setLoginMessage("");
-
-  setLogin({
-    username: "",
-    password: "",
-    houseNumber: "",
-  });
-};
-
-// Handle portal login
-const loginPortal = async (event) => {
-  event.preventDefault();
-
-  setLoginMessage("");
-
-  if (!selectedPortal) {
-    setLoginMessage("Please select a portal.");
-    return;
-  }
-
-  // For Family Portal use house number.
-  // For other portals use username.
-  const loginValue =
-    selectedPortal.id === "family"
-      ? login.houseNumber.trim()
-      : login.username.trim();
-
-  if (!loginValue) {
-    setLoginMessage(
-      selectedPortal.id === "family"
-        ? "Please enter your house number."
-        : "Please enter your username."
-    );
-    return;
-  }
-
-  if (!login.password) {
-    setLoginMessage("Please enter your password.");
-    return;
-  }
-
-  try {
-    const response = await fetch(`${API}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username:
-          selectedPortal.id === "family"
-            ? ""
-            : login.username.trim(),
-
-        houseNumber:
-          selectedPortal.id === "family"
-            ? login.houseNumber.trim()
-            : "",
-
-        password: login.password,
-      }),
+  const selectPortal = (portal) => {
+    setSelectedPortal(portal);
+    setPortalModal(true);
+    setLoginMessage("");
+    setLogin({
+      username: "",
+      password: "",
+      houseNumber: "",
     });
+  };
 
-    const responseText = await response.text();
+  const closePortalModal = () => {
+    setPortalModal(false);
+    setSelectedPortal(null);
+    setLoginMessage("");
+    setLogin({
+      username: "",
+      password: "",
+      houseNumber: "",
+    });
+  };
 
-    let data = {};
+  const loginPortal = async (event) => {
+    event.preventDefault();
+
+    setLoginMessage("");
+
+    if (!selectedPortal) {
+      setLoginMessage("Please select a portal.");
+      return;
+    }
+
+    const loginValue =
+      selectedPortal.id === "family"
+        ? login.houseNumber.trim()
+        : login.username.trim();
+
+    if (!loginValue) {
+      setLoginMessage(
+        selectedPortal.id === "family"
+          ? "Please enter your house number."
+          : "Please enter your username."
+      );
+      return;
+    }
+
+    if (!login.password) {
+      setLoginMessage("Please enter your password.");
+      return;
+    }
 
     try {
-      data = responseText
-        ? JSON.parse(responseText)
-        : {};
-    } catch {
-      data = {
-        message:
-          responseText ||
-          "The server returned an invalid response.",
-      };
-    }
+      const response = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username:
+            selectedPortal.id === "family"
+              ? ""
+              : login.username.trim(),
 
-    if (!response.ok) {
-      setLoginMessage(
-        data.message || t("loginFailed")
-      );
-      return;
-    }
+          houseNumber:
+            selectedPortal.id === "family"
+              ? login.houseNumber.trim()
+              : "",
 
-    // Save JWT token
-    if (data.token) {
-      localStorage.setItem(
-        "gramalk_token",
-        data.token
-      );
-    }
+          password: login.password,
+        }),
+      });
 
-    // Save logged-in user
-    if (data.user) {
-      localStorage.setItem(
-        "gramalk_user",
-        JSON.stringify(data.user)
-      );
-    }
+      const responseText = await response.text();
 
-    const role = data.user?.role;
+      let data = {};
 
-    if (!role) {
-  setLoginMessage(
-    "Login successful, but the server did not return the user role."
-  );
-  return;
-}
+      try {
+        data = responseText
+          ? JSON.parse(responseText)
+          : {};
+      } catch {
+        data = {
+          message:
+            responseText ||
+            "The server returned an invalid response.",
+        };
+      }
 
-localStorage.setItem(
-  "gramalk_token",
-  data.token
-);
-
-localStorage.setItem(
-  "gramalk_user",
-  JSON.stringify(data.user)
-);
-
-switch (role) {
-  case "gnadmin":
-    window.location.href = "/gn-portal";
-    break;
-
-  case "welfare":
-    window.location.href = "/welfare-portal";
-    break;
-
-  case "health":
-    window.location.href = "/health-portal";
-    break;
-
-  case "deathaid":
-    window.location.href = "/death-aid-portal";
-    break;
-
-  case "family":
-    window.location.href = "/family-portal";
-    break;
-
-  default:
-    setLoginMessage(
-      "Login successful, but no portal is assigned to this account."
-    );
-}
-
-
-    if (!role) {
-      setLoginMessage(
-        "Login successful, but the server did not return the user role."
-      );
-      return;
-    }
-
-    // Portal → backend role
-    const portalRoleMap = {
-      family: "family",
-      welfare: "welfare",
-      death: "deathaid",
-      health: "health",
-      gn: "gnadmin",
-    };
-
-    const expectedRole =
-      portalRoleMap[selectedPortal.id];
-
-    // Prevent an account from opening the wrong portal
-    if (
-      expectedRole &&
-      role !== expectedRole
-    ) {
-      setLoginMessage(
-        "This account does not belong to the selected portal."
-      );
-      return;
-    }
-
-    setLoginMessage(
-      data.message || t("loginSuccess")
-    );
-
-    // Redirect according to user role
-    switch (role) {
-      case "gnadmin":
-        window.location.href =
-          "/gn-portal";
-        break;
-
-      case "welfare":
-        window.location.href =
-          "/welfare-portal";
-        break;
-
-      case "health":
-        window.location.href =
-          "/health-portal";
-        break;
-
-      case "deathaid":
-        window.location.href =
-          "/death-aid-portal";
-        break;
-
-      case "family":
-        window.location.href =
-          "/family-portal";
-        break;
-
-      default:
+      if (!response.ok) {
         setLoginMessage(
-          "Login successful, but no portal is assigned to this account."
+          data.message || t("loginFailed")
         );
+        return;
+      }
+
+      if (data.token) {
+        localStorage.setItem(
+          "gramalk_token",
+          data.token
+        );
+      }
+
+      if (data.user) {
+        localStorage.setItem(
+          "gramalk_user",
+          JSON.stringify(data.user)
+        );
+      }
+
+      const role = data.user?.role;
+
+      if (!role) {
+        setLoginMessage(
+          "Login successful, but the server did not return the user role."
+        );
+        return;
+      }
+
+      // Portal → backend role
+      const portalRoleMap = {
+        family: "family",
+        welfare: "welfare",
+        death: "deathaid",
+        health: "health",
+        gn: "gnadmin",
+      };
+
+      const expectedRole =
+        portalRoleMap[selectedPortal.id];
+
+      // Prevent an account from opening the wrong portal
+      if (
+        expectedRole &&
+        role !== expectedRole
+      ) {
+        setLoginMessage(
+          "This account does not belong to the selected portal."
+        );
+        return;
+      }
+
+      setLoginMessage(
+        data.message || t("loginSuccess")
+      );
+
+      // Redirect according to user role
+      switch (role) {
+        case "gnadmin":
+          window.location.href =
+            "/gn-portal";
+          break;
+
+        case "welfare":
+          window.location.href =
+            "/welfare-portal";
+          break;
+
+        case "health":
+          window.location.href =
+            "/health-portal";
+          break;
+
+        case "deathaid":
+          window.location.href =
+            "/death-aid-portal";
+          break;
+
+        case "family":
+          window.location.href =
+            "/family-portal";
+          break;
+
+        default:
+          setLoginMessage(
+            "Login successful, but no portal is assigned to this account."
+          );
+      }
+    } catch (error) {
+      console.error(
+        "GramaLK login error:",
+        error
+      );
+
+      setLoginMessage(
+        "Cannot connect to the GramaLK server. Please make sure the backend server is running."
+      );
     }
-  } catch (error) {
-    console.error(
-      "GramaLK login error:",
-      error
-    );
+  };
 
-    setLoginMessage(
-      "Cannot connect to the GramaLK server. Please make sure the backend server is running."
-    );
-  }
-};
-
-  
   /* =======================================================
      CHATBOT
   ======================================================= */
@@ -1647,6 +1557,13 @@ switch (role) {
       setChatBusy(false);
     }
   };
+
+  /* =======================================================
+     GN PORTAL ROUTE
+  ======================================================= */
+  if (currentPath === "/gn-portal") {
+    return <GNPortal />;
+  }
 
   /* =======================================================
      RENDER
