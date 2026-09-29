@@ -1,3 +1,11 @@
+// සුබසාධක මොඩලය ඉහළින්ම import කිරීම
+// නිවැරදි Path එක: ../models/Welfare.js
+import Welfare from "../models/Welfare.js";
+import WelfareFund from "../models/WelfareFund.js";
+import SportsEvent from "../models/SportsEvent.js";
+import SportsInventory from "../models/SportsInventory.js";
+
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -8,6 +16,7 @@ import fs from "fs";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GoogleGenAI } from "@google/genai";
+
 
 dotenv.config();
 
@@ -381,12 +390,12 @@ async function createDefaultPortalUsers() {
     },
 
     {
-      username: "deathaid",
-      password: "ChangeMe123!",
-      role: "deathaid",
-      fullName: "Death Aid Officer",
-      email: "deathaid@gramalk.lk",
-      houseNumber: "",
+      username: "youthsports",
+      password: "ChangeMe123!", // හෝ ඔබ භාවිත කරන Password එක
+      role: "youthsports",
+      fullName: "Youth and Sports Officer",
+      email: "youthsports@gramalk.lk",
+      houseNumber: ""
     },
 
     {
@@ -1202,7 +1211,7 @@ app.get(
         "gnadmin",
         "welfare",
         "health",
-        "deathaid",
+        "youthsports",
       ];
 
       if (
@@ -1670,6 +1679,10 @@ app.post(
   }
 );
 
+
+
+
+
 /* =========================================================
    ERROR HANDLER
 ========================================================= */
@@ -1703,6 +1716,100 @@ app.use(
     });
   }
 );
+
+
+/* =========================================================
+   WELFARE CLAIMS ROUTES (සුබසාධක දත්ත ලබාගැනීම සහ එකතු කිරීම)
+========================================================= */
+
+
+// සුබසාධක දත්ත ලබාගැනීම (Get all welfare claims)
+app.get("/api/welfare/claims", async (req, res) => {
+  try {
+    const claims = await Welfare.find().sort({ createdAt: -1 });
+    res.json(claims);
+  } catch (error) {
+    console.error("Welfare fetch error:", error);
+    res.status(500).json({ message: "දත්ත ලබාගැනීමට නොහැකි විය." });
+  }
+});
+
+// අලුත් සුබසාධක සටහනක් එකතු කිරීම (Add new welfare claim)
+app.post("/api/welfare/claims", async (req, res) => {
+  try {
+    const claim = await Welfare.create(req.body);
+    res.status(201).json({ success: true, claim });
+  } catch (error) {
+    console.error("Welfare save error:", error);
+    res.status(500).json({ message: "දත්ත සුරැකීමට නොහැකි විය." });
+  }
+});
+
+/* =========================================================
+   WELFARE MONTHLY FUNDS ROUTES (මාසික ගාස්තු එකතු කිරීම)
+========================================================= */
+
+// මාසික ගාස්තු ලැයිස්තුව ලබාගැනීම
+app.get("/api/welfare/funds", async (req, res) => {
+  try {
+    const funds = await WelfareFund.find().sort({ createdAt: -1 });
+    res.json(funds);
+  } catch (error) {
+    res.status(500).json({ message: "අරමුදල් දත්ත ලබාගැනීමට නොහැකි විය." });
+  }
+});
+
+// අලුත් මාසික ගාස්තු සටහනක් එකතු කිරීම
+app.post("/api/welfare/funds", async (req, res) => {
+  try {
+    const fund = await WelfareFund.create(req.body);
+    res.status(201).json({ success: true, fund });
+  } catch (error) {
+    res.status(500).json({ message: "අරමුදල් දත්ත සුරැකීමට නොහැකි විය." });
+  }
+});
+
+/* =========================================================
+   YOUTH & SPORTS PORTAL ROUTES (තරුණ හා ක්‍රීඩා පෝටලය)
+========================================================= */
+
+// Events
+app.get("/api/sports/events", async (req, res) => {
+  try {
+    const events = await SportsEvent.find().sort({ createdAt: -1 });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching events" });
+  }
+});
+
+app.post("/api/sports/events", async (req, res) => {
+  try {
+    const newEvent = await SportsEvent.create(req.body);
+    res.status(201).json({ success: true, newEvent });
+  } catch (error) {
+    res.status(500).json({ message: "Error saving event" });
+  }
+});
+
+// Inventory
+app.get("/api/sports/inventory", async (req, res) => {
+  try {
+    const items = await SportsInventory.find().sort({ createdAt: -1 });
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching inventory" });
+  }
+});
+
+app.post("/api/sports/inventory", async (req, res) => {
+  try {
+    const newItem = await SportsInventory.create(req.body);
+    res.status(201).json({ success: true, newItem });
+  } catch (error) {
+    res.status(500).json({ message: "Error saving inventory" });
+  }
+});
 
 /* =========================================================
    START SERVER

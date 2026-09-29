@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./index.css";
+// App.jsx හි නිවැරදි folder path එක ලබා දීම
+import WelfarePortal from "./components/pages/WelfarePortal";
 
 const API =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -79,7 +81,7 @@ const words = {
 
     portalFamily: "Family Portal",
     portalWelfare: "Welfare Portal",
-    portalDeath: "Youth & Sports Portal",
+    portalYouth: "Youth & Sports Portal",
     portalHealth: "Health Portal",
     portalGN: "GN Officer Portal",
 
@@ -87,7 +89,7 @@ const words = {
       "Access family information and community-related services.",
     portalWelfareDesc:
       "Access welfare and assistance-related services.",
-    portalDeathDesc:
+    portalYouthDesc:
       "Manage Youth and Sports related applications and information.",
     portalHealthDesc:
       "Access public health related services and information.",
@@ -204,7 +206,7 @@ const words = {
 
     portalFamily: "පවුල් පෝර්ටලය",
     portalWelfare: "සුභසාධන පෝර්ටලය",
-    portalDeath: "උපත් සහ මරණ පෝර්ටලය",
+    portalYouth: "යෞවන හා ක්‍රීඩා පෝර්ටලය",
     portalHealth: "සෞඛ්‍ය පෝර්ටලය",
     portalGN: "ග්‍රාම නිලධාරී පෝර්ටලය",
 
@@ -212,8 +214,8 @@ const words = {
       "පවුල් තොරතුරු සහ ප්‍රජා සේවා සම්බන්ධ සේවා වෙත ප්‍රවේශ වන්න.",
     portalWelfareDesc:
       "සුභසාධන සහ ආධාර සම්බන්ධ සේවා වෙත ප්‍රවේශ වන්න.",
-    portalDeathDesc:
-      "උපත් සහ මරණ සම්බන්ධ අයදුම්පත් හා තොරතුරු කළමනාකරණය කරන්න.",
+    portalYouthDesc:
+      "යෞවන හා ක්‍රීඩා සම්බන්ධ අයදුම්පත් හා තොරතුරු කළමනාකරණය කරන්න.",
     portalHealthDesc:
       "මහජන සෞඛ්‍ය සම්බන්ධ සේවා සහ තොරතුරු ලබාගන්න.",
     portalGNDesc:
@@ -329,7 +331,7 @@ const words = {
 
     portalFamily: "குடும்ப போர்டல்",
     portalWelfare: "நலன்புரி போர்டல்",
-    portalDeath: "பிறப்பு மற்றும் இறப்பு போர்டல்",
+    portalYouth: "பிறப்பு மற்றும் இறப்பு போர்டல்",
     portalHealth: "சுகாதார போர்டல்",
     portalGN: "கிராம நிலதாரி போர்டல்",
 
@@ -337,7 +339,7 @@ const words = {
       "குடும்பத் தகவல்கள் மற்றும் சமூக சேவைகளை அணுகவும்.",
     portalWelfareDesc:
       "நலன்புரி மற்றும் உதவி தொடர்பான சேவைகளை அணுகவும்.",
-    portalDeathDesc:
+    portalYouthDesc:
       "பிறப்பு மற்றும் இறப்பு தொடர்பான விண்ணப்பங்கள் மற்றும் தகவல்களை நிர்வகிக்கவும்.",
     portalHealthDesc:
       "பொது சுகாதார சேவைகள் மற்றும் தகவல்களை அணுகவும்.",
@@ -609,9 +611,9 @@ const portals = [
     icon: "🤝",
   },
   {
-    id: "death",
-    title: "portalDeath",
-    description: "portalDeathDesc",
+    id: "youth",
+    title: "portalYouth",
+    description: "portalYouthDesc",
     image: "/images/activity4.jpg",
     icon: "📄",
   },
@@ -1333,9 +1335,7 @@ const loginPortal = async (event) => {
     let data = {};
 
     try {
-      data = responseText
-        ? JSON.parse(responseText)
-        : {};
+      data = responseText ? JSON.parse(responseText) : {};
     } catch {
       data = {
         message:
@@ -1345,74 +1345,12 @@ const loginPortal = async (event) => {
     }
 
     if (!response.ok) {
-      setLoginMessage(
-        data.message || t("loginFailed")
-      );
+      setLoginMessage(data.message || t("loginFailed"));
       return;
     }
 
-    // Save JWT token
-    if (data.token) {
-      localStorage.setItem(
-        "gramalk_token",
-        data.token
-      );
-    }
-
-    // Save logged-in user
-    if (data.user) {
-      localStorage.setItem(
-        "gramalk_user",
-        JSON.stringify(data.user)
-      );
-    }
-
-    const role = data.user?.role;
-
-    if (!role) {
-  setLoginMessage(
-    "Login successful, but the server did not return the user role."
-  );
-  return;
-}
-
-localStorage.setItem(
-  "gramalk_token",
-  data.token
-);
-
-localStorage.setItem(
-  "gramalk_user",
-  JSON.stringify(data.user)
-);
-
-switch (role) {
-  case "gnadmin":
-    window.location.href = "/gn-portal";
-    break;
-
-  case "welfare":
-    window.location.href = "/welfare-portal";
-    break;
-
-  case "health":
-    window.location.href = "/health-portal";
-    break;
-
-  case "deathaid":
-    window.location.href = "/death-aid-portal";
-    break;
-
-  case "family":
-    window.location.href = "/family-portal";
-    break;
-
-  default:
-    setLoginMessage(
-      "Login successful, but no portal is assigned to this account."
-    );
-}
-
+    // DB එකේ 'role' field එකක් නැතිනම් 'username' එක role එක ලෙස ගන්න
+    const role = data.role || data.user?.role || data.user?.username;
 
     if (!role) {
       setLoginMessage(
@@ -1421,58 +1359,56 @@ switch (role) {
       return;
     }
 
-    // Portal → backend role
+    // Portal → backend role mapping
+    // Portal → backend role mapping (Arrays භාවිතයෙන්)
     const portalRoleMap = {
-      family: "family",
-      welfare: "welfare",
-      death: "deathaid",
-      health: "health",
-      gn: "gnadmin",
+      family: ["family"],
+      welfare: ["welfare"],
+      youth: ["youthsports"],
+      health: ["health"],
+      gn: ["gnadmin"],
     };
+const allowedRoles = portalRoleMap[selectedPortal.id] || [];
 
-    const expectedRole =
-      portalRoleMap[selectedPortal.id];
+// Prevent an account from opening the wrong portal
+if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+  setLoginMessage("This account does not belong to the selected portal.");
+  return;
+}
 
-    // Prevent an account from opening the wrong portal
-    if (
-      expectedRole &&
-      role !== expectedRole
-    ) {
-      setLoginMessage(
-        "This account does not belong to the selected portal."
-      );
-      return;
+// දෙවන Duplicate / Bug එක සහිත if (expectedRole ...) කොටස සම්පූර්ණයෙන්ම ඉවත් කරන්න (Delete කරන්න).
+
+    // Save JWT token & User Details
+    if (data.token) {
+      localStorage.setItem("gramalk_token", data.token);
     }
 
-    setLoginMessage(
-      data.message || t("loginSuccess")
-    );
+    if (data.user) {
+      localStorage.setItem("gramalk_user", JSON.stringify(data.user));
+    }
+
+    setLoginMessage(data.message || t("loginSuccess"));
 
     // Redirect according to user role
     switch (role) {
       case "gnadmin":
-        window.location.href =
-          "/gn-portal";
+        window.location.href = "/gn-portal";
         break;
 
       case "welfare":
-        window.location.href =
-          "/welfare-portal";
+        window.location.href = "/welfare-portal";
         break;
 
       case "health":
-        window.location.href =
-          "/health-portal";
+        window.location.href = "/health-portal";
         break;
 
-      case "deathaid":
-        window.location.href =
-          "/death-aid-portal";
+      case "youthsports":
+        window.location.href = "/youth-sports-portal";
         break;
 
       case "family":
-        window.location.href =
-          "/family-portal";
+        window.location.href = "/family-portal";
         break;
 
       default:
@@ -1481,10 +1417,7 @@ switch (role) {
         );
     }
   } catch (error) {
-    console.error(
-      "GramaLK login error:",
-      error
-    );
+    console.error("GramaLK login error:", error);
 
     setLoginMessage(
       "Cannot connect to the GramaLK server. Please make sure the backend server is running."
@@ -1646,7 +1579,8 @@ switch (role) {
     } finally {
       setChatBusy(false);
     }
-  };
+  }; 
+  
 
   /* =======================================================
      RENDER
