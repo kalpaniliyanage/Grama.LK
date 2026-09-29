@@ -9,8 +9,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GoogleGenAI } from "@google/genai";
 
-// GN Portal Routes Import කිරීම
-import gnRoutes from './routes/gnRoutes.js';
+// GN Portal Routes Import
+import gnRoutes from "./routes/gnRoutes.js";
+
 dotenv.config();
 
 const app = express();
@@ -121,7 +122,7 @@ const formUpload = multer({
 });
 
 /* =========================================================
-   MONGOOSE MODELS
+   MONGOOSE MODELS & SCHEMAS
 ========================================================= */
 
 const userSchema = new mongoose.Schema(
@@ -137,14 +138,58 @@ const userSchema = new mongoose.Schema(
 );
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
-const Office = mongoose.models.Office || mongoose.model("Office", new mongoose.Schema({}, { timestamps: true, strict: false }), "offices");
-const GovernmentOffice = mongoose.models.GovernmentOffice || mongoose.model("GovernmentOffice", new mongoose.Schema({}, { timestamps: true, strict: false }), "governmentoffices");
-const Form = mongoose.models.Form || mongoose.model("Form", new mongoose.Schema({}, { timestamps: true, strict: false }), "forms");
-const Announcement = mongoose.models.Announcement || mongoose.model("Announcement", new mongoose.Schema({}, { timestamps: true, strict: false }), "announcements");
-const Complaint = mongoose.models.Complaint || mongoose.model("Complaint", new mongoose.Schema({}, { timestamps: true, strict: false }), "complaints");
-const Chat = mongoose.models.Chat || mongoose.model("Chat", new mongoose.Schema({}, { timestamps: true, strict: false }), "chats");
-const Officer = mongoose.models.Officer || mongoose.model("Officer", new mongoose.Schema({}, { timestamps: true, strict: false }), "officers");
-const VillageActivity = mongoose.models.VillageActivity || mongoose.model("VillageActivity", new mongoose.Schema({}, { timestamps: true, strict: false }), "village_activities");
+
+const Office =
+  mongoose.models.Office ||
+  mongoose.model("Office", new mongoose.Schema({}, { timestamps: true, strict: false }), "offices");
+
+const GovernmentOffice =
+  mongoose.models.GovernmentOffice ||
+  mongoose.model("GovernmentOffice", new mongoose.Schema({}, { timestamps: true, strict: false }), "governmentoffices");
+
+const Form =
+  mongoose.models.Form ||
+  mongoose.model("Form", new mongoose.Schema({}, { timestamps: true, strict: false }), "forms");
+
+// Exact Announcement Schema Matching MongoDB Structure
+const announcementSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, default: "" },
+    content: { type: String, default: "" },
+    date: { type: String, default: "" },
+    time: { type: String, default: "" },
+    location: { type: String, default: "Grama Niladhari Office" },
+    category: { type: String, default: "Youth & Sports" },
+    type: { type: String, default: "Announcements" },
+    image: {
+      type: String,
+      default:
+        "https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop",
+    },
+  },
+  { timestamps: true, strict: false }
+);
+
+const Announcement =
+  mongoose.models.Announcement ||
+  mongoose.model("Announcement", announcementSchema, "announcements");
+
+const Complaint =
+  mongoose.models.Complaint ||
+  mongoose.model("Complaint", new mongoose.Schema({}, { timestamps: true, strict: false }), "complaints");
+
+const Chat =
+  mongoose.models.Chat ||
+  mongoose.model("Chat", new mongoose.Schema({}, { timestamps: true, strict: false }), "chats");
+
+const Officer =
+  mongoose.models.Officer ||
+  mongoose.model("Officer", new mongoose.Schema({}, { timestamps: true, strict: false }), "officers");
+
+const VillageActivity =
+  mongoose.models.VillageActivity ||
+  mongoose.model("VillageActivity", new mongoose.Schema({}, { timestamps: true, strict: false }), "village_activities");
 
 /* =========================================================
    DEFAULT PORTAL USERS
@@ -216,27 +261,14 @@ function authMiddleware(req, res, next) {
   }
 }
 
-function roleMiddleware(...roles) {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ message: "Authentication required." });
-    }
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "You do not have permission." });
-    }
-    next();
-  };
-}
-
 /* =========================================================
    ROUTER MOUNTING
 ========================================================= */
 
-// GN Portal Routes සක්‍රිය කිරීම
 app.use("/api/gn", gnRoutes);
 
 /* =========================================================
-   API ROUTES
+   COMMON API ROUTES
 ========================================================= */
 
 app.get("/api/health", (req, res) => {
@@ -312,6 +344,26 @@ app.get("/api/me", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/api/announcements", async (req, res) => {
+  try {
+    const announcements = await Announcement.find().sort({ createdAt: -1 });
+    res.json(announcements);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to load announcements." });
+  }
+});
+
+app.post("/api/announcements", authMiddleware, async (req, res) => {
+  try {
+    const announcement = await Announcement.create(req.body);
+    res.status(201).json(announcement);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create announcement." });
+  }
+});
+
 app.get("/api/offices", async (req, res) => {
   try {
     const offices = await Office.find().sort({ createdAt: -1 });
@@ -319,16 +371,6 @@ app.get("/api/offices", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to load offices." });
-  }
-});
-
-app.post("/api/offices", authMiddleware, async (req, res) => {
-  try {
-    const office = await Office.create(req.body);
-    res.status(201).json(office);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to create office." });
   }
 });
 
@@ -365,26 +407,6 @@ app.post("/api/forms", authMiddleware, formUpload.single("file"), async (req, re
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to create form." });
-  }
-});
-
-app.get("/api/announcements", async (req, res) => {
-  try {
-    const announcements = await Announcement.find().sort({ createdAt: -1 });
-    res.json(announcements);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to load announcements." });
-  }
-});
-
-app.post("/api/announcements", authMiddleware, async (req, res) => {
-  try {
-    const announcement = await Announcement.create(req.body);
-    res.status(201).json(announcement);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to create announcement." });
   }
 });
 
@@ -464,16 +486,6 @@ app.get("/api/officers", async (req, res) => {
   }
 });
 
-app.post("/api/officers", authMiddleware, async (req, res) => {
-  try {
-    const officer = await Officer.create(req.body);
-    res.status(201).json(officer);
-  } catch (error) {
-    console.error("Create officer error:", error);
-    res.status(500).json({ message: "Failed to create officer." });
-  }
-});
-
 app.get("/api/village-activities", async (req, res) => {
   try {
     const activities = await VillageActivity.find().sort({ createdAt: -1 });
@@ -481,16 +493,6 @@ app.get("/api/village-activities", async (req, res) => {
   } catch (error) {
     console.error("Get village activities error:", error);
     res.status(500).json({ message: "Failed to load village activities." });
-  }
-});
-
-app.post("/api/village-activities", authMiddleware, async (req, res) => {
-  try {
-    const activity = await VillageActivity.create(req.body);
-    res.status(201).json(activity);
-  } catch (error) {
-    console.error("Create village activity error:", error);
-    res.status(500).json({ message: "Failed to create village activity." });
   }
 });
 
@@ -590,22 +592,16 @@ app.post("/api/chat", async (req, res) => {
 });
 
 /* =========================================================
-   GLOBAL ERROR HANDLER
+   GLOBAL ERROR HANDLER & START SERVER
 ========================================================= */
 
 app.use((error, req, res, next) => {
   console.error("Server error:", error);
-
   if (error instanceof multer.MulterError) {
     return res.status(400).json({ message: `Upload error: ${error.message}` });
   }
-
   res.status(500).json({ message: error.message || "Internal server error." });
 });
-
-/* =========================================================
-   START SERVER
-========================================================= */
 
 async function startServer() {
   try {

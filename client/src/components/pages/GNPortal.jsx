@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-// Backend එකේ gnRoutes mount කර ඇත්තේ /api/gn යටතේ නම් එයට ගැළපෙන පරිදි Base URL සකස් කිරීම
 const API =
   import.meta.env.VITE_API_URL || 'http://localhost:5000/api/gn';
 
@@ -12,7 +11,6 @@ const dashboardWords = {
   en: {
     portalTitle: 'GN OFFICER PORTAL',
     overview: 'Overview',
-    dailyStatus: 'Daily Status',
     appointments: 'Appointments',
     villagers: 'Villagers',
     complaints: 'Complaints',
@@ -34,24 +32,6 @@ const dashboardWords = {
     pendingAppointments: 'Pending Appointments',
     pendingComplaints: 'Pending Complaints',
     publishedNotices: 'Active Notices',
-
-    updateDailyStatus: 'Daily Status & Working Hours',
-    currentStatus: 'Current Status',
-    statusNote: 'Status Note / Message',
-    updateStatusBtn: 'Update Status',
-    lastUpdated: 'Last updated',
-
-    available: 'Available',
-    busy: 'Busy',
-    onLeave: 'On Leave',
-    unavailable: 'Unavailable',
-
-    officeDays: 'Office Days',
-    officeHours: 'Office Hours',
-    fieldDays: 'Field Days',
-    fieldHours: 'Field Hours',
-    editProfile: 'Edit Officer Details',
-    saveProfile: 'Save Officer Details',
 
     publicAppointments: 'Public Appointments',
     searchApptPlaceholder: 'Search by Villager / Purpose...',
@@ -107,9 +87,13 @@ const dashboardWords = {
     searchNoticesPlaceholder: 'Search notices...',
     createNotice: '+ Create Notice',
     noticeTitle: 'Notice Title',
-    content: 'Content',
-    expiryDate: 'Expiry Date',
-    publish: 'Publish',
+    content: 'Full Content',
+    location: 'Location',
+    time: 'Time',
+    date: 'Date',
+    image: 'Image URL',
+    type: 'Notice Type',
+    publish: 'Publish Announcement',
 
     confirmDelete: 'Confirm Deletion',
     deleteWarning: 'Are you sure you want to delete',
@@ -129,10 +113,6 @@ const dashboardWords = {
     complaintDetails: 'Complaint Details',
     villagerDetails: 'Villager Details',
 
-    successStatus: 'Status updated successfully!',
-    failedStatus: 'Failed to update status.',
-    profileUpdated: 'Officer details updated successfully!',
-    profileUpdateFailed: 'Failed to update officer details.',
     appointmentAccepted: 'Appointment accepted.',
     appointmentDeclined: 'Appointment declined.',
     noteSaved: 'Note saved successfully.',
@@ -140,16 +120,15 @@ const dashboardWords = {
     villagerCreated: 'Villager created successfully.',
     villagerUpdated: 'Villager updated successfully.',
     villagerDeleted: 'Villager deleted successfully.',
-    noticeCreated: 'Notice published successfully.',
-    noticeUpdated: 'Notice updated successfully.',
-    noticeDeleted: 'Notice deleted successfully.',
+    noticeCreated: 'Announcement published successfully.',
+    noticeUpdated: 'Announcement updated successfully.',
+    noticeDeleted: 'Announcement deleted successfully.',
     actionFailed: 'Action failed. Please try again.',
   },
 
   si: {
     portalTitle: 'ග්‍රාම නිලධාරී පෝර්ටලය',
     overview: 'සාරාංශය',
-    dailyStatus: 'දෛනික තත්ත්වය',
     appointments: 'හමුවීම්',
     villagers: 'පුරවැසියන්',
     complaints: 'පැමිණිලි',
@@ -171,24 +150,6 @@ const dashboardWords = {
     pendingAppointments: 'පොරොත්තු හමුවීම්',
     pendingComplaints: 'පොරොත්තු පැමිණිලි',
     publishedNotices: 'ක්‍රියාකාරී නිවේදන',
-
-    updateDailyStatus: 'දෛනික තත්ත්වය සහ සේවා කාලය',
-    currentStatus: 'වත්මන් තත්ත්වය',
-    statusNote: 'විස්තරය / හේතුව',
-    updateStatusBtn: 'තත්ත්වය සුරකින්න',
-    lastUpdated: 'අවසන් වරට යාවත්කාලීන කළේ',
-
-    available: 'සේවයේ',
-    busy: 'කාර්යබහුල',
-    onLeave: 'නිවාඩුවේ',
-    unavailable: 'සේවයේ නොමැත',
-
-    officeDays: 'කාර්යාල දින',
-    officeHours: 'කාර්යාල වේලාවන්',
-    fieldDays: 'ක්ෂේත්‍ර දින',
-    fieldHours: 'ක්ෂේත්‍ර වේලාවන්',
-    editProfile: 'නිලධාරී තොරතුරු සංස්කරණය',
-    saveProfile: 'තොරතුරු සුරකින්න',
 
     publicAppointments: 'මහජන හමුවීම් ලැයිස්තුව',
     searchApptPlaceholder: 'නම හෝ අරමුණ අනුව සොයන්න...',
@@ -235,7 +196,7 @@ const dashboardWords = {
     searchComplaintsPlaceholder: 'පැමිණිලි සොයන්න...',
     subject: 'මාතෘකාව',
     category: 'වර්ගය',
-    description: 'විස්තරය',
+    description: 'කෙටි විස්තරය',
     officerReply: 'නිලධාරී පිළිතුර',
     replyStatus: 'පිළිතුර / තත්ත්වය',
     saveResponse: 'පිළිතුර සුරකින්න',
@@ -244,8 +205,12 @@ const dashboardWords = {
     searchNoticesPlaceholder: 'නිවේදන සොයන්න...',
     createNotice: '+ නිවේදනයක් පළකරන්න',
     noticeTitle: 'නිවේදන මාතෘකාව',
-    content: 'අන්තර්ගතය',
-    expiryDate: 'කල් ඉකුත්වන දිනය',
+    content: 'සම්පූර්ණ අන්තර්ගතය',
+    location: 'ස්ථානය',
+    time: 'වේලාව',
+    date: 'දිනය',
+    image: 'ඡායාරූප සබැඳිය (Image URL)',
+    type: 'වර්ගය (Type)',
     publish: 'පළකරන්න',
 
     confirmDelete: 'මැකීම තහවුරු කරන්න',
@@ -266,10 +231,6 @@ const dashboardWords = {
     complaintDetails: 'පැමිණිලි විස්තර',
     villagerDetails: 'පුරවැසි විස්තර',
 
-    successStatus: 'තත්ත්වය සාර්ථකව යාවත්කාලීන කරන ලදී!',
-    failedStatus: 'තත්ත්වය යාවත්කාලීන කිරීමට නොහැකි විය.',
-    profileUpdated: 'නිලධාරී තොරතුරු සාර්ථකව යාවත්කාලීන කරන ලදී!',
-    profileUpdateFailed: 'තොරතුරු යාවත්කාලීන කිරීමට නොහැකි විය.',
     appointmentAccepted: 'හමුවීම පිළිගන්නා ලදී.',
     appointmentDeclined: 'හමුවීම ප්‍රතික්ෂේප කරන ලදී.',
     noteSaved: 'සටහන සාර්ථකව සුරකින ලදී.',
@@ -286,7 +247,6 @@ const dashboardWords = {
   ta: {
     portalTitle: 'கிராம நிலதாரி போர்டல்',
     overview: 'கண்ணோட்டம்',
-    dailyStatus: 'தினசரி நிலை',
     appointments: 'சந்திப்புகள்',
     villagers: 'கிராம மக்கள்',
     complaints: 'முறைப்பாடுகள்',
@@ -308,24 +268,6 @@ const dashboardWords = {
     pendingAppointments: 'நிலுவையிலுள்ள சந்திப்புகள்',
     pendingComplaints: 'நிலுவையிலுள்ள முறைப்பாடுகள்',
     publishedNotices: 'செயலில் உள்ள அறிவிப்புகள்',
-
-    updateDailyStatus: 'தினசரி நிலை மற்றும் வேலை நேரம்',
-    currentStatus: 'தற்போதைய நிலை',
-    statusNote: 'குறிப்பு / காரணம்',
-    updateStatusBtn: 'நிலையைச் சேமிக்கவும்',
-    lastUpdated: 'கடைசியாக புதுப்பிக்கப்பட்டது',
-
-    available: 'கிடைக்கிறது',
-    busy: 'பிஸி',
-    onLeave: 'விடுப்பில்',
-    unavailable: 'கிடைக்கவில்லை',
-
-    officeDays: 'அலுவலக நாட்கள்',
-    officeHours: 'அலுவலக நேரம்',
-    fieldDays: 'கள நாட்கள்',
-    fieldHours: 'கள நேரம்',
-    editProfile: 'அதிகாரி விபரங்களைத் திருத்து',
-    saveProfile: 'சேமிக்கவும்',
 
     publicAppointments: 'பொது சந்திப்புகள்',
     searchApptPlaceholder: 'பெயர் அல்லது நோக்கம் மூலம் தேடவும்...',
@@ -382,7 +324,11 @@ const dashboardWords = {
     createNotice: '+ புதிய அறிவிப்பு',
     noticeTitle: 'தலைப்பு',
     content: 'உள்ளடக்கம்',
-    expiryDate: 'காலாவதி திகதி',
+    location: 'இடம்',
+    time: 'நேரம்',
+    date: 'திகதி',
+    image: 'படம்',
+    type: 'வகை',
     publish: 'வெளியிடு',
 
     confirmDelete: 'நீக்குவதை உறுதிப்படுத்தவும்',
@@ -403,10 +349,6 @@ const dashboardWords = {
     complaintDetails: 'முறைப்பாடு விபரங்கள்',
     villagerDetails: 'கிராமவாசி விபரங்கள்',
 
-    successStatus: 'நிலை வெற்றிகரமாக புதுப்பிக்கப்பட்டது!',
-    failedStatus: 'நிலையை புதுப்பிக்க முடியவில்லை.',
-    profileUpdated: 'அதிகாரி விபரம் புதுப்பிக்கப்பட்டது!',
-    profileUpdateFailed: 'புதுப்பிக்க முடியவில்லை.',
     appointmentAccepted: 'சந்திப்பு ஏற்றுக்கொள்ளப்பட்டது.',
     appointmentDeclined: 'சந்திப்பு நிராகரிக்கப்பட்டது.',
     noteSaved: 'குறிப்பு வெற்றிகரமாக சேமிக்கப்பட்டது.',
@@ -436,7 +378,7 @@ const GNPortal = () => {
     localStorage.getItem('gramalk_lang') || 'si'
   );
 
-  const [officerUser, setOfficerUser] = useState(null);
+  const [officerName, setOfficerName] = useState('Kanchana Perera');
 
   const t = (key) =>
     dashboardWords[lang]?.[key] ||
@@ -455,40 +397,6 @@ const GNPortal = () => {
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastRefreshed, setLastRefreshed] = useState(null);
-
-  /* =========================================================
-     OFFICER PROFILE & WORKING HOURS
-  ========================================================= */
-
-  const [officerDetails, setOfficerDetails] = useState({
-    _id: null,
-    fullName: 'Kanchana Perera',
-    position: 'Grama Niladhari',
-    division: 'Colombo 04',
-    personImage: '/images/gn-officer.jpg',
-    officeDays: 'Monday – Friday',
-    officeHours: '8:30 AM – 4:15 PM',
-    fieldDays: 'According to field schedule',
-    fieldHours: 'Scheduled field visits',
-    phone: '+94 XX XXX XXXX',
-    email: 'gn-office@example.lk',
-  });
-
-  const [editProfileModal, setEditProfileModal] = useState(false);
-  const [profileSaving, setProfileSaving] = useState(false);
-
-  /* =========================================================
-     DAILY STATUS
-  ========================================================= */
-
-  const [statusState, setStatusState] = useState({
-    status: 'Available',
-    statusMessage: '',
-    updatedAt: new Date().toLocaleTimeString(),
-  });
-
-  const [statusSaving, setStatusSaving] = useState(false);
 
   /* =========================================================
      APPOINTMENTS
@@ -541,7 +449,7 @@ const GNPortal = () => {
   const [complaintDetails, setComplaintDetails] = useState(null);
 
   /* =========================================================
-     NOTICES
+     NOTICES / ANNOUNCEMENTS
   ========================================================= */
 
   const [notices, setNotices] = useState([]);
@@ -625,17 +533,14 @@ const GNPortal = () => {
     else setLoading(true);
 
     try {
-      // Backend gnRoutes endpoints call කිරීම
       const results = await Promise.allSettled([
         apiRequest(`${API}/appointments`),
         apiRequest(`${API}/villagers`),
         apiRequest(`${API}/complaints`),
         apiRequest(`${API}/announcements`),
-        apiRequest(`${API}/offices`),
       ]);
 
-      const [apptResult, villagersResult, compResult, noticeResult, officesResult] =
-        results;
+      const [apptResult, villagersResult, compResult, noticeResult] = results;
 
       if (apptResult.status === 'fulfilled') {
         setAppointments(
@@ -661,35 +566,6 @@ const GNPortal = () => {
         );
       }
 
-      if (officesResult.status === 'fulfilled') {
-        const officesData = officesResult.value;
-        const officeList = Array.isArray(officesData)
-          ? officesData
-          : officesData?.offices || [];
-        const gn = officeList.find(
-          (o) => String(o.type || '').toLowerCase() === 'gn office'
-        ) || officeList[0];
-        
-        if (gn) {
-          setOfficerDetails((prev) => ({
-            ...prev,
-            _id: gn._id,
-            fullName: gn.personName || gn.name || prev.fullName,
-            position: gn.position || prev.position,
-            division: gn.division || prev.division,
-            personImage: gn.personImage || gn.image || prev.personImage,
-            officeDays: gn.officeDays || prev.officeDays,
-            officeHours: gn.officeHours || prev.officeHours,
-            fieldDays: gn.fieldDays || prev.fieldDays,
-            fieldHours: gn.fieldHours || prev.fieldHours,
-            phone: gn.phone || prev.phone,
-            email: gn.email || prev.email,
-          }));
-        }
-      }
-
-      setLastRefreshed(new Date());
-
       if (isRefresh) {
         showAlert(
           lang === 'si'
@@ -713,29 +589,12 @@ const GNPortal = () => {
   ========================================================= */
 
   useEffect(() => {
-    const localUpdated = localStorage.getItem('gramalk_gn_details');
-    if (localUpdated) {
-      try {
-        const parsed = JSON.parse(localUpdated);
-        setOfficerDetails((prev) => ({
-          ...prev,
-          ...parsed,
-        }));
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
     const storedUser = localStorage.getItem('gramalk_user');
     if (storedUser) {
       try {
         const parsed = JSON.parse(storedUser);
-        setOfficerUser(parsed);
         if (parsed.fullName) {
-          setOfficerDetails((prev) => ({
-            ...prev,
-            fullName: parsed.fullName,
-          }));
+          setOfficerName(parsed.fullName);
         }
       } catch (error) {
         console.error(error);
@@ -758,7 +617,6 @@ const GNPortal = () => {
       setReplyModal({ open: false, complaint: null, reply: '', status: '' });
       setNoticeModal({ open: false, mode: 'create', data: null });
       setDeleteConfirm({ open: false, type: '', id: null, name: '' });
-      setEditProfileModal(false);
       setApptDetails(null);
       setVillagerDetails(null);
       setComplaintDetails(null);
@@ -767,83 +625,6 @@ const GNPortal = () => {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
-
-  /* =========================================================
-     SAVE OFFICER PROFILE
-  ========================================================= */
-
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
-    setProfileSaving(true);
-
-    const formData = new FormData(e.target);
-    const payload = Object.fromEntries(formData.entries());
-
-    try {
-      const officeId = officerDetails._id || 'default-gn-office';
-
-      await apiRequest(`${API}/offices/${officeId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          personName: payload.fullName,
-          position: payload.position,
-          division: payload.division,
-          officeDays: payload.officeDays,
-          officeHours: payload.officeHours,
-          fieldDays: payload.fieldDays,
-          fieldHours: payload.fieldHours,
-          phone: payload.phone,
-          email: payload.email,
-        }),
-      });
-
-      const updatedDetails = {
-        ...officerDetails,
-        ...payload,
-      };
-      setOfficerDetails(updatedDetails);
-      localStorage.setItem('gramalk_gn_details', JSON.stringify(updatedDetails));
-
-      showAlert(t('profileUpdated'));
-      setEditProfileModal(false);
-    } catch (error) {
-      console.error(error);
-      showAlert(t('profileUpdateFailed'), 'error');
-    } finally {
-      setProfileSaving(false);
-    }
-  };
-
-  /* =========================================================
-     DAILY STATUS UPDATE
-  ========================================================= */
-
-  const handleUpdateStatus = async (e) => {
-    e.preventDefault();
-    setStatusSaving(true);
-
-    try {
-      await apiRequest(`${API}/officers/status`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          status: statusState.status,
-          statusMessage: statusState.statusMessage,
-        }),
-      });
-
-      setStatusState((prev) => ({
-        ...prev,
-        updatedAt: new Date().toLocaleTimeString(),
-      }));
-
-      showAlert(t('successStatus'));
-    } catch (error) {
-      console.error(error);
-      showAlert(t('failedStatus'), 'error');
-    } finally {
-      setStatusSaving(false);
-    }
-  };
 
   /* =========================================================
      APPOINTMENT ACTIONS
@@ -860,7 +641,7 @@ const GNPortal = () => {
 
       setAppointments((prev) =>
         prev.map((a) =>
-          (a._id === id || a.id === id) ? { ...a, status: newStatus } : a
+          a._id === id || a.id === id ? { ...a, status: newStatus } : a
         )
       );
 
@@ -888,7 +669,7 @@ const GNPortal = () => {
 
       setAppointments((prev) =>
         prev.map((a) =>
-          (a._id === apptId || a.id === apptId) ? { ...a, officerNote: note } : a
+          a._id === apptId || a.id === apptId ? { ...a, officerNote: note } : a
         )
       );
 
@@ -901,7 +682,7 @@ const GNPortal = () => {
   };
 
   /* =========================================================
-     VILLAGER CRUD (Fixed with /villagers endpoint)
+     VILLAGER CRUD
   ========================================================= */
 
   const handleSaveVillager = async (e) => {
@@ -963,7 +744,7 @@ const GNPortal = () => {
   };
 
   /* =========================================================
-     COMPLAINTS & NOTICES ACTIONS (Fixed with officerNote & status)
+     COMPLAINTS & NOTICES ACTIONS
   ========================================================= */
 
   const handleSaveComplaintReply = async (e) => {
@@ -971,8 +752,7 @@ const GNPortal = () => {
     const { complaint, reply, status } = replyModal;
 
     try {
-      // Backend එකේ PATCH /complaints/:id/status endpoint එක භාවිතය
-      const updated = await apiRequest(`${API}/complaints/${complaint._id}/status`, {
+      await apiRequest(`${API}/complaints/${complaint._id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ officerNote: reply, status }),
       });
@@ -995,6 +775,15 @@ const GNPortal = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData.entries());
+
+    if (!payload.description && payload.content) {
+      payload.description = payload.content;
+    }
+    if (!payload.image) {
+      payload.image =
+        'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop';
+    }
+
     const isEdit = noticeModal.mode === 'edit';
     const url = isEdit
       ? `${API}/announcements/${noticeModal.data._id}`
@@ -1062,28 +851,24 @@ const GNPortal = () => {
     });
   }, [complaints, complaintFilter, complaintSearch]);
 
-  const getNoticeStatus = (notice) => {
-    if (notice.expiryDate && new Date(notice.expiryDate) < new Date()) {
-      return 'Expired';
-    }
-    return notice.status || 'Published';
-  };
-
   const filteredNotices = useMemo(() => {
     const search = noticeSearch.toLowerCase();
     return notices.filter((n) => {
-      const currentStatus = getNoticeStatus(n);
-      const matchFilter = noticeFilter === 'All' || currentStatus === noticeFilter;
+      const matchFilter =
+        noticeFilter === 'All' ||
+        (n.type || 'Announcements') === noticeFilter ||
+        (n.category || '') === noticeFilter;
       const matchSearch =
         (n.title || '').toLowerCase().includes(search) ||
-        (n.category || '').toLowerCase().includes(search);
+        (n.category || '').toLowerCase().includes(search) ||
+        (n.location || '').toLowerCase().includes(search);
       return matchFilter && matchSearch;
     });
   }, [notices, noticeSearch, noticeFilter]);
 
   const pendingAppointmentsCount = appointments.filter((a) => a.status === 'Pending').length;
   const pendingComplaintsCount = complaints.filter((c) => c.status === 'Pending').length;
-  const publishedNoticesCount = notices.filter((n) => getNoticeStatus(n) === 'Published').length;
+  const publishedNoticesCount = notices.length;
 
   const todayString = new Date().toISOString().split('T')[0];
   const todaysAppointments = appointments.filter((a) => (a.date || '').startsWith(todayString));
@@ -1188,7 +973,6 @@ const GNPortal = () => {
             fontWeight: '600',
             fontSize: '13px',
             maxWidth: '350px',
-            animation: 'fadeInSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
           {alert.type === 'error' ? '⚠️ ' : '✓ '}
@@ -1210,7 +994,6 @@ const GNPortal = () => {
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '12px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-            
             {/* LOGO */}
             <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}>
               <img src="/images/logo.png" alt="GramaLK Logo" style={{ height: '40px', width: 'auto' }} onError={(e) => { e.target.style.display = 'none'; }} />
@@ -1228,7 +1011,6 @@ const GNPortal = () => {
             <nav style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {[
                 { id: 'overview', label: t('overview') },
-                { id: 'status', label: t('dailyStatus') },
                 { id: 'appointments', label: `${t('appointments')} (${pendingAppointmentsCount})` },
                 { id: 'villagers', label: t('villagers') },
                 { id: 'complaints', label: `${t('complaints')} (${pendingComplaintsCount})` },
@@ -1272,25 +1054,22 @@ const GNPortal = () => {
 
               <div style={{ borderLeft: '1px solid #cbd5e1', paddingLeft: '10px', display: 'flex', alignItems: 'center', gap: '7px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '600' }}>
-                  👤 {officerDetails.fullName}
+                  👤 {officerName}
                 </span>
                 <a href="/" style={{ color: '#ef4444', textDecoration: 'none', fontSize: '12px' }}>
                   {t('logout')}
                 </a>
               </div>
             </div>
-
           </div>
         </div>
       </header>
 
       {/* MAIN CONTAINER */}
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '30px 20px 60px' }}>
-
-        {/* OVERVIEW SECTION */}
+        {/* OVERVIEW SECTION (Cleaned - Officer card removed) */}
         {activeSection === 'overview' && (
-          <section style={{ animation: 'fadeInSlide 0.4s ease-out' }}>
-            
+          <section>
             {/* HERO BANNER */}
             <div
               style={{
@@ -1315,7 +1094,7 @@ const GNPortal = () => {
                   🌿 {t('portalTitle')}
                 </span>
                 <h1 style={{ margin: 0, fontSize: '30px', fontWeight: '800', letterSpacing: '-0.5px' }}>
-                  {t('welcome')}, {officerDetails.fullName} 👋
+                  {t('welcome')}, {officerName} 👋
                 </h1>
                 <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: '14px', maxWidth: '580px', lineHeight: 1.5 }}>
                   {t('dashboardSubtitle')}
@@ -1340,56 +1119,6 @@ const GNPortal = () => {
                   }}
                 >
                   {refreshing ? `⟳ ${t('refreshing')}` : `🔄 ${t('refresh')}`}
-                </button>
-              </div>
-            </div>
-
-            {/* REALTIME STATUS BAR */}
-            <div
-              style={{
-                backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
-                border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0',
-                borderRadius: '18px',
-                padding: '18px 24px',
-                marginBottom: '28px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '15px',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span
-                  style={{
-                    width: '14px',
-                    height: '14px',
-                    borderRadius: '50%',
-                    backgroundColor: statusColor(statusState.status),
-                    display: 'inline-block',
-                    boxShadow: `0 0 0 6px ${statusColor(statusState.status)}25`,
-                    animation: statusState.status === 'Available' ? 'pulseGreen 2s infinite' : 'none',
-                  }}
-                />
-                <div>
-                  <strong style={{ fontSize: '15px' }}>
-                    {t('currentStatus')}: {translateStatus(statusState.status, t)}
-                  </strong>
-                  {statusState.statusMessage && (
-                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                      {statusState.statusMessage}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <small style={{ color: '#64748b', fontSize: '11px' }}>
-                  {t('lastUpdated')}: {statusState.updatedAt}
-                </small>
-                <button onClick={() => goTo('status')} style={btnActionOutline}>
-                  {t('updateStatusBtn')} →
                 </button>
               </div>
             </div>
@@ -1572,221 +1301,6 @@ const GNPortal = () => {
                 </div>
               )}
             </section>
-
-          </section>
-        )}
-
-        {/* STATUS SECTION */}
-        {activeSection === 'status' && (
-          <section style={{ animation: 'fadeInSlide 0.4s ease-out' }}>
-            
-            {/* OFFICER PROFILE CARD */}
-            <div
-              style={{
-                borderRadius: '24px',
-                overflow: 'hidden',
-                backgroundColor: theme === 'dark' ? '#1e293b' : '#f0fdf4',
-                border: theme === 'dark' ? '1px solid #334155' : '1px solid #dcfce7',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                marginBottom: '28px',
-              }}
-            >
-              <div
-                style={{
-                  position: 'relative',
-                  backgroundColor: '#000',
-                  minHeight: '340px',
-                  display: 'flex',
-                  alignItems: 'flex-end',
-                  justifyContent: 'center',
-                }}
-              >
-                <img
-                  src={officerDetails.personImage || '/images/gn-officer.jpg'}
-                  alt="GN Officer"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                  }}
-                  onError={(e) => {
-                    e.target.src = '/images/gn-officer.jpg';
-                  }}
-                />
-
-                <div
-                  style={{
-                    position: 'relative',
-                    zIndex: 2,
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    padding: '8px 16px',
-                    margin: '16px',
-                    borderRadius: '6px',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
-                    border: '1px solid #cbd5e1',
-                    alignSelf: 'flex-start',
-                  }}
-                >
-                  <strong style={{ display: 'block', fontSize: '13px', color: '#111827', textTransform: 'uppercase' }}>
-                    {officerDetails.fullName}
-                  </strong>
-                  <span style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase' }}>
-                    GRAMA NILADHARI - {officerDetails.division}
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ padding: '35px 30px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ color: '#15803d', fontWeight: '800', fontSize: '12px', letterSpacing: '1px' }}>
-                    GN OFFICER
-                  </span>
-
-                  <button
-                    onClick={() => setEditProfileModal(true)}
-                    style={{
-                      ...btnActionOutline,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      fontSize: '12px',
-                      padding: '6px 12px',
-                    }}
-                  >
-                    ✏️ {t('editProfile')}
-                  </button>
-                </div>
-
-                <h1 style={{ margin: '0 0 2px', fontSize: '32px', fontWeight: '800', color: theme === 'dark' ? '#f8fafc' : '#111827' }}>
-                  {officerDetails.fullName}
-                </h1>
-
-                <p style={{ margin: '0 0 24px', fontSize: '15px', color: '#16a34a', fontWeight: '600' }}>
-                  {officerDetails.position}
-                </p>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: '14px',
-                    marginBottom: '24px',
-                  }}
-                >
-                  <div style={scheduleMiniCard(theme)}>
-                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      📅 {t('officeDays')}
-                    </span>
-                    <strong style={{ fontSize: '13px', marginTop: '4px', display: 'block' }}>
-                      {officerDetails.officeDays}
-                    </strong>
-                  </div>
-
-                  <div style={scheduleMiniCard(theme)}>
-                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      🕒 {t('officeHours')}
-                    </span>
-                    <strong style={{ fontSize: '13px', marginTop: '4px', display: 'block' }}>
-                      {officerDetails.officeHours}
-                    </strong>
-                  </div>
-
-                  <div style={scheduleMiniCard(theme)}>
-                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      📍 {t('fieldDays')}
-                    </span>
-                    <strong style={{ fontSize: '13px', marginTop: '4px', display: 'block' }}>
-                      {officerDetails.fieldDays}
-                    </strong>
-                  </div>
-
-                  <div style={scheduleMiniCard(theme)}>
-                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      🕒 {t('fieldHours')}
-                    </span>
-                    <strong style={{ fontSize: '13px', marginTop: '4px', display: 'block' }}>
-                      {officerDetails.fieldHours}
-                    </strong>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap', fontSize: '13px', fontWeight: '600', color: theme === 'dark' ? '#94a3b8' : '#166534' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    ☎ {officerDetails.phone}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    ✉ {officerDetails.email}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* DAILY STATUS UPDATE FORM */}
-            <div style={panelStyle(theme)}>
-              <h2 style={sectionHeading}>{t('updateDailyStatus')}</h2>
-
-              <form
-                onSubmit={handleUpdateStatus}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 2fr auto',
-                  gap: '15px',
-                  alignItems: 'end',
-                }}
-              >
-                <div>
-                  <label style={labelStyle}>{t('currentStatus')}</label>
-                  <select
-                    value={statusState.status}
-                    onChange={(e) => setStatusState({ ...statusState, status: e.target.value })}
-                    style={inputStyle(theme)}
-                  >
-                    <option value="Available">{t('available')}</option>
-                    <option value="Busy">{t('busy')}</option>
-                    <option value="On Leave">{t('onLeave')}</option>
-                    <option value="Unavailable">{t('unavailable')}</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={labelStyle}>{t('statusNote')}</label>
-                  <input
-                    type="text"
-                    value={statusState.statusMessage}
-                    onChange={(e) => setStatusState({ ...statusState, statusMessage: e.target.value })}
-                    style={inputStyle(theme)}
-                    placeholder={
-                      lang === 'si'
-                        ? 'උදා: පෙ.ව. 10 සිට 12 දක්වා කාර්යාලයේ සිටිමි'
-                        : 'Example: Available at office until 12 PM'
-                    }
-                  />
-                </div>
-
-                <button type="submit" disabled={statusSaving} style={btnPrimary}>
-                  {statusSaving ? '...' : t('updateStatusBtn')}
-                </button>
-              </form>
-
-              <div
-                style={{
-                  marginTop: '15px',
-                  padding: '12px',
-                  backgroundColor: theme === 'dark' ? '#0f172a' : '#f8fafc',
-                  borderRadius: '10px',
-                  fontSize: '12px',
-                  color: '#64748b',
-                }}
-              >
-                {t('lastUpdated')}: {statusState.updatedAt}
-              </div>
-            </div>
-
           </section>
         )}
 
@@ -2041,7 +1555,7 @@ const GNPortal = () => {
           </DataSection>
         )}
 
-        {/* NOTICES SECTION */}
+        {/* NOTICES / ANNOUNCEMENTS SECTION */}
         {activeSection === 'notices' && (
           <DataSection title={t('noticesTitle')} theme={theme}>
             <Toolbar>
@@ -2057,9 +1571,11 @@ const GNPortal = () => {
                 style={inputStyle(theme)}
               >
                 <option value="All">{t('allStatuses')}</option>
-                <option value="Draft">{t('draft')}</option>
-                <option value="Published">{t('published')}</option>
-                <option value="Expired">{t('expired')}</option>
+                <option value="Announcements">Announcements</option>
+                <option value="General">General</option>
+                <option value="Youth & Sports">Youth & Sports</option>
+                <option value="Welfare">Welfare</option>
+                <option value="Health">Health</option>
               </select>
               <button
                 onClick={() =>
@@ -2077,187 +1593,94 @@ const GNPortal = () => {
               <table style={tableStyle}>
                 <thead>
                   <tr style={thRowStyle(theme)}>
+                    <th style={{ ...tdThStyle, width: '60px' }}>Image</th>
                     <th style={tdThStyle}>{t('noticeTitle')}</th>
                     <th style={tdThStyle}>{t('category')}</th>
-                    <th style={tdThStyle}>{t('status')}</th>
-                    <th style={tdThStyle}>{t('expiryDate')}</th>
+                    <th style={tdThStyle}>{t('date')} & {t('time')}</th>
+                    <th style={tdThStyle}>{t('location')}</th>
                     <th style={{ ...tdThStyle, textAlign: 'center' }}>{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredNotices.length === 0 ? (
-                    <EmptyTableRow colSpan="5" text={t('noResults')} />
+                    <EmptyTableRow colSpan="6" text={t('noResults')} />
                   ) : (
-                    filteredNotices.map((n) => {
-                      const currentStatus = getNoticeStatus(n);
-                      return (
-                        <tr key={n._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                          <td style={tdThStyle}><strong>{n.title}</strong></td>
-                          <td style={tdThStyle}>{n.category || 'General'}</td>
-                          <td style={tdThStyle}>
-                            <span style={badgeStatus(currentStatus)}>
-                              {translateStatus(currentStatus, t)}
-                            </span>
-                          </td>
-                          <td style={tdThStyle}>{n.expiryDate || '-'}</td>
-                          <td style={{ ...tdThStyle, textAlign: 'center' }}>
-                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                              <button
-                                onClick={() =>
-                                  setNoticeModal({ open: true, mode: 'edit', data: n })
-                                }
-                                style={btnActionOutline}
-                              >
-                                {t('edit')}
-                              </button>
-                              <button
-                                onClick={() =>
-                                  setDeleteConfirm({
-                                    open: true,
-                                    type: 'notice',
-                                    id: n._id,
-                                    name: n.title,
-                                  })
-                                }
-                                style={btnActionRed}
-                              >
-                                {t('delete')}
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
+                    filteredNotices.map((n) => (
+                      <tr key={n._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={tdThStyle}>
+                          <div
+                            style={{
+                              width: '42px',
+                              height: '42px',
+                              minWidth: '42px',
+                              minHeight: '42px',
+                              borderRadius: '8px',
+                              backgroundColor: '#e2e8f0',
+                              overflow: 'hidden',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <img
+                              src={n.image || 'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop'}
+                              alt={n.title || 'Announcement'}
+                              loading="lazy"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="%2394a3b8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>';
+                              }}
+                            />
+                          </div>
+                        </td>
+                        <td style={tdThStyle}>
+                          <strong>{n.title}</strong>
+                          <div style={{ fontSize: '11px', color: '#64748b' }}>
+                            {n.description ? `${n.description.slice(0, 50)}...` : ''}
+                          </div>
+                        </td>
+                        <td style={tdThStyle}>
+                          <span style={badgeStatus('Accepted')}>
+                            {n.category || 'General'}
+                          </span>
+                        </td>
+                        <td style={tdThStyle}>{n.date || '-'} {n.time ? `at ${n.time}` : ''}</td>
+                        <td style={tdThStyle}>{n.location || '-'}</td>
+                        <td style={{ ...tdThStyle, textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            <button
+                              onClick={() =>
+                                setNoticeModal({ open: true, mode: 'edit', data: n })
+                              }
+                              style={btnActionOutline}
+                            >
+                              {t('edit')}
+                            </button>
+                            <button
+                              onClick={() =>
+                                setDeleteConfirm({
+                                  open: true,
+                                  type: 'notice',
+                                  id: n._id,
+                                  name: n.title,
+                                })
+                              }
+                              style={btnActionRed}
+                            >
+                              {t('delete')}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
             </div>
           </DataSection>
         )}
-
       </main>
-
-      {/* MODAL: EDIT OFFICER PROFILE */}
-      {editProfileModal && (
-        <Modal theme={theme} onClose={() => setEditProfileModal(false)}>
-          <h3 style={modalHeading}>✏️ {t('editProfile')}</h3>
-          <form onSubmit={handleSaveProfile}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-              <div>
-                <label style={labelStyle}>{t('fullName')}</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  defaultValue={officerDetails.fullName}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Position</label>
-                <input
-                  type="text"
-                  name="position"
-                  defaultValue={officerDetails.position}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Division / Area</label>
-                <input
-                  type="text"
-                  name="division"
-                  defaultValue={officerDetails.division}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('phone')}</label>
-                <input
-                  type="text"
-                  name="phone"
-                  defaultValue={officerDetails.phone}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('email')}</label>
-                <input
-                  type="email"
-                  name="email"
-                  defaultValue={officerDetails.email}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('officeDays')}</label>
-                <input
-                  type="text"
-                  name="officeDays"
-                  defaultValue={officerDetails.officeDays}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('officeHours')}</label>
-                <input
-                  type="text"
-                  name="officeHours"
-                  defaultValue={officerDetails.officeHours}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('fieldDays')}</label>
-                <input
-                  type="text"
-                  name="fieldDays"
-                  defaultValue={officerDetails.fieldDays}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('fieldHours')}</label>
-                <input
-                  type="text"
-                  name="fieldHours"
-                  defaultValue={officerDetails.fieldHours}
-                  required
-                  style={inputStyle(theme)}
-                />
-              </div>
-            </div>
-
-            <div style={modalActions}>
-              <button
-                type="button"
-                onClick={() => setEditProfileModal(false)}
-                style={btnActionOutline}
-              >
-                {t('cancel')}
-              </button>
-              <button type="submit" disabled={profileSaving} style={btnPrimary}>
-                {profileSaving ? '...' : t('saveProfile')}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
       {/* VILLAGER MODAL */}
       {villagerModal.open && (
@@ -2520,7 +1943,7 @@ const GNPortal = () => {
         </Modal>
       )}
 
-      {/* NOTICE MODAL */}
+      {/* NOTICE / ANNOUNCEMENT MODAL */}
       {noticeModal.open && (
         <Modal
           theme={theme}
@@ -2530,46 +1953,110 @@ const GNPortal = () => {
             {noticeModal.mode === 'edit' ? t('edit') : t('createNotice')}
           </h3>
           <form onSubmit={handleSaveNotice}>
-            <label style={labelStyle}>{t('noticeTitle')}</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={labelStyle}>{t('noticeTitle')}</label>
+                <input
+                  type="text"
+                  name="title"
+                  defaultValue={noticeModal.data?.title || ''}
+                  placeholder="Monthly meeting"
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('type')}</label>
+                <input
+                  type="text"
+                  name="type"
+                  defaultValue={noticeModal.data?.type || 'Announcements'}
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={labelStyle}>{t('category')}</label>
+                <input
+                  type="text"
+                  name="category"
+                  defaultValue={noticeModal.data?.category || 'Youth & Sports'}
+                  placeholder="Youth & Sports / General"
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('location')}</label>
+                <input
+                  type="text"
+                  name="location"
+                  defaultValue={noticeModal.data?.location || 'Grama Niladhari Office'}
+                  placeholder="Grama Niladhari Office"
+                  style={inputStyle(theme)}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={labelStyle}>{t('date')}</label>
+                <input
+                  type="text"
+                  name="date"
+                  defaultValue={noticeModal.data?.date || 'Oct 1, 2026'}
+                  placeholder="Oct 1, 2026"
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('time')}</label>
+                <input
+                  type="text"
+                  name="time"
+                  defaultValue={noticeModal.data?.time || '10:00 AM'}
+                  placeholder="10:00 AM"
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+            </div>
+
+            <label style={labelStyle}>{t('image')}</label>
             <input
               type="text"
-              name="title"
-              defaultValue={noticeModal.data?.title || ''}
+              name="image"
+              defaultValue={noticeModal.data?.image || 'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop'}
+              placeholder="https://images.unsplash.com/..."
+              style={inputStyle(theme)}
+            />
+
+            <label style={labelStyle}>{t('description')}</label>
+            <input
+              type="text"
+              name="description"
+              defaultValue={noticeModal.data?.description || ''}
+              placeholder="Short summary (e.g. All are invited)"
               required
               style={inputStyle(theme)}
             />
-            <label style={labelStyle}>{t('category')}</label>
-            <input
-              type="text"
-              name="category"
-              defaultValue={noticeModal.data?.category || 'General'}
-              style={inputStyle(theme)}
-            />
+
             <label style={labelStyle}>{t('content')}</label>
             <textarea
               name="content"
               defaultValue={noticeModal.data?.content || ''}
-              rows="5"
+              rows="3"
+              placeholder="Detailed description of the announcement..."
               required
               style={{ ...inputStyle(theme), resize: 'vertical' }}
             />
-            <label style={labelStyle}>{t('expiryDate')}</label>
-            <input
-              type="date"
-              name="expiryDate"
-              defaultValue={noticeModal.data?.expiryDate || ''}
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('status')}</label>
-            <select
-              name="status"
-              defaultValue={noticeModal.data?.status || 'Published'}
-              style={inputStyle(theme)}
-            >
-              <option value="Draft">{t('draft')}</option>
-              <option value="Published">{t('published')}</option>
-              <option value="Expired">{t('expired')}</option>
-            </select>
+
             <div style={modalActions}>
               <button
                 type="button"
@@ -2629,32 +2116,9 @@ const GNPortal = () => {
         </Modal>
       )}
 
-      {/* STYLES & ANIMATIONS */}
+      {/* HOVER CSS */}
       <style>
         {`
-          @keyframes fadeInSlide {
-            from {
-              opacity: 0;
-              transform: translateY(14px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          @keyframes pulseGreen {
-            0% {
-              box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
-            }
-            70% {
-              box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
-            }
-            100% {
-              box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
-            }
-          }
-
           .hover-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
@@ -2753,7 +2217,7 @@ const QuickAction = ({ theme, icon, text, onClick }) => (
 );
 
 const DataSection = ({ title, theme, children }) => (
-  <section style={{ ...panelStyle(theme), marginBottom: '30px', animation: 'fadeInSlide 0.3s ease-out' }}>
+  <section style={{ ...panelStyle(theme), marginBottom: '30px' }}>
     <h2 style={{ margin: '0 0 18px', fontSize: '20px' }}>{title}</h2>
     {children}
   </section>
@@ -2859,10 +2323,6 @@ const DetailRow = ({ label, value }) => (
 
 const translateStatus = (status, t) => {
   const map = {
-    Available: 'available',
-    Busy: 'busy',
-    'On Leave': 'onLeave',
-    Unavailable: 'unavailable',
     Pending: 'pending',
     Accepted: 'accepted',
     Declined: 'declined',
@@ -2873,14 +2333,6 @@ const translateStatus = (status, t) => {
     Expired: 'expired',
   };
   return t(map[status] || status);
-};
-
-const statusColor = (status) => {
-  if (status === 'Available') return '#16a34a';
-  if (status === 'Busy') return '#d97706';
-  if (status === 'On Leave') return '#ea580c';
-  if (status === 'Unavailable') return '#dc2626';
-  return '#64748b';
 };
 
 const panelStyle = (theme) => ({
@@ -2903,12 +2355,6 @@ const sectionTitle = {
   margin: '0 0 16px',
   fontSize: '17px',
   fontWeight: '700',
-};
-
-const sectionHeading = {
-  margin: '0 0 20px',
-  fontSize: '22px',
-  fontWeight: '800',
 };
 
 const modalHeading = {
@@ -3019,17 +2465,17 @@ const badgeStatus = (status) => {
   let bg = '#f1f5f9';
   let col = '#475569';
 
-  if (['Accepted', 'Resolved', 'Published', 'Available'].includes(status)) {
+  if (['Accepted', 'Resolved', 'Published'].includes(status)) {
     bg = '#dcfce7';
     col = '#15803d';
   }
 
-  if (['Pending', 'In Progress', 'Busy'].includes(status)) {
+  if (['Pending', 'In Progress'].includes(status)) {
     bg = '#fef3c7';
     col = '#b45309';
   }
 
-  if (['Declined', 'On Leave', 'Unavailable', 'Expired'].includes(status)) {
+  if (['Declined', 'Expired'].includes(status)) {
     bg = '#fee2e2';
     col = '#b91c1c';
   }

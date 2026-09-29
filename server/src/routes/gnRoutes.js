@@ -3,21 +3,56 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// Safe Model Loader (OverwriteModelError වැළැක්වීමට)
-const getModel = (name, collection) =>
-  mongoose.models[name] ||
-  mongoose.model(
-    name,
-    new mongoose.Schema({}, { strict: false, timestamps: true }),
-    collection
-  );
+// Safe Model Loader
+const getModel = (name, schema, collection) =>
+  mongoose.models[name] || mongoose.model(name, schema, collection);
 
-const Villager = getModel('Villager', 'villagers');
-const Appointment = getModel('Appointment', 'appointments');
-const Complaint = getModel('Complaint', 'complaints');
-const Announcement = getModel('Announcement', 'announcements');
-const Office = getModel('Office', 'offices');
-const Officer = getModel('Officer', 'officers');
+// Exact Announcement Schema with All Document Fields
+const announcementSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, default: '' },
+    content: { type: String, default: '' },
+    date: { type: String, default: '' },
+    time: { type: String, default: '' },
+    location: { type: String, default: 'Grama Niladhari Office' },
+    category: { type: String, default: 'Youth & Sports' },
+    type: { type: String, default: 'Announcements' },
+    image: {
+      type: String,
+      default:
+        'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop',
+    },
+  },
+  { timestamps: true, strict: false }
+);
+
+const Villager = getModel(
+  'Villager',
+  new mongoose.Schema({}, { strict: false, timestamps: true }),
+  'villagers'
+);
+const Appointment = getModel(
+  'Appointment',
+  new mongoose.Schema({}, { strict: false, timestamps: true }),
+  'appointments'
+);
+const Complaint = getModel(
+  'Complaint',
+  new mongoose.Schema({}, { strict: false, timestamps: true }),
+  'complaints'
+);
+const Announcement = getModel('Announcement', announcementSchema, 'announcements');
+const Office = getModel(
+  'Office',
+  new mongoose.Schema({}, { strict: false, timestamps: true }),
+  'offices'
+);
+const Officer = getModel(
+  'Officer',
+  new mongoose.Schema({}, { strict: false, timestamps: true }),
+  'officers'
+);
 
 // Middleware: MongoDB ObjectId පරීක්ෂාව
 const validateId = (req, res, next) => {
@@ -175,7 +210,7 @@ router.patch('/complaints/:id/status', validateId, async (req, res) => {
 });
 
 /* =========================================================
-   5. ANNOUNCEMENTS
+   5. ANNOUNCEMENTS (EXACT DATABASE STRUCTURE)
 ========================================================= */
 router.get('/announcements', async (req, res) => {
   try {
@@ -188,7 +223,21 @@ router.get('/announcements', async (req, res) => {
 
 router.post('/announcements', async (req, res) => {
   try {
-    const newNotice = new Announcement(req.body);
+    const payload = {
+      title: req.body.title,
+      description: req.body.description || req.body.content || '',
+      content: req.body.content || req.body.description || '',
+      date: req.body.date || '',
+      time: req.body.time || '',
+      location: req.body.location || 'Grama Niladhari Office',
+      category: req.body.category || 'Youth & Sports',
+      type: req.body.type || 'Announcements',
+      image:
+        req.body.image ||
+        'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop',
+    };
+
+    const newNotice = new Announcement(payload);
     await newNotice.save();
     res.status(201).json(newNotice);
   } catch (error) {
