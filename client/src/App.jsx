@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import "./index.css";
-// App.jsx හි නිවැරදි folder path එක ලබා දීම
-import WelfarePortal from "./components/pages/WelfarePortal";
 
+import WelfarePortal from "./components/pages/WelfarePortal";
+import YouthSportsPortal from "./components/pages/youthSportsPortal";
 const API =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -1586,7 +1587,10 @@ if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
      RENDER
   ======================================================= */
 
+  
   return (
+    <Routes>
+      <Route path="/" element={
     <div className="gramalk-app">
 
       {/* ===================================================
@@ -3993,5 +3997,9 @@ if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
         )}
 
     </div>
+      }/>
+      <Route path="/welfare-portal" element={<WelfarePortal />} />
+    <Route path="/youth-sports-portal" element={<YouthSportsPortal />} />
+  </Routes>  
   );
 }
