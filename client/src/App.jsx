@@ -613,13 +613,13 @@ const fallbackOffices = [
   {
     type: "GN Office",
     name: "Grama Niladhari Office",
-    personName: "GN Officer",
+    personName: "Kanchana Perera",
     position: "Grama Niladhari",
     personImage: "/images/gn-officer.jpg",
     phone: "+94 XX XXX XXXX",
     email: "gn-office@example.lk",
-    address: "Your GN Division, Sri Lanka",
-    mapQuery: "Your GN Division, Sri Lanka",
+    address: "Colombo 04, Sri Lanka",
+    mapQuery: "Colombo 04, Sri Lanka",
     image: "/images/gn-office.jpg",
     officeDays: "Monday – Friday",
     officeHours: "8:30 AM – 4:15 PM",
@@ -742,7 +742,6 @@ export default function App() {
   const [announcements, setAnnouncements] = useState([]);
 
   const [heroImageIndex, setHeroImageIndex] = useState(0);
-
   const [imageViewer, setImageViewer] = useState(null);
 
   const [portalModal, setPortalModal] = useState(false);
@@ -791,18 +790,12 @@ export default function App() {
   }, [lang]);
 
   useEffect(() => {
-    localStorage.setItem(
-      "gramalk_theme",
-      dark ? "dark" : "light"
-    );
-
-    document.documentElement.dataset.theme = dark
-      ? "dark"
-      : "light";
+    localStorage.setItem("gramalk_theme", dark ? "dark" : "light");
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
   }, [dark]);
 
   /* =======================================================
-     HERO IMAGE PRELOAD
+     HERO AUTO ROTATION
   ======================================================= */
 
   useEffect(() => {
@@ -810,59 +803,33 @@ export default function App() {
       const image = new Image();
       image.src = src;
     });
-  }, []);
 
-  /* =======================================================
-     HERO AUTO ROTATION
-  ======================================================= */
-
-  useEffect(() => {
     const timer = setInterval(() => {
-      setHeroImageIndex(
-        (current) =>
-          (current + 1) % heroImages.length
-      );
+      setHeroImageIndex((current) => (current + 1) % heroImages.length);
     }, 4500);
 
     return () => clearInterval(timer);
   }, []);
 
   /* =======================================================
-     VILLAGE GALLERY AUTO SIDE-BY-SIDE SCROLL
+     GALLERY AUTO SCROLL
   ======================================================= */
 
   useEffect(() => {
     const timer = setInterval(() => {
       const element = galleryRef.current;
-
       if (!element) return;
 
-      const card =
-        element.querySelector(".gallery-card");
-
-      const amount = card
-        ? card.getBoundingClientRect().width + 18
-        : 300;
-
-      const maxScroll =
-        element.scrollWidth -
-        element.clientWidth;
+      const card = element.querySelector(".gallery-card");
+      const amount = card ? card.getBoundingClientRect().width + 18 : 300;
+      const maxScroll = element.scrollWidth - element.clientWidth;
 
       if (maxScroll <= 0) return;
 
-      if (
-        element.scrollLeft >=
-        maxScroll - 5
-      ) {
-        element.scrollTo({
-          left: 0,
-          behavior: "smooth",
-        });
+      if (element.scrollLeft >= maxScroll - 5) {
+        element.scrollTo({ left: 0, behavior: "smooth" });
       } else {
-        element.scrollBy({
-          left: amount,
-          behavior: "smooth",
-        });
+        element.scrollBy({ left: amount, behavior: "smooth" });
       }
     }, 3000);
 
@@ -876,60 +843,31 @@ export default function App() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [
-          officesResponse,
-          formsResponse,
-          announcementsResponse,
-        ] = await Promise.all([
+        const [officesResponse, formsResponse, announcementsResponse] = await Promise.all([
           fetch(`${API}/offices`).catch(() => null),
           fetch(`${API}/forms`).catch(() => null),
           fetch(`${API}/announcements`).catch(() => null),
         ]);
 
         if (officesResponse?.ok) {
-          const data =
-            await officesResponse.json();
-
-          if (Array.isArray(data)) {
-            setOffices(data);
-          } else if (
-            Array.isArray(data?.offices)
-          ) {
-            setOffices(data.offices);
-          }
+          const data = await officesResponse.json();
+          if (Array.isArray(data)) setOffices(data);
+          else if (Array.isArray(data?.offices)) setOffices(data.offices);
         }
 
         if (formsResponse?.ok) {
-          const data =
-            await formsResponse.json();
-
-          if (Array.isArray(data)) {
-            setForms(data);
-          } else if (
-            Array.isArray(data?.forms)
-          ) {
-            setForms(data.forms);
-          }
+          const data = await formsResponse.json();
+          if (Array.isArray(data)) setForms(data);
+          else if (Array.isArray(data?.forms)) setForms(data.forms);
         }
 
         if (announcementsResponse?.ok) {
-          const data =
-            await announcementsResponse.json();
-
-          if (Array.isArray(data)) {
-            setAnnouncements(data);
-          } else if (
-            Array.isArray(data?.announcements)
-          ) {
-            setAnnouncements(
-              data.announcements
-            );
-          }
+          const data = await announcementsResponse.json();
+          if (Array.isArray(data)) setAnnouncements(data);
+          else if (Array.isArray(data?.announcements)) setAnnouncements(data.announcements);
         }
       } catch (error) {
-        console.log(
-          "Using GramaLK fallback data."
-        );
+        console.log("Using fallback data.");
       }
     }
 
@@ -944,54 +882,27 @@ export default function App() {
     () => [
       {
         id: "sample-1",
-        title: t(
-          "sampleAnnouncement1Title"
-        ),
-        description: t(
-          "sampleAnnouncement1Text"
-        ),
-        location:
-          lang === "si"
-            ? "ගම් ප්‍රජා මධ්‍යස්ථානය"
-            : lang === "ta"
-            ? "கிராம சமூக மையம்"
-            : "Village Community Centre",
+        title: t("sampleAnnouncement1Title"),
+        description: t("sampleAnnouncement1Text"),
+        location: lang === "si" ? "ගම් ප්‍රජා මධ්‍යස්ථානය" : lang === "ta" ? "கிராம சமூக மையம்" : "Village Community Centre",
         date: "2026-10-05",
         time: "09:00 AM – 01:00 PM",
         image: "/images/activity1.jpg",
       },
       {
         id: "sample-2",
-        title: t(
-          "sampleAnnouncement2Title"
-        ),
-        description: t(
-          "sampleAnnouncement2Text"
-        ),
-        location:
-          lang === "si"
-            ? "ග්‍රාම නිලධාරී කාර්යාලය"
-            : lang === "ta"
-            ? "கிராம நிலதாரி அலுவலகம்"
-            : "Grama Niladhari Office",
+        title: t("sampleAnnouncement2Title"),
+        description: t("sampleAnnouncement2Text"),
+        location: lang === "si" ? "ග්‍රාම නිලධාරී කාර්යාලය" : lang === "ta" ? "கிராம நிலதாரி அலுவலகம்" : "Grama Niladhari Office",
         date: "2026-10-08",
         time: "08:30 AM – 04:15 PM",
         image: "/images/gn-office.jpg",
       },
       {
         id: "sample-3",
-        title: t(
-          "sampleAnnouncement3Title"
-        ),
-        description: t(
-          "sampleAnnouncement3Text"
-        ),
-        location:
-          lang === "si"
-            ? "ප්‍රදේශීය සෞඛ්‍ය මධ්‍යස්ථානය"
-            : lang === "ta"
-            ? "உள்ளூர் சுகாதார மையம்"
-            : "Local Health Centre",
+        title: t("sampleAnnouncement3Title"),
+        description: t("sampleAnnouncement3Text"),
+        location: lang === "si" ? "ප්‍රදේශීය සෞඛ්‍ය මධ්‍යස්ථානය" : lang === "ta" ? "உள்ளூர் சுகாதார மையம்" : "Local Health Centre",
         date: "2026-10-12",
         time: "09:30 AM – 12:30 PM",
         image: "/images/health-office.jpg",
@@ -1000,189 +911,94 @@ export default function App() {
     [lang]
   );
 
-  const displayedAnnouncements =
-    announcements.length > 0
-      ? announcements
-      : sampleAnnouncements;
+  const displayedAnnouncements = announcements.length > 0 ? announcements : sampleAnnouncements;
 
   /* =======================================================
-     GN OFFICE
+     GN OFFICE (WITH REAL-TIME PARALLEL SYNC FROM PORTAL)
   ======================================================= */
 
-  const gnOffice = useMemo(
-    () =>
+  const gnOffice = useMemo(() => {
+    // 1. GN Portal එකෙන් update කළ නව විස්තර තියෙනවාදැයි බැලීම
+    const localUpdated = localStorage.getItem('gramalk_gn_details');
+    if (localUpdated) {
+      try {
+        const parsed = JSON.parse(localUpdated);
+        return {
+          ...fallbackOffices[0],
+          personName: parsed.fullName || fallbackOffices[0].personName,
+          position: parsed.position || fallbackOffices[0].position,
+          officeDays: parsed.officeDays || fallbackOffices[0].officeDays,
+          officeHours: parsed.officeHours || fallbackOffices[0].officeHours,
+          fieldDays: parsed.fieldDays || fallbackOffices[0].fieldDays,
+          fieldHours: parsed.fieldHours || fallbackOffices[0].fieldHours,
+          phone: parsed.phone || fallbackOffices[0].phone,
+          email: parsed.email || fallbackOffices[0].email,
+          address: parsed.division ? `${parsed.division}, Sri Lanka` : fallbackOffices[0].address,
+        };
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 2. Database එකෙන් පැමිණෙන විස්තර
+    return (
       offices.find(
-        (office) =>
-          String(
-            office.type || ""
-          ).toLowerCase() ===
-          "gn office"
-      ) || fallbackOffices[0],
-    [offices]
-  );
+        (office) => String(office.type || "").toLowerCase() === "gn office"
+      ) || fallbackOffices[0]
+    );
+  }, [offices]);
 
   /* =======================================================
-     FUNCTIONS
+     HELPERS & SUBMISSION
   ======================================================= */
 
-  const nextHero = () => {
-    setHeroImageIndex(
-      (current) =>
-        (current + 1) %
-        heroImages.length
-    );
-  };
-
-  const previousHero = () => {
-    setHeroImageIndex(
-      (current) =>
-        (current - 1 + heroImages.length) %
-        heroImages.length
-    );
-  };
-
-  const openImage = (
-    src,
-    title = ""
-  ) => {
-    setImageViewer({
-      src,
-      title,
-    });
-  };
+  const nextHero = () => setHeroImageIndex((c) => (c + 1) % heroImages.length);
+  const previousHero = () => setHeroImageIndex((c) => (c - 1 + heroImages.length) % heroImages.length);
+  const openImage = (src, title = "") => setImageViewer({ src, title });
 
   const scrollToSection = (id) => {
-    document
-      .getElementById(id)
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleComplaintTypeChange = (
-    value
-  ) => {
-    const type =
-      complaintTypes.find(
-        (item) =>
-          item.code === value
-      );
-
-    setComplaint(
-      (previous) => ({
-        ...previous,
-        type: value,
-        officer:
-          type?.officer ||
-          "GN Officer",
-      })
-    );
+  const handleComplaintTypeChange = (value) => {
+    const type = complaintTypes.find((item) => item.code === value);
+    setComplaint((p) => ({
+      ...p,
+      type: value,
+      officer: type?.officer || "GN Officer",
+    }));
   };
 
-  const getComplaintLabel = (
-    item
-  ) => {
-    if (lang === "si")
-      return item.si;
+  const getComplaintLabel = (item) => (lang === "si" ? item.si : lang === "ta" ? item.ta : item.en);
+  const getOfficerLabel = (item) => (lang === "si" ? item.si : lang === "ta" ? item.ta : item.en);
 
-    if (lang === "ta")
-      return item.ta;
-
-    return item.en;
-  };
-
-  const getOfficerLabel = (
-    item
-  ) => {
-    if (lang === "si")
-      return item.si;
-
-    if (lang === "ta")
-      return item.ta;
-
-    return item.en;
-  };
-
-  /* =======================================================
-     COMPLAINT
-  ======================================================= */
-
-  const submitComplaint = async (
-    event
-  ) => {
+  const submitComplaint = async (event) => {
     event.preventDefault();
-
     setComplaintMessage("");
 
     try {
-      const formData =
-        new FormData();
+      const formData = new FormData();
+      formData.append("type", complaint.type);
+      formData.append("officer", complaint.officer);
+      formData.append("location", complaint.location);
+      formData.append("description", complaint.description);
+      if (complaint.photo) formData.append("photo", complaint.photo);
 
-      formData.append(
-        "type",
-        complaint.type
-      );
+      const response = await fetch(`${API}/complaints`, {
+        method: "POST",
+        body: formData,
+      });
 
-      formData.append(
-        "officer",
-        complaint.officer
-      );
-
-      formData.append(
-        "location",
-        complaint.location
-      );
-
-      formData.append(
-        "description",
-        complaint.description
-      );
-
-      if (complaint.photo) {
-        formData.append(
-          "photo",
-          complaint.photo
-        );
-      }
-
-      const response =
-        await fetch(
-          `${API}/complaints`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-      const text =
-        await response.text();
-
+      const text = await response.text();
       let data = {};
+      try { data = JSON.parse(text); } catch { data = {}; }
 
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = {};
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Complaint failed"
-        );
-      }
+      if (!response.ok) throw new Error(data.message || "Complaint failed");
 
       setComplaintMessage(
         data.referenceNo
-          ? `${t(
-              "complaintSuccess"
-            )} Reference: ${
-              data.referenceNo
-            }`
-          : t(
-              "complaintSuccess"
-            )
+          ? `${t("complaintSuccess")} Reference: ${data.referenceNo}`
+          : t("complaintSuccess")
       );
 
       setComplaint({
@@ -1193,20 +1009,10 @@ export default function App() {
         photo: null,
       });
 
-      if (
-        complaintFileRef.current
-      ) {
-        complaintFileRef.current.value =
-          "";
-      }
+      if (complaintFileRef.current) complaintFileRef.current.value = "";
     } catch (error) {
       console.error(error);
-
-      setComplaintMessage(
-        t(
-          "complaintFailed"
-        )
-      );
+      setComplaintMessage(t("complaintFailed"));
     }
   };
 
@@ -1218,27 +1024,18 @@ export default function App() {
     setSelectedPortal(portal);
     setPortalModal(true);
     setLoginMessage("");
-    setLogin({
-      username: "",
-      password: "",
-      houseNumber: "",
-    });
+    setLogin({ username: "", password: "", houseNumber: "" });
   };
 
   const closePortalModal = () => {
     setPortalModal(false);
     setSelectedPortal(null);
     setLoginMessage("");
-    setLogin({
-      username: "",
-      password: "",
-      houseNumber: "",
-    });
+    setLogin({ username: "", password: "", houseNumber: "" });
   };
 
   const loginPortal = async (event) => {
     event.preventDefault();
-
     setLoginMessage("");
 
     if (!selectedPortal) {
@@ -1268,71 +1065,34 @@ export default function App() {
     try {
       const response = await fetch(`${API}/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username:
-            selectedPortal.id === "family"
-              ? ""
-              : login.username.trim(),
-
-          houseNumber:
-            selectedPortal.id === "family"
-              ? login.houseNumber.trim()
-              : "",
-
+          username: selectedPortal.id === "family" ? "" : login.username.trim(),
+          houseNumber: selectedPortal.id === "family" ? login.houseNumber.trim() : "",
           password: login.password,
         }),
       });
 
       const responseText = await response.text();
-
       let data = {};
-
-      try {
-        data = responseText
-          ? JSON.parse(responseText)
-          : {};
-      } catch {
-        data = {
-          message:
-            responseText ||
-            "The server returned an invalid response.",
-        };
+      try { data = responseText ? JSON.parse(responseText) : {}; } catch {
+        data = { message: responseText || "Server returned invalid response." };
       }
 
       if (!response.ok) {
-        setLoginMessage(
-          data.message || t("loginFailed")
-        );
+        setLoginMessage(data.message || t("loginFailed"));
         return;
       }
 
-      if (data.token) {
-        localStorage.setItem(
-          "gramalk_token",
-          data.token
-        );
-      }
-
-      if (data.user) {
-        localStorage.setItem(
-          "gramalk_user",
-          JSON.stringify(data.user)
-        );
-      }
+      if (data.token) localStorage.setItem("gramalk_token", data.token);
+      if (data.user) localStorage.setItem("gramalk_user", JSON.stringify(data.user));
 
       const role = data.user?.role;
-
       if (!role) {
-        setLoginMessage(
-          "Login successful, but the server did not return the user role."
-        );
+        setLoginMessage("Login successful, but server did not return user role.");
         return;
       }
 
-      // Portal → backend role
       const portalRoleMap = {
         family: "family",
         welfare: "welfare",
@@ -1341,65 +1101,36 @@ export default function App() {
         gn: "gnadmin",
       };
 
-      const expectedRole =
-        portalRoleMap[selectedPortal.id];
-
-      // Prevent an account from opening the wrong portal
-      if (
-        expectedRole &&
-        role !== expectedRole
-      ) {
-        setLoginMessage(
-          "This account does not belong to the selected portal."
-        );
+      const expectedRole = portalRoleMap[selectedPortal.id];
+      if (expectedRole && role !== expectedRole) {
+        setLoginMessage("This account does not belong to the selected portal.");
         return;
       }
 
-      setLoginMessage(
-        data.message || t("loginSuccess")
-      );
+      setLoginMessage(data.message || t("loginSuccess"));
 
-      // Redirect according to user role
       switch (role) {
         case "gnadmin":
-          window.location.href =
-            "/gn-portal";
+          window.location.href = "/gn-portal";
           break;
-
         case "welfare":
-          window.location.href =
-            "/welfare-portal";
+          window.location.href = "/welfare-portal";
           break;
-
         case "health":
-          window.location.href =
-            "/health-portal";
+          window.location.href = "/health-portal";
           break;
-
         case "deathaid":
-          window.location.href =
-            "/death-aid-portal";
+          window.location.href = "/death-aid-portal";
           break;
-
         case "family":
-          window.location.href =
-            "/family-portal";
+          window.location.href = "/family-portal";
           break;
-
         default:
-          setLoginMessage(
-            "Login successful, but no portal is assigned to this account."
-          );
+          setLoginMessage("Login successful, but no portal is assigned to this account.");
       }
     } catch (error) {
-      console.error(
-        "GramaLK login error:",
-        error
-      );
-
-      setLoginMessage(
-        "Cannot connect to the GramaLK server. Please make sure the backend server is running."
-      );
+      console.error("GramaLK login error:", error);
+      setLoginMessage("Cannot connect to server. Please ensure backend is running.");
     }
   };
 
@@ -1408,134 +1139,57 @@ export default function App() {
   ======================================================= */
 
   useEffect(() => {
-    if (
-      chatOpen &&
-      chatMessages.length === 0
-    ) {
-      setChatMessages([
-        {
-          role: "assistant",
-          content:
-            t("chatbotWelcome"),
-        },
-      ]);
+    if (chatOpen && chatMessages.length === 0) {
+      setChatMessages([{ role: "assistant", content: t("chatbotWelcome") }]);
     }
   }, [chatOpen, lang]);
 
   const sendChat = async () => {
-    const message =
-      chatInput.trim();
+    const message = chatInput.trim();
+    if (!message || chatBusy) return;
 
-    if (
-      !message ||
-      chatBusy
-    ) {
-      return;
-    }
-
-    setChatMessages(
-      (previous) => [
-        ...previous,
-        {
-          role: "user",
-          content: message,
-        },
-      ]
-    );
-
+    setChatMessages((p) => [...p, { role: "user", content: message }]);
     setChatInput("");
     setChatBusy(true);
 
     try {
       const websiteContext = {
         language: lang,
-
         gnOfficer: {
-          name:
-            gnOffice.personName,
-          position:
-            gnOffice.position,
-          phone:
-            gnOffice.phone,
-          email:
-            gnOffice.email,
-          address:
-            gnOffice.address,
-          officeDays:
-            gnOffice.officeDays,
-          officeHours:
-            gnOffice.officeHours,
-          fieldDays:
-            gnOffice.fieldDays,
-          fieldHours:
-            gnOffice.fieldHours,
+          name: gnOffice.personName,
+          position: gnOffice.position,
+          phone: gnOffice.phone,
+          email: gnOffice.email,
+          address: gnOffice.address,
+          officeDays: gnOffice.officeDays,
+          officeHours: gnOffice.officeHours,
+          fieldDays: gnOffice.fieldDays,
+          fieldHours: gnOffice.fieldHours,
         },
-
         offices,
         forms,
-        announcements:
-          displayedAnnouncements,
+        announcements: displayedAnnouncements,
         complaintTypes,
       };
 
-      const response =
-        await fetch(
-          `${API}/chat`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify({
-              message,
-              language: lang,
-              websiteContext,
-            }),
-          }
-        );
+      const response = await fetch(`${API}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, language: lang, websiteContext }),
+      });
 
-      const text =
-        await response.text();
-
+      const text = await response.text();
       let data = {};
+      try { data = JSON.parse(text); } catch { data = {}; }
 
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = {};
-      }
+      if (!response.ok) throw new Error(data.message || "Chatbot error");
 
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Chatbot error"
-        );
-      }
+      const reply = data.reply || data.message || data.answer;
+      if (!reply) throw new Error("No chatbot reply");
 
-      const reply =
-        data.reply ||
-        data.message ||
-        data.answer;
-
-      if (!reply) {
-        throw new Error(
-          "No chatbot reply"
-        );
-      }
-
-      setChatMessages(
-        (previous) => [
-          ...previous,
-          {
-            role: "assistant",
-            content: reply,
-          },
-        ]
-      );
+      setChatMessages((p) => [...p, { role: "assistant", content: reply }]);
     } catch (error) {
       console.error(error);
-
       const fallback =
         lang === "si"
           ? "සමාවන්න. දැනට සහායක සේවාව සම්බන්ධ කරගත නොහැක."
@@ -1543,16 +1197,7 @@ export default function App() {
           ? "மன்னிக்கவும். தற்போது உதவியாளர் சேவையை அணுக முடியவில்லை."
           : "Sorry. The assistant is currently unavailable.";
 
-      setChatMessages(
-        (previous) => [
-          ...previous,
-          {
-            role: "assistant",
-            content:
-              fallback,
-          },
-        ]
-      );
+      setChatMessages((p) => [...p, { role: "assistant", content: fallback }]);
     } finally {
       setChatBusy(false);
     }
@@ -1571,33 +1216,13 @@ export default function App() {
 
   return (
     <div className="gramalk-app">
-
-      {/* ===================================================
-          HEADER
-      =================================================== */}
-
+      {/* HEADER */}
       <header className="main-header">
         <div className="header-inner">
-
-          <button
-            className="brand"
-            onClick={() =>
-              scrollToSection(
-                "home"
-              )
-            }
-          >
-            <img
-              src="/images/logo.png"
-              alt="GramaLK"
-              className="brand-logo"
-            />
-
+          <button className="brand" onClick={() => scrollToSection("home")}>
+            <img src="/images/logo.png" alt="GramaLK" className="brand-logo" />
             <div className="brand-text">
-              <strong>
-                GramaLK
-              </strong>
-
+              <strong>GramaLK</strong>
               <span>
                 {lang === "si"
                   ? "ඩිජිටල් ප්‍රජා සේවා"
@@ -1609,304 +1234,128 @@ export default function App() {
           </button>
 
           <nav className="desktop-nav">
-            <a href="#home">
-              {t("home")}
-            </a>
-
-            <a href="#services">
-              {t("services")}
-            </a>
-
-            <a href="#announcements">
-              {t(
-                "announcements"
-              )}
-            </a>
-
-            <a href="#portals">
-              {t("portals")}
-            </a>
-
-            <a href="#offices">
-              {t("offices")}
-            </a>
-
-            <a href="#forms">
-              {t("forms")}
-            </a>
-
-            <a href="#complaint">
-              {t("complaint")}
-            </a>
+            <a href="#home">{t("home")}</a>
+            <a href="#services">{t("services")}</a>
+            <a href="#announcements">{t("announcements")}</a>
+            <a href="#portals">{t("portals")}</a>
+            <a href="#offices">{t("offices")}</a>
+            <a href="#forms">{t("forms")}</a>
+            <a href="#complaint">{t("complaint")}</a>
           </nav>
 
           <div className="header-controls">
-
             <select
               value={lang}
-              onChange={(
-                event
-              ) =>
-                setLang(
-                  event.target
-                    .value
-                )
-              }
-              aria-label={t(
-                "language"
-              )}
+              onChange={(e) => setLang(e.target.value)}
+              aria-label={t("language")}
               className="language-select"
             >
-              <option value="en">
-                English
-              </option>
-
-              <option value="si">
-                සිංහල
-              </option>
-
-              <option value="ta">
-                தமிழ்
-              </option>
+              <option value="en">English</option>
+              <option value="si">සිංහල</option>
+              <option value="ta">தமிழ்</option>
             </select>
 
             <button
               className="theme-button"
-              onClick={() =>
-                setDark(
-                  (value) =>
-                    !value
-                )
-              }
+              onClick={() => setDark((v) => !v)}
               aria-label="Toggle theme"
             >
-              {dark
-                ? "☀️"
-                : "🌙"}
+              {dark ? "☀️" : "🌙"}
             </button>
 
-            <button
-              className="header-login"
-              onClick={() =>
-                scrollToSection(
-                  "portals"
-                )
-              }
-            >
+            <button className="header-login" onClick={() => scrollToSection("portals")}>
               {t("login")}
             </button>
-
           </div>
         </div>
       </header>
 
-      {/* ===================================================
-          HERO
-      =================================================== */}
+      {/* HERO */}
+      <section className="hero-banner" id="home">
+        <div className="hero-slider" aria-label="GramaLK village highlights">
+          {heroImages.map((image, index) => (
+            <article
+              key={image}
+              className={`hero-slide ${index === heroImageIndex ? "active" : ""}`}
+              aria-hidden={index !== heroImageIndex}
+            >
+              <img
+                src={image}
+                alt={`Village ${index + 1}`}
+                onClick={() => index === heroImageIndex && openImage(image, `Village ${index + 1}`)}
+              />
+              <div className="hero-slide-shade" />
 
-      <section
-        className="hero-banner"
-        id="home"
-      >
-        <div
-          className="hero-slider"
-          aria-label="GramaLK village highlights"
-        >
+              {index === heroImageIndex && (
+                <div className="hero-slide-content">
+                  <span className="hero-eyebrow">
+                    {lang === "si"
+                      ? "ප්‍රාදේශීය ඩිජිටල් සේවා"
+                      : lang === "ta"
+                      ? "உள்ளூர் டிஜிட்டல் சேவைகள்"
+                      : "LOCAL DIGITAL COMMUNITY SERVICES"}
+                  </span>
 
-          {heroImages.map(
-            (
-              image,
-              index
-            ) => (
-              <article
-                key={image}
-                className={`hero-slide ${
-                  index ===
-                  heroImageIndex
-                    ? "active"
-                    : ""
-                }`}
-                aria-hidden={
-                  index !==
-                  heroImageIndex
-                }
-              >
+                  <h1 className="hero-title-shining">
+                    {lang === "si"
+                      ? "ඔබේ ගම, ඔබේ සේවා, එකම තැනක"
+                      : lang === "ta"
+                      ? "உங்கள் கிராமம், உங்கள் சேவைகள், ஒரே இடத்தில்"
+                      : "Your Village, Your Services, One Place"}
+                  </h1>
 
-                <img
-                  src={image}
-                  alt={`Village ${
-                    index + 1
-                  }`}
-                  onClick={() =>
-                    index ===
-                      heroImageIndex &&
-                    openImage(
-                      image,
-                      `Village ${
-                        index + 1
-                      }`
-                    )
-                  }
-                />
+                  <p>
+                    {lang === "si"
+                      ? "ප්‍රදේශීය තොරතුරු, රාජ්‍ය සේවා, නිවේදන සහ ප්‍රජා සම්බන්ධතා පහසුවෙන් ලබාගන්න."
+                      : lang === "ta"
+                      ? "உள்ளூர் தகவல்கள், அரச சேவைகள், அறிவிப்புகள் மற்றும் சமூக தொடர்புகளை ஒரே இடத்தில் எளிதாக அணுகுங்கள்."
+                      : "Access local information, government services, announcements and community support in one place."}
+                  </p>
 
-                <div className="hero-slide-shade" />
-
-                {index ===
-                  heroImageIndex && (
-                  <div className="hero-slide-content">
-
-                    <span className="hero-eyebrow">
-                      {lang === "si"
-                        ? "ප්‍රාදේශීය ඩිජිටල් සේවා"
-                        : lang === "ta"
-                        ? "உள்ளூர் டிஜிட்டல் சேவைகள்"
-                        : "LOCAL DIGITAL COMMUNITY SERVICES"}
-                    </span>
-
-                    <h1 className="hero-title-shining">
-                      {lang === "si"
-                        ? "ඔබේ ගම, ඔබේ සේවා, එකම තැනක"
-                        : lang === "ta"
-                        ? "உங்கள் கிராமம், உங்கள் சேவைகள், ஒரே இடத்தில்"
-                        : "Your Village, Your Services, One Place"}
-                    </h1>
-
-                    <p>
-                      {lang === "si"
-                        ? "ප්‍රදේශීය තොරතුරු, රාජ්‍ය සේවා, නිවේදන සහ ප්‍රජා සම්බන්ධතා පහසුවෙන් ලබාගන්න."
-                        : lang === "ta"
-                        ? "உள்ளூர் தகவல்கள், அரச சேவைகள், அறிவிப்புகள் மற்றும் சமூக தொடர்புகளை ஒரே இடத்தில் எளிதாக அணுகுங்கள்."
-                        : "Access local information, government services, announcements and community support in one place."}
-                    </p>
-
-                    <div className="hero-actions">
-
-                      <button
-                        className="primary-button"
-                        onClick={() =>
-                          scrollToSection(
-                            "services"
-                          )
-                        }
-                      >
-                        {t(
-                          "quickServices"
-                        )}
-                      </button>
-
-                      <button
-                        className="secondary-button"
-                        onClick={() =>
-                          setChatOpen(
-                            true
-                          )
-                        }
-                      >
-                        {t(
-                          "chatbot"
-                        )}
-                      </button>
-
-                    </div>
-
+                  <div className="hero-actions">
+                    <button className="primary-button" onClick={() => scrollToSection("services")}>
+                      {t("quickServices")}
+                    </button>
+                    <button className="secondary-button" onClick={() => setChatOpen(true)}>
+                      {t("chatbot")}
+                    </button>
                   </div>
-                )}
+                </div>
+              )}
+            </article>
+          ))}
 
-              </article>
-            )
-          )}
-
-          <button
-            className="hero-slider-arrow hero-prev"
-            onClick={
-              previousHero
-            }
-            aria-label="Previous slide"
-          >
-            ‹
-          </button>
-
-          <button
-            className="hero-slider-arrow hero-next"
-            onClick={
-              nextHero
-            }
-            aria-label="Next slide"
-          >
-            ›
-          </button>
+          <button className="hero-slider-arrow hero-prev" onClick={previousHero} aria-label="Previous slide">‹</button>
+          <button className="hero-slider-arrow hero-next" onClick={nextHero} aria-label="Next slide">›</button>
 
           <div className="hero-dots">
-
-            {heroImages.map(
-              (
-                image,
-                index
-              ) => (
-                <button
-                  key={image}
-                  className={`hero-dot ${
-                    index ===
-                    heroImageIndex
-                      ? "active"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    setHeroImageIndex(
-                      index
-                    )
-                  }
-                  aria-label={`Village image ${
-                    index + 1
-                  }`}
-                />
-              )
-            )}
-
+            {heroImages.map((image, index) => (
+              <button
+                key={image}
+                className={`hero-dot ${index === heroImageIndex ? "active" : ""}`}
+                onClick={() => setHeroImageIndex(index)}
+                aria-label={`Village image ${index + 1}`}
+              />
+            ))}
           </div>
 
           <div className="hero-slide-counter">
-            {heroImageIndex +
-              1}{" "}
-            /{" "}
-            {
-              heroImages.length
-            }
+            {heroImageIndex + 1} / {heroImages.length}
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          PURPOSE
-      =================================================== */}
-
+      {/* PURPOSE */}
       <section className="content-section purpose-section">
         <div className="section-container purpose-grid">
-
           <div className="purpose-content">
-
-            <span className="section-kicker">
-              GramaLK
-            </span>
-
-            <h2>
-              {t(
-                "purposeTitle"
-              )}
-            </h2>
-
-            <p>
-              {t(
-                "purposeText"
-              )}
-            </p>
+            <span className="section-kicker">GramaLK</span>
+            <h2>{t("purposeTitle")}</h2>
+            <p>{t("purposeText")}</p>
 
             <div className="purpose-points">
-
               <div>
                 <span>✓</span>
-
                 <p>
                   {lang === "si"
                     ? "ප්‍රදේශීය තොරතුරු පහසුවෙන් ලබාගන්න"
@@ -1915,10 +1364,8 @@ export default function App() {
                     : "Access local information easily"}
                 </p>
               </div>
-
               <div>
                 <span>✓</span>
-
                 <p>
                   {lang === "si"
                     ? "රාජ්‍ය සේවා සහ අයදුම්පත් සොයන්න"
@@ -1927,10 +1374,8 @@ export default function App() {
                     : "Find government services and forms"}
                 </p>
               </div>
-
               <div>
                 <span>✓</span>
-
                 <p>
                   {lang === "si"
                     ? "ප්‍රජා ගැටලු වාර්තා කරන්න"
@@ -1939,74 +1384,31 @@ export default function App() {
                     : "Report community issues"}
                 </p>
               </div>
-
             </div>
           </div>
 
           <div className="purpose-image-card">
-
             <img
               src="/images/gn-office2.jpg"
               alt="Village community"
-              onClick={() =>
-                openImage(
-                  "/images/gn-office2.jpg",
-                  t(
-                    "purposeTitle"
-                  )
-                )
-              }
+              onClick={() => openImage("/images/gn-office2.jpg", t("purposeTitle"))}
             />
-
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          SERVICES
-      =================================================== */}
-
-      <section
-        className="content-section"
-        id="services"
-      >
+      {/* SERVICES */}
+      <section className="content-section" id="services">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              GramaLK
-            </span>
-
-            <h2>
-              {t(
-                "localServices"
-              )}
-            </h2>
-
+            <span className="section-kicker">GramaLK</span>
+            <h2>{t("localServices")}</h2>
           </div>
 
           <div className="service-grid">
-
-            <button
-              className="service-card"
-              onClick={() =>
-                scrollToSection(
-                  "announcements"
-                )
-              }
-            >
-              <span className="service-icon">
-                📢
-              </span>
-
-              <h3>
-                {t(
-                  "announcements"
-                )}
-              </h3>
-
+            <button className="service-card" onClick={() => scrollToSection("announcements")}>
+              <span className="service-icon">📢</span>
+              <h3>{t("announcements")}</h3>
               <p>
                 {lang === "si"
                   ? "නවතම ප්‍රදේශීය නිවේදන බලන්න."
@@ -2016,22 +1418,9 @@ export default function App() {
               </p>
             </button>
 
-            <button
-              className="service-card"
-              onClick={() =>
-                scrollToSection(
-                  "forms"
-                )
-              }
-            >
-              <span className="service-icon">
-                📄
-              </span>
-
-              <h3>
-                {t("forms")}
-              </h3>
-
+            <button className="service-card" onClick={() => scrollToSection("forms")}>
+              <span className="service-icon">📄</span>
+              <h3>{t("forms")}</h3>
               <p>
                 {lang === "si"
                   ? "වැදගත් අයදුම්පත් සොයා බාගත කරන්න."
@@ -2041,24 +1430,9 @@ export default function App() {
               </p>
             </button>
 
-            <button
-              className="service-card"
-              onClick={() =>
-                scrollToSection(
-                  "complaint"
-                )
-              }
-            >
-              <span className="service-icon">
-                📝
-              </span>
-
-              <h3>
-                {t(
-                  "complaint"
-                )}
-              </h3>
-
+            <button className="service-card" onClick={() => scrollToSection("complaint")}>
+              <span className="service-icon">📝</span>
+              <h3>{t("complaint")}</h3>
               <p>
                 {lang === "si"
                   ? "ප්‍රදේශීය ගැටලු සහ පැමිණිලි ඉදිරිපත් කරන්න."
@@ -2068,24 +1442,9 @@ export default function App() {
               </p>
             </button>
 
-            <button
-              className="service-card"
-              onClick={() =>
-                scrollToSection(
-                  "offices"
-                )
-              }
-            >
-              <span className="service-icon">
-                🏢
-              </span>
-
-              <h3>
-                {t(
-                  "offices"
-                )}
-              </h3>
-
+            <button className="service-card" onClick={() => scrollToSection("offices")}>
+              <span className="service-icon">🏢</span>
+              <h3>{t("offices")}</h3>
               <p>
                 {lang === "si"
                   ? "ප්‍රදේශීය කාර්යාල සහ සම්බන්ධතා තොරතුරු බලන්න."
@@ -2094,723 +1453,201 @@ export default function App() {
                   : "Find local offices and contact details."}
               </p>
             </button>
-
           </div>
         </div>
       </section>
 
-      {/* ===================================================
-          ACTIVITY GALLERY
-      =================================================== */}
-
+      {/* ACTIVITY GALLERY */}
       <section className="content-section gallery-section">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              Community
-            </span>
-
-            <h2>
-              {t(
-                "villageGallery"
-              )}
-            </h2>
-
+            <span className="section-kicker">Community</span>
+            <h2>{t("villageGallery")}</h2>
           </div>
 
-          <div
-            className="activity-gallery"
-            ref={galleryRef}
-          >
+          <div className="activity-gallery" ref={galleryRef}>
+            {activities.map((activity) => {
+              const title = lang === "si" ? activity.titleSi : lang === "ta" ? activity.titleTa : activity.titleEn;
+              const description = lang === "si" ? activity.descriptionSi : lang === "ta" ? activity.descriptionTa : activity.descriptionEn;
 
-            {activities.map(
-              (activity) => {
-                const title =
-                  lang === "si"
-                    ? activity.titleSi
-                    : lang === "ta"
-                    ? activity.titleTa
-                    : activity.titleEn;
-
-                const description =
-                  lang === "si"
-                    ? activity.descriptionSi
-                    : lang === "ta"
-                    ? activity.descriptionTa
-                    : activity.descriptionEn;
-
-                return (
-                  <article
-                    className="gallery-card"
-                    key={
-                      activity.image
-                    }
-                  >
-
-                    <div className="gallery-image-wrapper">
-
-                      <img
-                        src={
-                          activity.image
-                        }
-                        alt={
-                          title
-                        }
-                        onClick={() =>
-                          openImage(
-                            activity.image,
-                            title
-                          )
-                        }
-                      />
-
-                    </div>
-
-                    <div className="gallery-card-content">
-
-                      <h3>
-                        {title}
-                      </h3>
-
-                      <p>
-                        {
-                          description
-                        }
-                      </p>
-
-                    </div>
-
-                  </article>
-                );
-              }
-            )}
-
+              return (
+                <article className="gallery-card" key={activity.image}>
+                  <div className="gallery-image-wrapper">
+                    <img src={activity.image} alt={title} onClick={() => openImage(activity.image, title)} />
+                  </div>
+                  <div className="gallery-card-content">
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          ANNOUNCEMENTS
-      =================================================== */}
-
-      <section
-        className="content-section"
-        id="announcements"
-      >
+      {/* ANNOUNCEMENTS */}
+      <section className="content-section" id="announcements">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              Updates
-            </span>
-
-            <h2>
-              {t(
-                "latestAnnouncements"
-              )}
-            </h2>
-
+            <span className="section-kicker">Updates</span>
+            <h2>{t("latestAnnouncements")}</h2>
           </div>
 
-          {displayedAnnouncements.length ===
-          0 ? (
-            <div className="empty-state">
-              {t(
-                "noAnnouncements"
-              )}
-            </div>
+          {displayedAnnouncements.length === 0 ? (
+            <div className="empty-state">{t("noAnnouncements")}</div>
           ) : (
             <div className="announcement-grid">
-
-              {displayedAnnouncements.map(
-                (
-                  announcement,
-                  index
-                ) => (
-                  <article
-                    className="announcement-card"
-                    key={
-                      announcement._id ||
-                      announcement.id ||
-                      index
-                    }
-                  >
-
-                    <div className="announcement-image">
-
-                      <img
-                        src={
-                          announcement.image ||
-                          announcement.imageUrl ||
-                          "/images/activity3.jpg"
-                        }
-                        alt={
-                          localized(
-                            announcement,
-                            lang,
-                            "title"
-                          ) ||
-                          announcement.title ||
-                          "Announcement"
-                        }
-                      />
-
+              {displayedAnnouncements.map((announcement, index) => (
+                <article className="announcement-card" key={announcement._id || announcement.id || index}>
+                  <div className="announcement-image">
+                    <img
+                      src={announcement.image || announcement.imageUrl || "/images/activity3.jpg"}
+                      alt={localized(announcement, lang, "title") || announcement.title || "Announcement"}
+                    />
+                  </div>
+                  <div className="announcement-content">
+                    <div className="announcement-badge">📢 {t("announcements")}</div>
+                    <h3>{localized(announcement, lang, "title") || announcement.title || ""}</h3>
+                    <p>{localized(announcement, lang, "description") || announcement.description || ""}</p>
+                    <div className="announcement-meta">
+                      <span>📅 <strong>{t("date")}:</strong> {announcement.date ? formatDateTime(announcement.date, lang) : "-"}</span>
+                      <span>🕒 <strong>{t("time")}:</strong> {announcement.time || "-"}</span>
+                      <span>📍 <strong>{t("location")}:</strong> {announcement.location || announcement.place || "-"}</span>
                     </div>
-
-                    <div className="announcement-content">
-
-                      <div className="announcement-badge">
-                        📢{" "}
-                        {t(
-                          "announcements"
-                        )}
-                      </div>
-
-                      <h3>
-                        {localized(
-                          announcement,
-                          lang,
-                          "title"
-                        ) ||
-                          announcement.title ||
-                          announcement.titleEn ||
-                          ""}
-                      </h3>
-
-                      <p>
-                        {localized(
-                          announcement,
-                          lang,
-                          "description"
-                        ) ||
-                          announcement.description ||
-                          announcement.descriptionEn ||
-                          ""}
-                      </p>
-
-                      <div className="announcement-meta">
-
-                        <span>
-                          📅{" "}
-                          <strong>
-                            {t(
-                              "date"
-                            )}
-                            :
-                          </strong>{" "}
-                          {announcement.date
-                            ? formatDateTime(
-                                announcement.date,
-                                lang
-                              )
-                            : "-"}
-                        </span>
-
-                        <span>
-                          🕒{" "}
-                          <strong>
-                            {t(
-                              "time"
-                            )}
-                            :
-                          </strong>{" "}
-                          {announcement.time ||
-                            "-"}
-                        </span>
-
-                        <span>
-                          📍{" "}
-                          <strong>
-                            {t(
-                              "location"
-                            )}
-                            :
-                          </strong>{" "}
-                          {announcement.location ||
-                            announcement.place ||
-                            "-"}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  </article>
-                )
-              )}
-
+                  </div>
+                </article>
+              ))}
             </div>
           )}
-
         </div>
       </section>
 
-      {/* ===================================================
-          PORTALS
-      =================================================== */}
-
-      <section
-        className="content-section"
-        id="portals"
-      >
+      {/* PORTALS */}
+      <section className="content-section" id="portals">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              Secure Access
-            </span>
-
-            <h2>
-              {t(
-                "communityPortals"
-              )}
-            </h2>
-
+            <span className="section-kicker">Secure Access</span>
+            <h2>{t("communityPortals")}</h2>
           </div>
 
           <div className="portal-grid">
-
-            {portals.map(
-              (portal) => (
-                <article
-                  className="portal-card"
-                  key={portal.id}
-                >
-
-                  <div className="portal-image">
-
-                    <img
-                      src={
-                        portal.image
-                      }
-                      alt={t(
-                        portal.title
-                      )}
-                    />
-
-                    <span className="portal-icon">
-                      {
-                        portal.icon
-                      }
-                    </span>
-
-                  </div>
-
-                  <div className="portal-content">
-
-                    <h3>
-                      {t(
-                        portal.title
-                      )}
-                    </h3>
-
-                    <p>
-                      {t(
-                        portal.description
-                      )}
-                    </p>
-
-                    <button
-                      className="primary-button small"
-                      onClick={() =>
-                        selectPortal(
-                          portal
-                        )
-                      }
-                    >
-                      {t(
-                        "login"
-                      )}
-                    </button>
-
-                  </div>
-
-                </article>
-              )
-            )}
-
+            {portals.map((portal) => (
+              <article className="portal-card" key={portal.id}>
+                <div className="portal-image">
+                  <img src={portal.image} alt={t(portal.title)} />
+                  <span className="portal-icon">{portal.icon}</span>
+                </div>
+                <div className="portal-content">
+                  <h3>{t(portal.title)}</h3>
+                  <p>{t(portal.description)}</p>
+                  <button className="primary-button small" onClick={() => selectPortal(portal)}>
+                    {t("login")}
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          OFFICES
-      =================================================== */}
-
-      <section
-        className="content-section offices-section"
-        id="offices"
-      >
+      {/* OFFICES */}
+      <section className="content-section offices-section" id="offices">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              Local Government
-            </span>
-
-            <h2>
-              {t(
-                "offices"
-              )}
-            </h2>
-
+            <span className="section-kicker">Local Government</span>
+            <h2>{t("offices")}</h2>
           </div>
 
           <div className="office-grid">
-
-            {offices.map(
-              (
-                office,
-                index
-              ) => {
-                const isGN =
-                  String(
-                    office.type ||
-                      ""
-                  ).toLowerCase() ===
-                  "gn office";
-
-                return (
-                  <article
-                    className={`office-card ${
-                      isGN
-                        ? "gn-office-card"
-                        : ""
-                    }`}
-                    key={
-                      office._id ||
-                      office.id ||
-                      index
-                    }
-                  >
-
-                    <div className="office-image">
-
-                      <img
-                        src={
-                          office.image ||
-                          office.personImage ||
-                          "/images/gn-office.jpg"
-                        }
-                        alt={
-                          office.name ||
-                          office.position ||
-                          "Office"
-                        }
-                      />
-
-                    </div>
-
-                    <div className="office-content">
-
-                      <span className="office-type">
-                        {office.type ||
-                          "Community Office"}
-                      </span>
-
-                      <h3>
-                        {office.name ||
-                          office.position ||
-                          "Local Office"}
-                      </h3>
-
-                      {office.personName && (
-                        <p>
-                          <strong>
-                            {t(
-                              "name"
-                            )}
-                            :
-                          </strong>{" "}
-                          {
-                            office.personName
-                          }
-                        </p>
-                      )}
-
-                      {office.position && (
-                        <p>
-                          <strong>
-                            {t(
-                              "officer"
-                            )}
-                            :
-                          </strong>{" "}
-                          {
-                            office.position
-                          }
-                        </p>
-                      )}
-
-                      {office.phone && (
-                        <p>
-                          <strong>
-                            {t(
-                              "phone"
-                            )}
-                            :
-                          </strong>{" "}
-                          {
-                            office.phone
-                          }
-                        </p>
-                      )}
-
-                      {office.email && (
-                        <p>
-                          <strong>
-                            {t(
-                              "email"
-                            )}
-                            :
-                          </strong>{" "}
-                          {
-                            office.email
-                          }
-                        </p>
-                      )}
-
-                      {office.address && (
-                        <p>
-                          <strong>
-                            {t(
-                              "location"
-                            )}
-                            :
-                          </strong>{" "}
-                          {
-                            office.address
-                          }
-                        </p>
-                      )}
-
-                      {isGN && (
-                        <div className="gn-schedule">
-
-                          <p>
-                            <strong>
-                              {t(
-                                "officeDays"
-                              )}
-                              :
-                            </strong>{" "}
-                            {office.officeDays ||
-                              "-"}
-                          </p>
-
-                          <p>
-                            <strong>
-                              {t(
-                                "officeHours"
-                              )}
-                              :
-                            </strong>{" "}
-                            {office.officeHours ||
-                              "-"}
-                          </p>
-
-                          <p>
-                            <strong>
-                              {t(
-                                "fieldDays"
-                              )}
-                              :
-                            </strong>{" "}
-                            {office.fieldDays ||
-                              "-"}
-                          </p>
-
-                          <p>
-                            <strong>
-                              {t(
-                                "fieldHours"
-                              )}
-                              :
-                            </strong>{" "}
-                            {office.fieldHours ||
-                              "-"}
-                          </p>
-
-                          <p>
-                            <strong>
-                              {t(
-                                "serviceDays"
-                              )}
-                              :
-                            </strong>{" "}
-                            {office.authorityDates ||
-                              office.serviceDays ||
-                              office.officeDays ||
-                              "-"}
-                          </p>
-
-                          <p>
-                            <strong>
-                              {t(
-                                "holidays"
-                              )}
-                              :
-                            </strong>{" "}
-                            {office.holidays ||
-                              "-"}
-                          </p>
-
-                        </div>
-                      )}
-
-                      {office.mapQuery && (
-                        <button
-                          className="text-button"
-                          onClick={() =>
-                            scrollToSection(
-                              "map"
-                            )
-                          }
-                        >
-                          📍{" "}
-                          {t(
-                            "map"
-                          )}
-                        </button>
-                      )}
-
-                    </div>
-
-                  </article>
-                );
-              }
-            )}
-
+            {offices.map((office, index) => {
+              const isGN = String(office.type || "").toLowerCase() === "gn office";
+              return (
+                <article className={`office-card ${isGN ? "gn-office-card" : ""}`} key={office._id || office.id || index}>
+                  <div className="office-image">
+                    <img
+                      src={office.image || office.personImage || "/images/gn-office.jpg"}
+                      alt={office.name || office.position || "Office"}
+                    />
+                  </div>
+                  <div className="office-content">
+                    <span className="office-type">{office.type || "Community Office"}</span>
+                    <h3>{office.name || office.position || "Local Office"}</h3>
+                    {office.personName && (
+                      <p><strong>{t("name")}:</strong> {office.personName}</p>
+                    )}
+                    {office.position && (
+                      <p><strong>{t("officer")}:</strong> {office.position}</p>
+                    )}
+                    {office.phone && (
+                      <p><strong>{t("phone")}:</strong> {office.phone}</p>
+                    )}
+                    {office.email && (
+                      <p><strong>{t("email")}:</strong> {office.email}</p>
+                    )}
+                    {office.address && (
+                      <p><strong>{t("location")}:</strong> {office.address}</p>
+                    )}
+                    {isGN && (
+                      <div className="gn-schedule">
+                        <p><strong>{t("officeDays")}:</strong> {office.officeDays || "-"}</p>
+                        <p><strong>{t("officeHours")}:</strong> {office.officeHours || "-"}</p>
+                        <p><strong>{t("fieldDays")}:</strong> {office.fieldDays || "-"}</p>
+                        <p><strong>{t("fieldHours")}:</strong> {office.fieldHours || "-"}</p>
+                        <p><strong>{t("serviceDays")}:</strong> {office.authorityDates || office.serviceDays || "-"}</p>
+                        <p><strong>{t("holidays")}:</strong> {office.holidays || "-"}</p>
+                      </div>
+                    )}
+                    {office.mapQuery && (
+                      <button className="text-button" onClick={() => scrollToSection("map")}>
+                        📍 {t("map")}
+                      </button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          FORMS
-      =================================================== */}
-
-      <section
-        className="content-section"
-        id="forms"
-      >
+      {/* FORMS */}
+      <section className="content-section" id="forms">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              Documents
-            </span>
-
-            <h2>
-              {t(
-                "importantForms"
-              )}
-            </h2>
-
+            <span className="section-kicker">Documents</span>
+            <h2>{t("importantForms")}</h2>
           </div>
 
-          {forms.length ===
-          0 ? (
-            <div className="empty-state">
-              {t(
-                "noForms"
-              )}
-            </div>
+          {forms.length === 0 ? (
+            <div className="empty-state">{t("noForms")}</div>
           ) : (
             <div className="forms-grid">
-
-              {forms.map(
-                (
-                  form,
-                  index
-                ) => (
-                  <article
-                    className="form-card"
-                    key={
-                      form._id ||
-                      form.id ||
-                      index
-                    }
-                  >
-
-                    <div className="form-icon">
-                      📄
-                    </div>
-
-                    <div>
-
-                      <h3>
-                        {localized(
-                          form,
-                          lang,
-                          "title"
-                        ) ||
-                          form.title ||
-                          form.name}
-                      </h3>
-
-                      <span>
-                        {form.category ||
-                          form.type ||
-                          "Application"}
-                      </span>
-
-                    </div>
-
-                    {form.file && (
-                      <a
-                        href={
-                          form.file
-                        }
-                        target="_blank"
-                        rel="noreferrer"
-                        className="primary-button small"
-                      >
-                        {t(
-                          "download"
-                        )}
-                      </a>
-                    )}
-
-                  </article>
-                )
-              )}
-
+              {forms.map((form, index) => (
+                <article className="form-card" key={form._id || form.id || index}>
+                  <div className="form-icon">📄</div>
+                  <div>
+                    <h3>{localized(form, lang, "title") || form.title || form.name}</h3>
+                    <span>{form.category || form.type || "Application"}</span>
+                  </div>
+                  {form.file && (
+                    <a href={form.file} target="_blank" rel="noreferrer" className="primary-button small">
+                      {t("download")}
+                    </a>
+                  )}
+                </article>
+              ))}
             </div>
           )}
-
         </div>
       </section>
 
-      {/* ===================================================
-          COMPLAINT
-      =================================================== */}
-
-      <section
-        className="content-section complaint-section"
-        id="complaint"
-      >
+      {/* COMPLAINT */}
+      <section className="content-section complaint-section" id="complaint">
         <div className="section-container complaint-grid">
-
           <div className="complaint-preview">
-
-            <img
-              src="/images/complaint-preview.jpg"
-              alt={t(
-                "complaint"
-              )}
-            />
-
+            <img src="/images/complaint-preview.jpg" alt={t("complaint")} />
             <div className="complaint-preview-overlay">
-
               <span>
                 {lang === "si"
                   ? "ප්‍රජා ගැටලු වාර්තා කරන්න"
@@ -2818,1163 +1655,343 @@ export default function App() {
                   ? "சமூக பிரச்சினைகளைப் பதிவு செய்யுங்கள்"
                   : "Report Community Issues"}
               </span>
-
             </div>
-
           </div>
 
           <div className="complaint-form-wrapper">
-
             <div className="section-heading left">
-
-              <span className="section-kicker">
-                GramaLK
-              </span>
-
-              <h2>
-                {t(
-                  "complaint"
-                )}
-              </h2>
-
+              <span className="section-kicker">GramaLK</span>
+              <h2>{t("complaint")}</h2>
             </div>
 
-            <form
-              className="complaint-form"
-              onSubmit={
-                submitComplaint
-              }
-            >
-
+            <form className="complaint-form" onSubmit={submitComplaint}>
               <label>
-                {t(
-                  "complaintType"
-                )}
-
-                <select
-                  value={
-                    complaint.type
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    handleComplaintTypeChange(
-                      event
-                        .target
-                        .value
-                    )
-                  }
-                >
-                  {complaintTypes.map(
-                    (
-                      item
-                    ) => (
-                      <option
-                        value={
-                          item.code
-                        }
-                        key={
-                          item.code
-                        }
-                      >
-                        {getComplaintLabel(
-                          item
-                        )}
-                      </option>
-                    )
-                  )}
+                {t("complaintType")}
+                <select value={complaint.type} onChange={(e) => handleComplaintTypeChange(e.target.value)}>
+                  {complaintTypes.map((item) => (
+                    <option value={item.code} key={item.code}>
+                      {getComplaintLabel(item)}
+                    </option>
+                  ))}
                 </select>
               </label>
 
               <label>
-                {t(
-                  "responsibleOfficer"
-                )}
-
+                {t("responsibleOfficer")}
                 <select
-                  value={
-                    complaint.officer
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setComplaint(
-                      (
-                        previous
-                      ) => ({
-                        ...previous,
-                        officer:
-                          event
-                            .target
-                            .value,
-                      })
-                    )
-                  }
+                  value={complaint.officer}
+                  onChange={(e) => setComplaint((p) => ({ ...p, officer: e.target.value }))}
                 >
-                  {officers.map(
-                    (
-                      item
-                    ) => (
-                      <option
-                        key={
-                          item.en
-                        }
-                        value={
-                          item.en
-                        }
-                      >
-                        {getOfficerLabel(
-                          item
-                        )}
-                      </option>
-                    )
-                  )}
+                  {officers.map((item) => (
+                    <option key={item.en} value={item.en}>
+                      {getOfficerLabel(item)}
+                    </option>
+                  ))}
                 </select>
               </label>
 
               <label>
-                {t(
-                  "location"
-                )}
-
+                {t("location")}
                 <input
                   type="text"
-                  value={
-                    complaint.location
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setComplaint(
-                      (
-                        previous
-                      ) => ({
-                        ...previous,
-                        location:
-                          event
-                            .target
-                            .value,
-                      })
-                    )
-                  }
-                  placeholder={
-                    lang === "si"
-                      ? "ගැටලුව ඇති ස්ථානය"
-                      : lang === "ta"
-                      ? "பிரச்சினை ஏற்பட்ட இடம்"
-                      : "Location of the issue"
-                  }
+                  value={complaint.location}
+                  onChange={(e) => setComplaint((p) => ({ ...p, location: e.target.value }))}
+                  placeholder={lang === "si" ? "ගැටලුව ඇති ස්ථානය" : lang === "ta" ? "பிரச்சினை ஏற்பட்ட இடம்" : "Location of issue"}
                   required
                 />
               </label>
 
               <label>
-                {t(
-                  "description"
-                )}
-
+                {t("description")}
                 <textarea
-                  value={
-                    complaint.description
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setComplaint(
-                      (
-                        previous
-                      ) => ({
-                        ...previous,
-                        description:
-                          event
-                            .target
-                            .value,
-                      })
-                    )
-                  }
-                  placeholder={
-                    lang === "si"
-                      ? "ගැටලුව පිළිබඳ විස්තර කරන්න"
-                      : lang === "ta"
-                      ? "பிரச்சினையை விவரிக்கவும்"
-                      : "Describe the issue"
-                  }
+                  value={complaint.description}
+                  onChange={(e) => setComplaint((p) => ({ ...p, description: e.target.value }))}
+                  placeholder={lang === "si" ? "ගැටලුව පිළිබඳ විස්තර කරන්න" : "Describe the issue"}
                   rows="5"
                   required
                 />
               </label>
 
               <label>
-                {t(
-                  "photo"
-                )}{" "}
-                <small>
-                  (
-                  {t(
-                    "optional"
-                  )}
-                  )
-                </small>
-
+                {t("photo")} <small>({t("optional")})</small>
                 <input
-                  ref={
-                    complaintFileRef
-                  }
+                  ref={complaintFileRef}
                   type="file"
                   accept="image/*"
-                  onChange={(
-                    event
-                  ) =>
-                    setComplaint(
-                      (
-                        previous
-                      ) => ({
-                        ...previous,
-                        photo:
-                          event
-                            .target
-                            .files?.[0] ||
-                          null,
-                      })
-                    )
-                  }
+                  onChange={(e) => setComplaint((p) => ({ ...p, photo: e.target.files?.[0] || null }))}
                 />
               </label>
 
               {complaintMessage && (
-                <div
-                  className={`form-message ${
-                    complaintMessage.includes(
-                      t(
-                        "complaintSuccess"
-                      )
-                    )
-                      ? "success"
-                      : "error"
-                  }`}
-                >
-                  {
-                    complaintMessage
-                  }
+                <div className={`form-message ${complaintMessage.includes(t("complaintSuccess")) ? "success" : "error"}`}>
+                  {complaintMessage}
                 </div>
               )}
 
-              <button
-                className="primary-button"
-                type="submit"
-              >
-                {t(
-                  "submitComplaint"
-                )}
+              <button className="primary-button" type="submit">
+                {t("submitComplaint")}
               </button>
-
-              <p className="form-note">
-                {t(
-                  "anonymousNote"
-                )}
-              </p>
-
+              <p className="form-note">{t("anonymousNote")}</p>
             </form>
-
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          GN OFFICER FEATURE
-      =================================================== */}
-
-      <section
-        className="content-section officer-feature"
-        id="officer"
-      >
+      {/* GN OFFICER FEATURE (WITH PARALLEL REAL-TIME DATA) */}
+      <section className="content-section officer-feature" id="officer">
         <div className="section-container">
-
           <div className="officer-feature-card">
-
             <div className="officer-feature-image">
-
               <img
-                src={
-                  gnOffice.personImage ||
-                  "/images/gn-officer.jpg"
-                }
-                alt={
-                  gnOffice.personName ||
-                  "GN Officer"
-                }
+                src={gnOffice.personImage || "/images/gn-officer.jpg"}
+                alt={gnOffice.personName || "GN Officer"}
               />
-
             </div>
 
             <div className="officer-feature-content">
-
-              <span className="section-kicker">
-                {t(
-                  "officer"
-                )}
-              </span>
-
-              <h2>
-                {gnOffice.personName ||
-                  t("officer")}
-              </h2>
-
-              <p className="officer-position">
-                {gnOffice.position ||
-                  "Grama Niladhari"}
-              </p>
+              <span className="section-kicker">{t("officer")}</span>
+              <h2>{gnOffice.personName || t("officer")}</h2>
+              <p className="officer-position">{gnOffice.position || "Grama Niladhari"}</p>
 
               <div className="schedule-grid">
-
                 <div>
-                  <span>
-                    📅{" "}
-                    {t(
-                      "officeDays"
-                    )}
-                  </span>
-
-                  <strong>
-                    {gnOffice.officeDays ||
-                      "-"}
-                  </strong>
+                  <span>📅 {t("officeDays")}</span>
+                  <strong>{gnOffice.officeDays || "-"}</strong>
                 </div>
-
                 <div>
-                  <span>
-                    🕒{" "}
-                    {t(
-                      "officeHours"
-                    )}
-                  </span>
-
-                  <strong>
-                    {gnOffice.officeHours ||
-                      "-"}
-                  </strong>
+                  <span>🕒 {t("officeHours")}</span>
+                  <strong>{gnOffice.officeHours || "-"}</strong>
                 </div>
-
                 <div>
-                  <span>
-                    📍{" "}
-                    {t(
-                      "fieldDays"
-                    )}
-                  </span>
-
-                  <strong>
-                    {gnOffice.fieldDays ||
-                      "-"}
-                  </strong>
+                  <span>📍 {t("fieldDays")}</span>
+                  <strong>{gnOffice.fieldDays || "-"}</strong>
                 </div>
-
                 <div>
-                  <span>
-                    🕒{" "}
-                    {t(
-                      "fieldHours"
-                    )}
-                  </span>
-
-                  <strong>
-                    {gnOffice.fieldHours ||
-                      "-"}
-                  </strong>
+                  <span>🕒 {t("fieldHours")}</span>
+                  <strong>{gnOffice.fieldHours || "-"}</strong>
                 </div>
-
               </div>
 
               <div className="officer-contact">
-
                 {gnOffice.phone && (
-                  <a
-                    href={`tel:${gnOffice.phone}`}
-                  >
-                    ☎{" "}
-                    {
-                      gnOffice.phone
-                    }
-                  </a>
+                  <a href={`tel:${gnOffice.phone}`}>☎ {gnOffice.phone}</a>
                 )}
-
                 {gnOffice.email && (
-                  <a
-                    href={`mailto:${gnOffice.email}`}
-                  >
-                    ✉{" "}
-                    {
-                      gnOffice.email
-                    }
-                  </a>
+                  <a href={`mailto:${gnOffice.email}`}>✉ {gnOffice.email}</a>
                 )}
-
               </div>
-
             </div>
-
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          MAP
-      =================================================== */}
-
-      <section
-        className="content-section map-section"
-        id="map"
-      >
+      {/* MAP */}
+      <section className="content-section map-section" id="map">
         <div className="section-container">
-
           <div className="section-heading">
-
-            <span className="section-kicker">
-              Location
-            </span>
-
-            <h2>
-              {t(
-                "mapTitle"
-              )}
-            </h2>
-
-            <p>
-              {t(
-                "mapText"
-              )}
-            </p>
-
+            <span className="section-kicker">Location</span>
+            <h2>{t("mapTitle")}</h2>
+            <p>{t("mapText")}</p>
           </div>
 
           <div className="map-card">
-
             <iframe
               title="GN Office Map"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(
-                gnOffice.mapQuery ||
-                  gnOffice.address ||
-                  "Sri Lanka"
-              )}&z=14&output=embed`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(gnOffice.mapQuery || gnOffice.address || "Sri Lanka")}&z=14&output=embed`}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
-
           </div>
-
         </div>
       </section>
 
-      {/* ===================================================
-          FOOTER
-      =================================================== */}
-
+      {/* FOOTER */}
       <footer className="site-footer gramalk-footer">
-
         <div className="gramalk-footer-grid">
-
           <div className="gramalk-footer-column">
-
             <div className="gramalk-footer-brand">
-
-              <img
-                src="/images/logo.png"
-                alt="GramaLK"
-              />
-
-              <strong>
-                GramaLK
-              </strong>
-
+              <img src="/images/logo.png" alt="GramaLK" />
+              <strong>GramaLK</strong>
             </div>
-
-            <h3>
-              {t(
-                "aboutGramaLK"
-              )}
-            </h3>
-
-            <p>
-              {t(
-                "purposeText"
-              )}
-            </p>
-
+            <h3>{t("aboutGramaLK")}</h3>
+            <p>{t("purposeText")}</p>
           </div>
 
           <div className="gramalk-footer-column">
-
-            <h3>
-              {t(
-                "aboutGN"
-              )}
-            </h3>
-
-            <p>
-              <strong>
-                {gnOffice.personName ||
-                  t("officer")}
-              </strong>
-            </p>
-
-            <p>
-              {gnOffice.position ||
-                "Grama Niladhari"}
-            </p>
-
-            {gnOffice.address && (
-              <p>
-                📍{" "}
-                {
-                  gnOffice.address
-                }
-              </p>
-            )}
-
-            <p>
-              📅{" "}
-              {gnOffice.officeDays ||
-                "-"}
-            </p>
-
-            <p>
-              🕒{" "}
-              {gnOffice.officeHours ||
-                "-"}
-            </p>
-
-            <p>
-              📍{" "}
-              {t(
-                "fieldDays"
-              )}
-              :{" "}
-              {gnOffice.fieldDays ||
-                "-"}
-            </p>
-
-            <p>
-              🕒{" "}
-              {t(
-                "fieldHours"
-              )}
-              :{" "}
-              {gnOffice.fieldHours ||
-                "-"}
-            </p>
-
+            <h3>{t("aboutGN")}</h3>
+            <p><strong>{gnOffice.personName || t("officer")}</strong></p>
+            <p>{gnOffice.position || "Grama Niladhari"}</p>
+            {gnOffice.address && <p>📍 {gnOffice.address}</p>}
+            <p>📅 {gnOffice.officeDays || "-"}</p>
+            <p>🕒 {gnOffice.officeHours || "-"}</p>
+            <p>📍 {t("fieldDays")}: {gnOffice.fieldDays || "-"}</p>
+            <p>🕒 {t("fieldHours")}: {gnOffice.fieldHours || "-"}</p>
           </div>
 
           <div className="gramalk-footer-column">
-
-            <h3>
-              {t(
-                "quickLinks"
-              )}
-            </h3>
-
+            <h3>{t("quickLinks")}</h3>
             <div className="gramalk-footer-links">
-
-              <a href="#home">
-                {t(
-                  "home"
-                )}
-              </a>
-
-              <a href="#services">
-                {t(
-                  "services"
-                )}
-              </a>
-
-              <a href="#announcements">
-                {t(
-                  "announcements"
-                )}
-              </a>
-
-              <a href="#portals">
-                {t(
-                  "portals"
-                )}
-              </a>
-
-              <a href="#offices">
-                {t(
-                  "offices"
-                )}
-              </a>
-
-              <a href="#map">
-                {t(
-                  "map"
-                )}
-              </a>
-
+              <a href="#home">{t("home")}</a>
+              <a href="#services">{t("services")}</a>
+              <a href="#announcements">{t("announcements")}</a>
+              <a href="#portals">{t("portals")}</a>
+              <a href="#offices">{t("offices")}</a>
+              <a href="#map">{t("map")}</a>
             </div>
-
           </div>
 
           <div className="gramalk-footer-column">
-
-            <h3>
-              {t(
-                "ourServices"
-              )}
-            </h3>
-
+            <h3>{t("ourServices")}</h3>
             <div className="gramalk-footer-links">
-
-              <a href="#forms">
-                {t(
-                  "forms"
-                )}
-              </a>
-
-              <a href="#officer">
-                {t(
-                  "officer"
-                )}
-              </a>
-
-              <a href="#complaint">
-                {t(
-                  "complaint"
-                )}
-              </a>
-
-              <a href="#announcements">
-                {t(
-                  "announcements"
-                )}
-              </a>
-
-              <a href="#portals">
-                {t(
-                  "portals"
-                )}
-              </a>
-
+              <a href="#forms">{t("forms")}</a>
+              <a href="#officer">{t("officer")}</a>
+              <a href="#complaint">{t("complaint")}</a>
+              <a href="#announcements">{t("announcements")}</a>
+              <a href="#portals">{t("portals")}</a>
             </div>
-
           </div>
 
           <div className="gramalk-footer-column gramalk-footer-contact">
-
-            <h3>
-              {t(
-                "contactDetails"
-              )}
-            </h3>
-
-            {gnOffice.phone && (
-              <a
-                href={`tel:${gnOffice.phone}`}
-              >
-                ☎{" "}
-                {
-                  gnOffice.phone
-                }
-              </a>
-            )}
-
-            {gnOffice.email && (
-              <a
-                href={`mailto:${gnOffice.email}`}
-              >
-                ✉{" "}
-                {
-                  gnOffice.email
-                }
-              </a>
-            )}
-
-            {gnOffice.address && (
-              <p>
-                📍{" "}
-                {
-                  gnOffice.address
-                }
-              </p>
-            )}
-
-            <p>
-              📅{" "}
-              {gnOffice.officeDays ||
-                "-"}
-            </p>
-
-            <p>
-              🕒{" "}
-              {gnOffice.officeHours ||
-                "-"}
-            </p>
-
+            <h3>{t("contactDetails")}</h3>
+            {gnOffice.phone && <a href={`tel:${gnOffice.phone}`}>☎ {gnOffice.phone}</a>}
+            {gnOffice.email && <a href={`mailto:${gnOffice.email}`}>✉ {gnOffice.email}</a>}
+            {gnOffice.address && <p>📍 {gnOffice.address}</p>}
+            <p>📅 {gnOffice.officeDays || "-"}</p>
+            <p>🕒 {gnOffice.officeHours || "-"}</p>
           </div>
-
         </div>
 
         <div className="gramalk-footer-bottom">
-
-          <span>
-            {lang === "si"
-              ? "ඩිජිටල් ප්‍රජා සේවා · © 2026"
-              : lang === "ta"
-              ? "டிஜிட்டல் சமூக சேவைகள் · © 2026"
-              : "Digital Community Services · © 2026"}
-          </span>
-
-          <span>
-            GramaLK ·{" "}
-            {gnOffice.name ||
-              "Grama Niladhari Office"}
-          </span>
-
+          <span>{lang === "si" ? "ඩිජිටල් ප්‍රජා සේවා · © 2026" : "Digital Community Services · © 2026"}</span>
+          <span>GramaLK · {gnOffice.name || "Grama Niladhari Office"}</span>
         </div>
-
       </footer>
 
-      {/* ===================================================
-          CHATBOT
-      =================================================== */}
-
+      {/* CHATBOT */}
       {!chatOpen && (
-        <button
-          className="chatbot-floating-button"
-          onClick={() =>
-            setChatOpen(true)
-          }
-          aria-label={t(
-            "chatbot"
-          )}
-        >
-
-          <img
-            src="/images/chatbot-logo.jpg"
-            alt="GramaLK Assistant"
-          />
-
-          <span className="chatbot-floating-label">
-            {t(
-              "chatbot"
-            )}
-          </span>
-
+        <button className="chatbot-floating-button" onClick={() => setChatOpen(true)} aria-label={t("chatbot")}>
+          <img src="/images/chatbot-logo.jpg" alt="GramaLK Assistant" />
+          <span className="chatbot-floating-label">{t("chatbot")}</span>
         </button>
       )}
 
       {chatOpen && (
         <div className="chatbot-panel">
-
           <div className="chatbot-header">
-
             <div className="chatbot-title">
-
-              <img
-                src="/images/chatbot-logo.jpg"
-                alt="GramaLK Assistant"
-              />
-
+              <img src="/images/chatbot-logo.jpg" alt="GramaLK Assistant" />
               <div>
-
-                <strong>
-                  {t(
-                    "chatbot"
-                  )}
-                </strong>
-
-                <span>
-                  {lang === "si"
-                    ? "ඔබට සහාය වීමට සූදානම්"
-                    : lang === "ta"
-                    ? "உங்களுக்கு உதவ தயாராக உள்ளது"
-                    : "Ready to help"}
-                </span>
-
+                <strong>{t("chatbot")}</strong>
+                <span>{lang === "si" ? "ඔබට සහාය වීමට සූදානම්" : "Ready to help"}</span>
               </div>
-
             </div>
-
-            <button
-              onClick={() =>
-                setChatOpen(
-                  false
-                )
-              }
-              aria-label={t(
-                "close"
-              )}
-            >
-              ×
-            </button>
-
+            <button onClick={() => setChatOpen(false)} aria-label={t("close")}>×</button>
           </div>
 
           <div className="chatbot-messages">
-
-            {chatMessages.map(
-              (
-                message,
-                index
-              ) => (
-                <div
-                  className={`chat-message ${
-                    message.role ===
-                    "user"
-                      ? "user"
-                      : "assistant"
-                  }`}
-                  key={index}
-                >
-                  {
-                    message.content
-                  }
-                </div>
-              )
-            )}
-
+            {chatMessages.map((msg, idx) => (
+              <div key={idx} className={`chat-message ${msg.role === "user" ? "user" : "assistant"}`}>
+                {msg.content}
+              </div>
+            ))}
             {chatBusy && (
               <div className="chat-message assistant typing">
-
-                <span />
-                <span />
-                <span />
-
+                <span /><span /><span />
               </div>
             )}
-
           </div>
 
           <div className="chatbot-input-area">
-
             <input
               type="text"
-              value={
-                chatInput
-              }
-              onChange={(
-                event
-              ) =>
-                setChatInput(
-                  event.target
-                    .value
-                )
-              }
-              onKeyDown={(
-                event
-              ) => {
-                if (
-                  event.key ===
-                  "Enter"
-                ) {
-                  sendChat();
-                }
-              }}
-              placeholder={t(
-                "chatbotPlaceholder"
-              )}
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendChat()}
+              placeholder={t("chatbotPlaceholder")}
             />
-
-            <button
-              onClick={
-                sendChat
-              }
-              disabled={
-                chatBusy
-              }
-            >
-              {t("send")}
-            </button>
-
+            <button onClick={sendChat} disabled={chatBusy}>{t("send")}</button>
           </div>
 
-          <button
-            className="chatbot-exit"
-            onClick={() =>
-              setChatOpen(
-                false
-              )
-            }
-          >
-            {t("exit")}
-          </button>
-
+          <button className="chatbot-exit" onClick={() => setChatOpen(false)}>{t("exit")}</button>
         </div>
       )}
 
-      {/* ===================================================
-          IMAGE VIEWER
-      =================================================== */}
-
+      {/* IMAGE VIEWER */}
       {imageViewer && (
-        <div
-          className="image-modal"
-          onClick={() =>
-            setImageViewer(
-              null
-            )
-          }
-        >
-
-          <button
-            className="image-modal-close"
-            onClick={() =>
-              setImageViewer(
-                null
-              )
-            }
-          >
-            ×
-          </button>
-
-          <img
-            src={
-              imageViewer.src
-            }
-            alt={
-              imageViewer.title
-            }
-            onClick={(
-              event
-            ) =>
-              event.stopPropagation()
-            }
-          />
-
-          {imageViewer.title && (
-            <div className="image-modal-title">
-              {
-                imageViewer.title
-              }
-            </div>
-          )}
-
+        <div className="image-modal" onClick={() => setImageViewer(null)}>
+          <button className="image-modal-close" onClick={() => setImageViewer(null)}>×</button>
+          <img src={imageViewer.src} alt={imageViewer.title} onClick={(e) => e.stopPropagation()} />
+          {imageViewer.title && <div className="image-modal-title">{imageViewer.title}</div>}
         </div>
       )}
 
-      {/* ===================================================
-          PORTAL LOGIN MODAL
-      =================================================== */}
+      {/* PORTAL LOGIN MODAL */}
+      {portalModal && selectedPortal && (
+        <div className="modal-backdrop" onClick={() => setPortalModal(false)}>
+          <div className="login-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setPortalModal(false)}>×</button>
+            <img src={selectedPortal.image} alt={t(selectedPortal.title)} className="login-modal-image" />
 
-      {portalModal &&
-        selectedPortal && (
-          <div
-            className="modal-backdrop"
-            onClick={() =>
-              setPortalModal(
-                false
-              )
-            }
-          >
+            <div className="login-modal-content">
+              <span className="section-kicker">{t("secureAccess")}</span>
+              <h2>{t(selectedPortal.title)}</h2>
+              <p>{t(selectedPortal.description)}</p>
 
-            <div
-              className="login-modal"
-              onClick={(
-                event
-              ) =>
-                event.stopPropagation()
-              }
-            >
-
-              <button
-                className="modal-close"
-                onClick={() =>
-                  setPortalModal(
-                    false
-                  )
-                }
-              >
-                ×
-              </button>
-
-              <img
-                src={
-                  selectedPortal.image
-                }
-                alt={t(
-                  selectedPortal.title
+              <form className="login-form" onSubmit={loginPortal}>
+                {selectedPortal.id === "family" ? (
+                  <>
+                    <label>
+                      {t("houseNumber")}
+                      <input
+                        type="text"
+                        value={login.houseNumber}
+                        onChange={(e) => setLogin((p) => ({ ...p, houseNumber: e.target.value }))}
+                        required
+                      />
+                    </label>
+                    <label>
+                      {t("password")}
+                      <input
+                        type="password"
+                        value={login.password}
+                        onChange={(e) => setLogin((p) => ({ ...p, password: e.target.value }))}
+                        required
+                      />
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label>
+                      {t("username")}
+                      <input
+                        type="text"
+                        value={login.username}
+                        onChange={(e) => setLogin((p) => ({ ...p, username: e.target.value }))}
+                        required
+                      />
+                    </label>
+                    <label>
+                      {t("password")}
+                      <input
+                        type="password"
+                        value={login.password}
+                        onChange={(e) => setLogin((p) => ({ ...p, password: e.target.value }))}
+                        required
+                      />
+                    </label>
+                  </>
                 )}
-                className="login-modal-image"
-              />
 
-              <div className="login-modal-content">
+                {loginMessage && <div className="form-message">{loginMessage}</div>}
 
-                <span className="section-kicker">
-                  {t(
-                    "secureAccess"
-                  )}
-                </span>
-
-                <h2>
-                  {t(
-                    selectedPortal.title
-                  )}
-                </h2>
-
-                <p>
-                  {t(
-                    selectedPortal.description
-                  )}
-                </p>
-
-                <form
-                  className="login-form"
-                  onSubmit={
-                    loginPortal
-                  }
-                >
-
-                  {selectedPortal.id ===
-                  "family" ? (
-                    <>
-                      <label>
-                        {t(
-                          "houseNumber"
-                        )}
-
-                        <input
-                          type="text"
-                          value={
-                            login.houseNumber
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            setLogin(
-                              (
-                                previous
-                              ) => ({
-                                ...previous,
-                                houseNumber:
-                                  event
-                                    .target
-                                    .value,
-                              })
-                            )
-                          }
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        {t(
-                          "password"
-                        )}
-
-                        <input
-                          type="password"
-                          value={
-                            login.password
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            setLogin(
-                              (
-                                previous
-                              ) => ({
-                                ...previous,
-                                password:
-                                  event
-                                    .target
-                                    .value,
-                              })
-                            )
-                          }
-                          required
-                        />
-                      </label>
-                    </>
-                  ) : (
-                    <>
-                      <label>
-                        {t(
-                          "username"
-                        )}
-
-                        <input
-                          type="text"
-                          value={
-                            login.username
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            setLogin(
-                              (
-                                previous
-                              ) => ({
-                                ...previous,
-                                username:
-                                  event
-                                    .target
-                                    .value,
-                              })
-                            )
-                          }
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        {t(
-                          "password"
-                        )}
-
-                        <input
-                          type="password"
-                          value={
-                            login.password
-                          }
-                          onChange={(
-                            event
-                          ) =>
-                            setLogin(
-                              (
-                                previous
-                              ) => ({
-                                ...previous,
-                                password:
-                                  event
-                                    .target
-                                    .value,
-                              })
-                            )
-                          }
-                          required
-                        />
-                      </label>
-                    </>
-                  )}
-
-                  {loginMessage && (
-                    <div className="form-message">
-                      {
-                        loginMessage
-                      }
-                    </div>
-                  )}
-
-                  <button
-                    className="primary-button"
-                    type="submit"
-                  >
-                    {t(
-                      "login"
-                    )}
-                  </button>
-
-                </form>
-
-              </div>
-
+                <button className="primary-button" type="submit">
+                  {t("login")}
+                </button>
+              </form>
             </div>
-
           </div>
-        )}
-
+        </div>
+      )}
     </div>
   );
 }
