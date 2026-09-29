@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-const API =
-  import.meta.env.VITE_API_URL || 'http://localhost:5000/api/gn';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/gn';
+const BACKEND_BASE = 'http://localhost:5000';
 
 /* =========================================================
    TRANSLATIONS
 ========================================================= */
-
 const dashboardWords = {
   en: {
     portalTitle: 'GN OFFICER PORTAL',
@@ -16,7 +15,6 @@ const dashboardWords = {
     complaints: 'Complaints',
     notices: 'Notices',
     logout: 'Logout',
-
     welcome: 'Welcome back',
     dashboardSubtitle: 'Real-time overview of village services, public requests and notifications.',
     refresh: 'Refresh Data',
@@ -27,12 +25,10 @@ const dashboardWords = {
     todaysAppointments: "Today's Schedule & Appointments",
     noActivity: 'No recent activity recorded',
     noAppointmentsToday: 'No appointments scheduled for today',
-
     totalVillagers: 'Registered Villagers',
     pendingAppointments: 'Pending Appointments',
     pendingComplaints: 'Pending Complaints',
     publishedNotices: 'Active Notices',
-
     publicAppointments: 'Public Appointments',
     searchApptPlaceholder: 'Search by Villager / Purpose...',
     allStatuses: 'All Statuses',
@@ -44,7 +40,6 @@ const dashboardWords = {
     draft: 'Draft',
     published: 'Published',
     expired: 'Expired',
-
     villager: 'Villager',
     dateTime: 'Date & Time',
     purpose: 'Purpose',
@@ -59,9 +54,8 @@ const dashboardWords = {
     details: 'Details',
     close: 'Close',
     cancel: 'Cancel',
-
     villagersDirectory: 'Villagers Directory',
-    searchVillagerPlaceholder: 'Search by Name, NIC, House No...',
+    searchVillagerPlaceholder: 'Search by Name, NIC, House No, Occupation...',
     addVillager: '+ Add Villager',
     fullName: 'Full Name',
     nic: 'NIC Number',
@@ -69,54 +63,56 @@ const dashboardWords = {
     phone: 'Phone Number',
     address: 'Address',
     email: 'Email',
-    familyDetails: 'Family Details',
+    gender: 'Gender',
+    dateOfBirth: 'Date of Birth',
+    occupation: 'Occupation',
+    maritalStatus: 'Marital Status',
+    role: 'Household Role',
+    relationshipToHead: 'Relationship to Head',
+    householdHeadNIC: 'Household Head NIC',
+    familyDetails: 'Family Details / Remarks',
     edit: 'Edit',
     delete: 'Delete',
     saveVillager: 'Save Villager',
-
-    checkComplaints: 'Check Complaints',
-    searchComplaintsPlaceholder: 'Search complaints...',
-    subject: 'Subject',
-    category: 'Category',
+    checkComplaints: 'Check Public Complaints',
+    searchComplaintsPlaceholder: 'Search by Ref No, Type, Location, Description...',
+    subject: 'Ref No & Summary',
+    category: 'Complaint Type',
     description: 'Description',
-    officerReply: 'Officer Reply',
-    replyStatus: 'Reply / Status',
+    location: 'Location',
+    submittedBy: 'Submitted By',
+    evidence: 'Evidence Image',
+    officerReply: 'Officer Reply / Remarks',
+    replyStatus: 'Update Status & Reply',
     saveResponse: 'Save Response',
-
     noticesTitle: 'Notices & Announcements',
     searchNoticesPlaceholder: 'Search notices...',
     createNotice: '+ Create Notice',
     noticeTitle: 'Notice Title',
     content: 'Full Content',
-    location: 'Location',
     time: 'Time',
     date: 'Date',
     image: 'Image URL',
     type: 'Notice Type',
     publish: 'Publish Announcement',
-
     confirmDelete: 'Confirm Deletion',
     deleteWarning: 'Are you sure you want to delete',
     yesDelete: 'Yes, Delete',
-
     noResults: 'No records found.',
     loading: 'Loading dashboard...',
     errorLoading: 'Unable to load dashboard data.',
     retry: 'Retry',
-
     newAppointment: 'Appointment request received',
     complaintUpdated: 'Citizen complaint updated',
     noticePublished: 'Public notice published',
     villagerAdded: 'Resident record registered',
-
     appointmentDetails: 'Appointment Details',
     complaintDetails: 'Complaint Details',
     villagerDetails: 'Villager Details',
-
     appointmentAccepted: 'Appointment accepted.',
     appointmentDeclined: 'Appointment declined.',
     noteSaved: 'Note saved successfully.',
-    replySaved: 'Reply saved successfully.',
+    replySaved: 'Reply and status updated successfully.',
     villagerCreated: 'Villager created successfully.',
     villagerUpdated: 'Villager updated successfully.',
     villagerDeleted: 'Villager deleted successfully.',
@@ -125,7 +121,6 @@ const dashboardWords = {
     noticeDeleted: 'Announcement deleted successfully.',
     actionFailed: 'Action failed. Please try again.',
   },
-
   si: {
     portalTitle: 'ග්‍රාම නිලධාරී පෝර්ටලය',
     overview: 'සාරාංශය',
@@ -134,7 +129,6 @@ const dashboardWords = {
     complaints: 'පැමිණිලි',
     notices: 'නිවේදන',
     logout: 'පිටවීම',
-
     welcome: 'නැවත සාදරයෙන් පිළිගනිමු',
     dashboardSubtitle: 'ග්‍රාම සේවා තොරතුරු, මහජන ඉල්ලීම් සහ නිවේදන පිළිබඳ සජීවී සාරාංශය.',
     refresh: 'යාවත්කාලීන කරන්න',
@@ -145,12 +139,10 @@ const dashboardWords = {
     todaysAppointments: 'අද දවසේ මහජන හමුවීම්',
     noActivity: 'මෑත ක්‍රියාකාරකම් වාර්තා වී නොමැත',
     noAppointmentsToday: 'අද දිනය සඳහා හමුවීම් නොමැත',
-
     totalVillagers: 'ලියාපදිංචි පුරවැසියන්',
     pendingAppointments: 'පොරොත්තු හමුවීම්',
     pendingComplaints: 'පොරොත්තු පැමිණිලි',
     publishedNotices: 'ක්‍රියාකාරී නිවේදන',
-
     publicAppointments: 'මහජන හමුවීම් ලැයිස්තුව',
     searchApptPlaceholder: 'නම හෝ අරමුණ අනුව සොයන්න...',
     allStatuses: 'සියලුම තත්ත්වයන්',
@@ -162,7 +154,6 @@ const dashboardWords = {
     draft: 'කෙටුම්පත',
     published: 'පළකළා',
     expired: 'කල් ඉකුත් වූ',
-
     villager: 'පුරවැසියා',
     dateTime: 'දිනය සහ වේලාව',
     purpose: 'අරමුණ',
@@ -177,9 +168,8 @@ const dashboardWords = {
     details: 'විස්තර',
     close: 'වසන්න',
     cancel: 'අවලංගු කරන්න',
-
     villagersDirectory: 'පුරවැසි නාමාවලිය',
-    searchVillagerPlaceholder: 'නම, හැඳුනුම්පත, නිවාස අංකය අනුව සොයන්න...',
+    searchVillagerPlaceholder: 'නම, හැඳුනුම්පත, නිවාස අංකය, රැකියාව අනුව සොයන්න...',
     addVillager: '+ පුරවැසියෙකු එක්කරන්න',
     fullName: 'සම්පූර්ණ නම',
     nic: 'හැඳුනුම්පත් අංකය',
@@ -187,54 +177,56 @@ const dashboardWords = {
     phone: 'දුරකථන අංකය',
     address: 'ලිපිනය',
     email: 'විද්‍යුත් තැපෑල',
-    familyDetails: 'පවුලේ විස්තර',
+    gender: 'ස්ත්‍රී / පුරුෂ භාවය',
+    dateOfBirth: 'උපන් දිනය',
+    occupation: 'රැකියාව',
+    maritalStatus: 'විවාහක / අවිවාහක බව',
+    role: 'පවුලේ තත්ත්වය (Role)',
+    relationshipToHead: 'ගෘහ මූලිකයාට ඇති ඥාතීත්වය',
+    householdHeadNIC: 'ගෘහ මූලිකයාගේ හැඳුනුම්පත් අංකය',
+    familyDetails: 'පවුලේ විස්තර / සටහන්',
     edit: 'සංස්කරණය',
     delete: 'මකන්න',
     saveVillager: 'පුරවැසියා සුරකින්න',
-
     checkComplaints: 'මහජන පැමිණිලි පරීක්ෂා කිරීම',
-    searchComplaintsPlaceholder: 'පැමිණිලි සොයන්න...',
-    subject: 'මාතෘකාව',
-    category: 'වර්ගය',
-    description: 'කෙටි විස්තරය',
-    officerReply: 'නිලධාරී පිළිතුර',
-    replyStatus: 'පිළිතුර / තත්ත්වය',
+    searchComplaintsPlaceholder: 'Ref No, වර්ගය, ස්ථානය, විස්තරය අනුව සොයන්න...',
+    subject: 'යොමු අංකය සහ විස්තරය',
+    category: 'පැමිණිලි වර්ගය (Type)',
+    description: 'විස්තරය',
+    location: 'ස්ථානය',
+    submittedBy: 'ඉදිරිපත් කළේ',
+    evidence: 'සාක්ෂි ඡායාරූපය',
+    officerReply: 'නිලධාරී පිළිතුර / සටහන',
+    replyStatus: 'තත්ත්වය සහ පිළිතුර යාවත්කාලීන කරන්න',
     saveResponse: 'පිළිතුර සුරකින්න',
-
     noticesTitle: 'දැන්වීම් සහ නිවේදන',
     searchNoticesPlaceholder: 'නිවේදන සොයන්න...',
     createNotice: '+ නිවේදනයක් පළකරන්න',
     noticeTitle: 'නිවේදන මාතෘකාව',
     content: 'සම්පූර්ණ අන්තර්ගතය',
-    location: 'ස්ථානය',
     time: 'වේලාව',
     date: 'දිනය',
     image: 'ඡායාරූප සබැඳිය (Image URL)',
     type: 'වර්ගය (Type)',
     publish: 'පළකරන්න',
-
     confirmDelete: 'මැකීම තහවුරු කරන්න',
     deleteWarning: 'ඔබට මෙය මකා දැමීමට අවශ්‍ය බව සහතිකද',
     yesDelete: 'ඔව්, මකන්න',
-
     noResults: 'වාර්තා හමු නොවීය.',
     loading: 'Dashboard එක load වෙමින්...',
     errorLoading: 'Dashboard දත්ත load කිරීමට නොහැකි විය.',
     retry: 'නැවත උත්සාහ කරන්න',
-
     newAppointment: 'නව හමුවීමක් ලැබී ඇත',
     complaintUpdated: 'පැමිණිල්ලක් යාවත්කාලීන කර ඇත',
     noticePublished: 'නිවේදනයක් පළකර ඇත',
     villagerAdded: 'පුරවැසි වාර්තාවක් එක්කර ඇත',
-
     appointmentDetails: 'හමුවීම් විස්තර',
     complaintDetails: 'පැමිණිලි විස්තර',
     villagerDetails: 'පුරවැසි විස්තර',
-
     appointmentAccepted: 'හමුවීම පිළිගන්නා ලදී.',
     appointmentDeclined: 'හමුවීම ප්‍රතික්ෂේප කරන ලදී.',
     noteSaved: 'සටහන සාර්ථකව සුරකින ලදී.',
-    replySaved: 'පිළිතුර සාර්ථකව සුරකින ලදී.',
+    replySaved: 'පිළිතුර සහ තත්ත්වය සාර්ථකව සුරකින ලදී.',
     villagerCreated: 'පුරවැසියා සාර්ථකව එක්කරන ලදී.',
     villagerUpdated: 'පුරවැසි තොරතුරු යාවත්කාලීන කරන ලදී.',
     villagerDeleted: 'පුරවැසි වාර්තාව මකා දමන ලදී.',
@@ -243,7 +235,6 @@ const dashboardWords = {
     noticeDeleted: 'නිවේදනය මකා දමන ලදී.',
     actionFailed: 'ක්‍රියාමාර්ගය අසාර්ථක විය. නැවත උත්සාහ කරන්න.',
   },
-
   ta: {
     portalTitle: 'கிராம நிலதாரி போர்டல்',
     overview: 'கண்ணோட்டம்',
@@ -252,7 +243,6 @@ const dashboardWords = {
     complaints: 'முறைப்பாடுகள்',
     notices: 'அறிவிப்புகள்',
     logout: 'வெளியேறு',
-
     welcome: 'மீண்டும் வரவேற்கிறோம்',
     dashboardSubtitle: 'கிராம சேவைகள் மற்றும் அறிவிப்புகளின் நேரடி கண்ணோட்டம்.',
     refresh: 'புதுப்பிக்கவும்',
@@ -263,12 +253,10 @@ const dashboardWords = {
     todaysAppointments: 'இன்றைய சந்திப்புகள்',
     noActivity: 'சமீபத்திய செயல்பாடுகள் இல்லை',
     noAppointmentsToday: 'இன்று சந்திப்புகள் இல்லை',
-
     totalVillagers: 'பதிவுசெய்த மக்கள்',
     pendingAppointments: 'நிலுவையிலுள்ள சந்திப்புகள்',
     pendingComplaints: 'நிலுவையிலுள்ள முறைப்பாடுகள்',
     publishedNotices: 'செயலில் உள்ள அறிவிப்புகள்',
-
     publicAppointments: 'பொது சந்திப்புகள்',
     searchApptPlaceholder: 'பெயர் அல்லது நோக்கம் மூலம் தேடவும்...',
     allStatuses: 'அனைத்து நிலைகளும்',
@@ -280,7 +268,6 @@ const dashboardWords = {
     draft: 'வரைவு',
     published: 'வெளியிடப்பட்டது',
     expired: 'காலாவதியானது',
-
     villager: 'கிராமவாசி',
     dateTime: 'திகதி & நேரம்',
     purpose: 'நோக்கம்',
@@ -295,7 +282,6 @@ const dashboardWords = {
     details: 'விபரங்கள்',
     close: 'மூடு',
     cancel: 'ரத்து செய்',
-
     villagersDirectory: 'கிராம மக்கள் விபரம்',
     searchVillagerPlaceholder: 'பெயர், அட்டை எண், வீட்டு எண் மூலம் தேடவும்...',
     addVillager: '+ கிராமவாசியைச் சேர்க்கவும்',
@@ -305,50 +291,52 @@ const dashboardWords = {
     phone: 'தொலைபேசி எண்',
     address: 'முகவரி',
     email: 'மின்னஞ்சல்',
+    gender: 'பாலினம்',
+    dateOfBirth: 'பிறந்த திகதி',
+    occupation: 'தொழில்',
+    maritalStatus: 'திருமண நிலை',
+    role: 'குடும்ப நிலை',
+    relationshipToHead: 'குடும்பத் தலைவருடனான உறவு',
+    householdHeadNIC: 'தலைவரின் அடையாள அட்டை எண்',
     familyDetails: 'குடும்ப விபரங்கள்',
     edit: 'திருத்து',
     delete: 'நீக்கு',
     saveVillager: 'சேமிக்கவும்',
-
     checkComplaints: 'முறைப்பாடுகளைப் பார்க்கவும்',
     searchComplaintsPlaceholder: 'முறைப்பாடுகளைத் தேடவும்...',
-    subject: 'விடயம்',
+    subject: 'குறிப்பு எண் & விபரம்',
     category: 'வகை',
     description: 'விபரம்',
+    location: 'இடம்',
+    submittedBy: 'அனுப்பியவர்',
+    evidence: 'சான்று படம்',
     officerReply: 'அதிகாரி பதில்',
     replyStatus: 'பதில் / நிலை',
     saveResponse: 'பதிலைச் சேமிக்கவும்',
-
     noticesTitle: 'அறிவிப்புகள்',
     searchNoticesPlaceholder: 'அறிவிப்புகளைத் தேடவும்...',
     createNotice: '+ புதிய அறிவிப்பு',
     noticeTitle: 'தலைப்பு',
     content: 'உள்ளடக்கம்',
-    location: 'இடம்',
     time: 'நேரம்',
     date: 'திகதி',
     image: 'படம்',
     type: 'வகை',
     publish: 'வெளியிடு',
-
     confirmDelete: 'நீக்குவதை உறுதிப்படுத்தவும்',
     deleteWarning: 'நிச்சயமாக நீக்க விரும்புகிறீர்களா',
     yesDelete: 'ஆம், நீக்கு',
-
     noResults: 'முடிவுகள் இல்லை.',
     loading: 'Dashboard ஏற்றப்படுகிறது...',
     errorLoading: 'Dashboard தரவை ஏற்ற முடியவில்லை.',
     retry: 'மீண்டும் முயற்சிக்கவும்',
-
     newAppointment: 'புதிய சந்திப்பு கிடைத்துள்ளது',
     complaintUpdated: 'முறைப்பாடு புதுப்பிக்கப்பட்டது',
     noticePublished: 'அறிவிப்பு வெளியிடப்பட்டது',
     villagerAdded: 'கிராமவாசி சேர்க்கப்பட்டார்',
-
     appointmentDetails: 'சந்திப்பு விபரங்கள்',
     complaintDetails: 'முறைப்பாடு விபரங்கள்',
     villagerDetails: 'கிராமவாசி விபரங்கள்',
-
     appointmentAccepted: 'சந்திப்பு ஏற்றுக்கொள்ளப்பட்டது.',
     appointmentDeclined: 'சந்திப்பு நிராகரிக்கப்பட்டது.',
     noteSaved: 'குறிப்பு வெற்றிகரமாக சேமிக்கப்பட்டது.',
@@ -363,119 +351,82 @@ const dashboardWords = {
   },
 };
 
+const DEFAULT_NOTICE_IMAGE =
+  'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop';
+const FALLBACK_SVG =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="%2394a3b8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>';
+
+const NoticeThumbnail = ({ src, alt }) => {
+  const [currentSrc, setCurrentSrc] = useState(src || DEFAULT_NOTICE_IMAGE);
+
+  useEffect(() => {
+    setCurrentSrc(src || DEFAULT_NOTICE_IMAGE);
+  }, [src]);
+
+  return (
+    <div
+      style={{
+        width: '42px',
+        height: '42px',
+        minWidth: '42px',
+        minHeight: '42px',
+        borderRadius: '8px',
+        backgroundColor: '#e2e8f0',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <img
+        src={currentSrc}
+        alt={alt || 'Announcement'}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        onError={() => setCurrentSrc(FALLBACK_SVG)}
+      />
+    </div>
+  );
+};
+
 /* =========================================================
    MAIN COMPONENT
 ========================================================= */
-
 const GNPortal = () => {
   const [activeSection, setActiveSection] = useState('overview');
-
-  const [theme, setTheme] = useState(
-    localStorage.getItem('gramalk_theme') || 'light'
-  );
-
-  const [lang, setLang] = useState(
-    localStorage.getItem('gramalk_lang') || 'si'
-  );
-
+  const [theme, setTheme] = useState(localStorage.getItem('gramalk_theme') || 'light');
+  const [lang, setLang] = useState(localStorage.getItem('gramalk_lang') || 'si');
   const [officerName, setOfficerName] = useState('Kanchana Perera');
 
-  const t = (key) =>
-    dashboardWords[lang]?.[key] ||
-    dashboardWords.en[key] ||
-    key;
+  const t = (key) => dashboardWords[lang]?.[key] || dashboardWords.en[key] || key;
 
-  /* =========================================================
-     UI STATES
-  ========================================================= */
-
-  const [alert, setAlert] = useState({
-    show: false,
-    message: '',
-    type: 'success',
-  });
-
+  const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  /* =========================================================
-     APPOINTMENTS
-  ========================================================= */
 
   const [appointments, setAppointments] = useState([]);
   const [apptFilter, setApptFilter] = useState('All');
   const [apptSearch, setApptSearch] = useState('');
   const [apptDetails, setApptDetails] = useState(null);
-
-  const [noteModal, setNoteModal] = useState({
-    open: false,
-    apptId: null,
-    note: '',
-  });
-
-  const [appointmentActionLoading, setAppointmentActionLoading] =
-    useState(null);
-
-  /* =========================================================
-     VILLAGERS
-  ========================================================= */
+  const [noteModal, setNoteModal] = useState({ open: false, apptId: null, note: '' });
+  const [appointmentActionLoading, setAppointmentActionLoading] = useState(null);
 
   const [villagers, setVillagers] = useState([]);
   const [villagerSearch, setVillagerSearch] = useState('');
-
-  const [villagerModal, setVillagerModal] = useState({
-    open: false,
-    mode: 'create',
-    data: null,
-  });
-
+  const [villagerModal, setVillagerModal] = useState({ open: false, mode: 'create', data: null });
   const [villagerDetails, setVillagerDetails] = useState(null);
-
-  /* =========================================================
-     COMPLAINTS
-  ========================================================= */
 
   const [complaints, setComplaints] = useState([]);
   const [complaintFilter, setComplaintFilter] = useState('All');
   const [complaintSearch, setComplaintSearch] = useState('');
-
-  const [replyModal, setReplyModal] = useState({
-    open: false,
-    complaint: null,
-    reply: '',
-    status: '',
-  });
-
+  const [replyModal, setReplyModal] = useState({ open: false, complaint: null, reply: '', status: '' });
   const [complaintDetails, setComplaintDetails] = useState(null);
-
-  /* =========================================================
-     NOTICES / ANNOUNCEMENTS
-  ========================================================= */
 
   const [notices, setNotices] = useState([]);
   const [noticeSearch, setNoticeSearch] = useState('');
   const [noticeFilter, setNoticeFilter] = useState('All');
+  const [noticeModal, setNoticeModal] = useState({ open: false, mode: 'create', data: null });
 
-  const [noticeModal, setNoticeModal] = useState({
-    open: false,
-    mode: 'create',
-    data: null,
-  });
-
-  /* =========================================================
-     DELETE CONFIRMATION
-  ========================================================= */
-
-  const [deleteConfirm, setDeleteConfirm] = useState({
-    open: false,
-    type: '',
-    id: null,
-    name: '',
-  });
-
-  /* =========================================================
-     LANGUAGE & THEME
-  ========================================================= */
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: '', id: null, name: '' });
 
   const handleLangChange = (newLang) => {
     setLang(newLang);
@@ -496,13 +447,8 @@ const GNPortal = () => {
     }, 3500);
   };
 
-  /* =========================================================
-     API HELPER
-  ========================================================= */
-
   const apiRequest = async (url, options = {}) => {
     const token = localStorage.getItem('gramalk_token');
-
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -524,10 +470,6 @@ const GNPortal = () => {
     return null;
   };
 
-  /* =========================================================
-     FETCH DATA
-  ========================================================= */
-
   const fetchDashboardData = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
@@ -543,27 +485,23 @@ const GNPortal = () => {
       const [apptResult, villagersResult, compResult, noticeResult] = results;
 
       if (apptResult.status === 'fulfilled') {
-        setAppointments(
-          Array.isArray(apptResult.value) ? apptResult.value : []
-        );
+        setAppointments(Array.isArray(apptResult.value) ? apptResult.value : []);
       }
 
       if (villagersResult.status === 'fulfilled') {
-        const vList = Array.isArray(villagersResult.value) ? villagersResult.value : [];
-        setVillagers(vList);
+        setVillagers(Array.isArray(villagersResult.value) ? villagersResult.value : []);
       }
 
       if (compResult.status === 'fulfilled') {
-        setComplaints(
-          Array.isArray(compResult.value) ? compResult.value : []
-        );
+        setComplaints(Array.isArray(compResult.value) ? compResult.value : []);
       }
 
       if (noticeResult.status === 'fulfilled') {
         const data = noticeResult.value;
-        setNotices(
-          Array.isArray(data) ? data : data?.announcements || []
-        );
+        const noticeList = Array.isArray(data)
+          ? data
+          : data?.announcements || data?.data || [];
+        setNotices(noticeList);
       }
 
       if (isRefresh) {
@@ -584,10 +522,6 @@ const GNPortal = () => {
     }
   };
 
-  /* =========================================================
-     INITIAL LOAD
-  ========================================================= */
-
   useEffect(() => {
     const storedUser = localStorage.getItem('gramalk_user');
     if (storedUser) {
@@ -600,18 +534,12 @@ const GNPortal = () => {
         console.error(error);
       }
     }
-
     fetchDashboardData();
   }, []);
-
-  /* =========================================================
-     ESC KEY HANDLER
-  ========================================================= */
 
   useEffect(() => {
     const handleEscape = (event) => {
       if (event.key !== 'Escape') return;
-
       setVillagerModal({ open: false, mode: 'create', data: null });
       setNoteModal({ open: false, apptId: null, note: '' });
       setReplyModal({ open: false, complaint: null, reply: '', status: '' });
@@ -626,13 +554,8 @@ const GNPortal = () => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
 
-  /* =========================================================
-     APPOINTMENT ACTIONS
-  ========================================================= */
-
   const handleAppointmentAction = async (id, newStatus) => {
     setAppointmentActionLoading(id);
-
     try {
       await apiRequest(`${API}/appointments/${id}/status`, {
         method: 'PATCH',
@@ -640,15 +563,11 @@ const GNPortal = () => {
       });
 
       setAppointments((prev) =>
-        prev.map((a) =>
-          a._id === id || a.id === id ? { ...a, status: newStatus } : a
-        )
+        prev.map((a) => (a._id === id || a.id === id ? { ...a, status: newStatus } : a))
       );
 
       showAlert(
-        newStatus === 'Accepted'
-          ? t('appointmentAccepted')
-          : t('appointmentDeclined')
+        newStatus === 'Accepted' ? t('appointmentAccepted') : t('appointmentDeclined')
       );
     } catch (error) {
       console.error(error);
@@ -660,7 +579,6 @@ const GNPortal = () => {
 
   const handleSaveNote = async () => {
     const { apptId, note } = noteModal;
-
     try {
       await apiRequest(`${API}/appointments/${apptId}/note`, {
         method: 'PATCH',
@@ -682,18 +600,16 @@ const GNPortal = () => {
   };
 
   /* =========================================================
-     VILLAGER CRUD
+     FIXED VILLAGER CRUD (Correct ID resolution & mutation)
   ========================================================= */
-
   const handleSaveVillager = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData.entries());
 
     const isEdit = villagerModal.mode === 'edit';
-    const url = isEdit
-      ? `${API}/villagers/${villagerModal.data._id}`
-      : `${API}/villagers`;
+    const targetId = villagerModal.data?._id || villagerModal.data?.id;
+    const url = isEdit ? `${API}/villagers/${targetId}` : `${API}/villagers`;
 
     try {
       const saved = await apiRequest(url, {
@@ -703,9 +619,7 @@ const GNPortal = () => {
 
       if (isEdit) {
         setVillagers((prev) =>
-          prev.map((v) =>
-            v._id === villagerModal.data._id ? saved : v
-          )
+          prev.map((v) => ((v._id || v.id) === targetId ? saved : v))
         );
         showAlert(t('villagerUpdated'));
       } else {
@@ -722,17 +636,16 @@ const GNPortal = () => {
 
   const executeDelete = async () => {
     const { type, id } = deleteConfirm;
-
     try {
       if (type === 'villager') {
         await apiRequest(`${API}/villagers/${id}`, { method: 'DELETE' });
-        setVillagers((prev) => prev.filter((v) => v._id !== id));
+        setVillagers((prev) => prev.filter((v) => (v._id || v.id) !== id));
         showAlert(t('villagerDeleted'));
       }
 
       if (type === 'notice') {
         await apiRequest(`${API}/announcements/${id}`, { method: 'DELETE' });
-        setNotices((prev) => prev.filter((n) => n._id !== id));
+        setNotices((prev) => prev.filter((n) => (n._id || n.id) !== id));
         showAlert(t('noticeDeleted'));
       }
     } catch (error) {
@@ -743,23 +656,22 @@ const GNPortal = () => {
     }
   };
 
-  /* =========================================================
-     COMPLAINTS & NOTICES ACTIONS
-  ========================================================= */
-
   const handleSaveComplaintReply = async (e) => {
     e.preventDefault();
     const { complaint, reply, status } = replyModal;
+    const compId = complaint._id || complaint.id;
 
     try {
-      await apiRequest(`${API}/complaints/${complaint._id}/status`, {
+      await apiRequest(`${API}/complaints/${compId}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ officerNote: reply, status }),
       });
 
       setComplaints((prev) =>
         prev.map((c) =>
-          c._id === complaint._id ? { ...c, officerNote: reply, reply, status } : c
+          (c._id || c.id) === compId
+            ? { ...c, officerNote: reply, reply, status }
+            : c
         )
       );
 
@@ -780,14 +692,12 @@ const GNPortal = () => {
       payload.description = payload.content;
     }
     if (!payload.image) {
-      payload.image =
-        'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop';
+      payload.image = DEFAULT_NOTICE_IMAGE;
     }
 
     const isEdit = noticeModal.mode === 'edit';
-    const url = isEdit
-      ? `${API}/announcements/${noticeModal.data._id}`
-      : `${API}/announcements`;
+    const noticeId = noticeModal.data?._id || noticeModal.data?.id;
+    const url = isEdit ? `${API}/announcements/${noticeId}` : `${API}/announcements`;
 
     try {
       const saved = await apiRequest(url, {
@@ -797,7 +707,7 @@ const GNPortal = () => {
 
       if (isEdit) {
         setNotices((prev) =>
-          prev.map((n) => (n._id === noticeModal.data._id ? saved : n))
+          prev.map((n) => ((n._id || n.id) === noticeId ? saved : n))
         );
         showAlert(t('noticeUpdated'));
       } else {
@@ -811,10 +721,6 @@ const GNPortal = () => {
       showAlert(t('actionFailed'), 'error');
     }
   };
-
-  /* =========================================================
-     FILTERS & COUNTS
-  ========================================================= */
 
   const filteredAppointments = useMemo(() => {
     const search = apptSearch.toLowerCase();
@@ -834,7 +740,8 @@ const GNPortal = () => {
         (v.fullName || v.name || '').toLowerCase().includes(search) ||
         (v.nic || '').toLowerCase().includes(search) ||
         (v.houseNumber || '').toLowerCase().includes(search) ||
-        (v.phone || v.contact || '').toLowerCase().includes(search)
+        (v.phone || v.contact || '').toLowerCase().includes(search) ||
+        (v.occupation || '').toLowerCase().includes(search)
       );
     });
   }, [villagers, villagerSearch]);
@@ -844,9 +751,11 @@ const GNPortal = () => {
     return complaints.filter((c) => {
       const matchFilter = complaintFilter === 'All' || c.status === complaintFilter;
       const matchSearch =
-        (c.subject || c.title || '').toLowerCase().includes(search) ||
-        (c.category || '').toLowerCase().includes(search) ||
-        (c.description || '').toLowerCase().includes(search);
+        (c.referenceNo || '').toLowerCase().includes(search) ||
+        (c.type || '').toLowerCase().includes(search) ||
+        (c.location || '').toLowerCase().includes(search) ||
+        (c.description || '').toLowerCase().includes(search) ||
+        (c.submittedBy || '').toLowerCase().includes(search);
       return matchFilter && matchSearch;
     });
   }, [complaints, complaintFilter, complaintSearch]);
@@ -884,7 +793,7 @@ const GNPortal = () => {
     complaints.slice(0, 2).forEach((c) => {
       activities.push({
         icon: '📝',
-        text: `${t('complaintUpdated')}: ${c.subject || c.title || 'Complaint'}`,
+        text: `${t('complaintUpdated')}: ${c.referenceNo || c.description || 'Complaint'}`,
       });
     });
     notices.slice(0, 2).forEach((n) => {
@@ -907,9 +816,11 @@ const GNPortal = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  /* =========================================================
-     LOADING SCREEN
-  ========================================================= */
+  const getFullImageUrl = (img) => {
+    if (!img) return null;
+    if (img.startsWith('http://') || img.startsWith('https://')) return img;
+    return `${BACKEND_BASE}${img.startsWith('/') ? '' : '/'}${img}`;
+  };
 
   if (loading) {
     return (
@@ -937,16 +848,10 @@ const GNPortal = () => {
           />
           <strong>{t('loading')}</strong>
         </div>
-        <style>
-          {`@keyframes spin { to { transform: rotate(360deg); } }`}
-        </style>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
-
-  /* =========================================================
-     MAIN RENDER
-  ========================================================= */
 
   return (
     <div
@@ -957,7 +862,6 @@ const GNPortal = () => {
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}
     >
-      {/* TOAST NOTIFICATION */}
       {alert.show && (
         <div
           style={{
@@ -994,7 +898,6 @@ const GNPortal = () => {
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '12px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-            {/* LOGO */}
             <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}>
               <img src="/images/logo.png" alt="GramaLK Logo" style={{ height: '40px', width: 'auto' }} onError={(e) => { e.target.style.display = 'none'; }} />
               <div>
@@ -1007,7 +910,6 @@ const GNPortal = () => {
               </div>
             </a>
 
-            {/* NAVIGATION */}
             <nav style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {[
                 { id: 'overview', label: t('overview') },
@@ -1036,7 +938,6 @@ const GNPortal = () => {
               ))}
             </nav>
 
-            {/* CONTROLS */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
               <select
                 value={lang}
@@ -1067,10 +968,8 @@ const GNPortal = () => {
 
       {/* MAIN CONTAINER */}
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '30px 20px 60px' }}>
-        {/* OVERVIEW SECTION (Cleaned - Officer card removed) */}
         {activeSection === 'overview' && (
           <section>
-            {/* HERO BANNER */}
             <div
               style={{
                 borderRadius: '24px',
@@ -1123,7 +1022,6 @@ const GNPortal = () => {
               </div>
             </div>
 
-            {/* METRICS GRID */}
             <div
               style={{
                 display: 'grid',
@@ -1166,7 +1064,6 @@ const GNPortal = () => {
               />
             </div>
 
-            {/* TWO-COLUMN WORKSPACE: QUICK ACTIONS & RECENT ACTIVITY */}
             <div
               style={{
                 display: 'grid',
@@ -1177,28 +1074,18 @@ const GNPortal = () => {
             >
               <section style={panelStyle(theme)}>
                 <h3 style={sectionTitle}>⚡ {t('quickActions')}</h3>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '12px',
-                  }}
-                >
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                   <QuickAction
                     theme={theme}
                     icon="👤"
                     text={t('addVillager')}
-                    onClick={() => {
-                      setVillagerModal({ open: true, mode: 'create', data: null });
-                    }}
+                    onClick={() => setVillagerModal({ open: true, mode: 'create', data: null })}
                   />
                   <QuickAction
                     theme={theme}
                     icon="📢"
                     text={t('createNotice')}
-                    onClick={() => {
-                      setNoticeModal({ open: true, mode: 'create', data: null });
-                    }}
+                    onClick={() => setNoticeModal({ open: true, mode: 'create', data: null })}
                   />
                   <QuickAction
                     theme={theme}
@@ -1229,8 +1116,7 @@ const GNPortal = () => {
                           alignItems: 'center',
                           gap: '12px',
                           padding: '11px 0',
-                          borderBottom:
-                            index < recentActivity.length - 1 ? '1px solid #e2e8f0' : 'none',
+                          borderBottom: index < recentActivity.length - 1 ? '1px solid #e2e8f0' : 'none',
                         }}
                       >
                         <span
@@ -1257,7 +1143,6 @@ const GNPortal = () => {
               </section>
             </div>
 
-            {/* TODAY'S APPOINTMENTS */}
             <section style={panelStyle(theme)}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
                 <h3 style={sectionTitle}>📅 {t('todaysAppointments')}</h3>
@@ -1270,9 +1155,9 @@ const GNPortal = () => {
                 <EmptyState text={t('noAppointmentsToday')} />
               ) : (
                 <div style={{ display: 'grid', gap: '12px' }}>
-                  {todaysAppointments.slice(0, 5).map((a) => (
+                  {todaysAppointments.slice(0, 5).map((a, index) => (
                     <div
-                      key={a._id || a.id}
+                      key={a._id || a.id || index}
                       onClick={() => setApptDetails(a)}
                       className="hover-card"
                       style={{
@@ -1343,57 +1228,60 @@ const GNPortal = () => {
                   {filteredAppointments.length === 0 ? (
                     <EmptyTableRow colSpan="5" text={t('noResults')} />
                   ) : (
-                    filteredAppointments.map((a) => (
-                      <tr key={a._id || a.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={tdThStyle}><strong>{a.villagerName || a.name || 'Resident'}</strong></td>
-                        <td style={tdThStyle}>{a.date ? new Date(a.date).toLocaleDateString() : '-'} | {a.time || '-'}</td>
-                        <td style={tdThStyle}>{a.purpose || '-'}</td>
-                        <td style={tdThStyle}>
-                          <span style={badgeStatus(a.status)}>
-                            {translateStatus(a.status, t)}
-                          </span>
-                        </td>
-                        <td style={{ ...tdThStyle, textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button onClick={() => setApptDetails(a)} style={btnActionOutline}>
-                              👁️ {t('view')}
-                            </button>
+                    filteredAppointments.map((a, index) => {
+                      const aId = a._id || a.id || index;
+                      return (
+                        <tr key={aId} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={tdThStyle}><strong>{a.villagerName || a.name || 'Resident'}</strong></td>
+                          <td style={tdThStyle}>{a.date ? new Date(a.date).toLocaleDateString() : '-'} | {a.time || '-'}</td>
+                          <td style={tdThStyle}>{a.purpose || '-'}</td>
+                          <td style={tdThStyle}>
+                            <span style={badgeStatus(a.status)}>
+                              {translateStatus(a.status, t)}
+                            </span>
+                          </td>
+                          <td style={{ ...tdThStyle, textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                              <button onClick={() => setApptDetails(a)} style={btnActionOutline}>
+                                👁️ {t('view')}
+                              </button>
 
-                            {a.status === 'Pending' && (
-                              <>
-                                <button
-                                  disabled={appointmentActionLoading === (a._id || a.id)}
-                                  onClick={() => handleAppointmentAction(a._id || a.id, 'Accepted')}
-                                  style={btnActionGreen}
-                                >
-                                  ✓ {t('accept')}
-                                </button>
-                                <button
-                                  disabled={appointmentActionLoading === (a._id || a.id)}
-                                  onClick={() => handleAppointmentAction(a._id || a.id, 'Declined')}
-                                  style={btnActionRed}
-                                >
-                                  ✕ {t('decline')}
-                                </button>
-                              </>
-                            )}
+                              {a.status === 'Pending' && (
+                                <>
+                                  <button
+                                    disabled={appointmentActionLoading === aId}
+                                    onClick={() => handleAppointmentAction(aId, 'Accepted')}
+                                    style={btnActionGreen}
+                                  >
+                                    ✓ {t('accept')}
+                                  </button>
+                                  <button
+                                    disabled={appointmentActionLoading === aId}
+                                    onClick={() => handleAppointmentAction(aId, 'Declined')}
+                                    style={btnActionRed}
+                                  >
+                                    ✕ {t('decline')}
+                                  </button>
+                                </>
+                              )}
 
-                            <button
-                              onClick={() =>
-                                setNoteModal({
-                                  open: true,
-                                  apptId: a._id || a.id,
-                                  note: a.officerNote || '',
-                                })
-                              }
-                              style={btnActionOutline}
-                            >
-                              📝 {t('note')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                              <button
+                                onClick={() =>
+                                  setNoteModal({
+                                    open: true,
+                                    apptId: aId,
+                                    note: a.officerNote || '',
+                                  })
+                                }
+                                style={btnActionOutline}
+                              >
+                                📝 {t('note')}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -1429,47 +1317,57 @@ const GNPortal = () => {
                     <th style={tdThStyle}>{t('nic')}</th>
                     <th style={tdThStyle}>{t('houseNumber')}</th>
                     <th style={tdThStyle}>{t('phone')}</th>
+                    <th style={tdThStyle}>{t('occupation')}</th>
                     <th style={{ ...tdThStyle, textAlign: 'center' }}>{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredVillagers.length === 0 ? (
-                    <EmptyTableRow colSpan="5" text={t('noResults')} />
+                    <EmptyTableRow colSpan="6" text={t('noResults')} />
                   ) : (
-                    filteredVillagers.map((v) => (
-                      <tr key={v._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={tdThStyle}><strong>{v.fullName || v.name}</strong></td>
-                        <td style={tdThStyle}>{v.nic || '-'}</td>
-                        <td style={tdThStyle}>{v.houseNumber || '-'}</td>
-                        <td style={tdThStyle}>{v.phone || v.contact || '-'}</td>
-                        <td style={{ ...tdThStyle, textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button onClick={() => setVillagerDetails(v)} style={btnActionOutline}>
-                              👁️ {t('view')}
-                            </button>
-                            <button
-                              onClick={() => setVillagerModal({ open: true, mode: 'edit', data: v })}
-                              style={btnActionOutline}
-                            >
-                              {t('edit')}
-                            </button>
-                            <button
-                              onClick={() =>
-                                setDeleteConfirm({
-                                  open: true,
-                                  type: 'villager',
-                                  id: v._id,
-                                  name: v.fullName || v.name,
-                                })
-                              }
-                              style={btnActionRed}
-                            >
-                              {t('delete')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                    filteredVillagers.map((v, index) => {
+                      const vId = v._id || v.id || `villager-${index}`;
+                      return (
+                        <tr key={vId} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={tdThStyle}>
+                            <strong>{v.fullName || v.name}</strong>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              {v.role || 'Member'} • {v.gender || '-'}
+                            </div>
+                          </td>
+                          <td style={tdThStyle}>{v.nic || '-'}</td>
+                          <td style={tdThStyle}>{v.houseNumber || '-'}</td>
+                          <td style={tdThStyle}>{v.phone || v.contact || '-'}</td>
+                          <td style={tdThStyle}>{v.occupation || '-'}</td>
+                          <td style={{ ...tdThStyle, textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                              <button onClick={() => setVillagerDetails(v)} style={btnActionOutline}>
+                                👁 {t('view')}
+                              </button>
+                              <button
+                                onClick={() => setVillagerModal({ open: true, mode: 'edit', data: v })}
+                                style={btnActionOutline}
+                              >
+                                {t('edit')}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setDeleteConfirm({
+                                    open: true,
+                                    type: 'villager',
+                                    id: vId,
+                                    name: v.fullName || v.name,
+                                  })
+                                }
+                                style={btnActionRed}
+                              >
+                                {t('delete')}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -1505,49 +1403,106 @@ const GNPortal = () => {
               <table style={tableStyle}>
                 <thead>
                   <tr style={thRowStyle(theme)}>
+                    <th style={{ ...tdThStyle, width: '55px' }}>Photo</th>
                     <th style={tdThStyle}>{t('subject')}</th>
                     <th style={tdThStyle}>{t('category')}</th>
+                    <th style={tdThStyle}>{t('location')}</th>
+                    <th style={tdThStyle}>{t('submittedBy')}</th>
                     <th style={tdThStyle}>{t('status')}</th>
-                    <th style={tdThStyle}>{t('officerReply')}</th>
                     <th style={{ ...tdThStyle, textAlign: 'center' }}>{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredComplaints.length === 0 ? (
-                    <EmptyTableRow colSpan="5" text={t('noResults')} />
+                    <EmptyTableRow colSpan="7" text={t('noResults')} />
                   ) : (
-                    filteredComplaints.map((c) => (
-                      <tr key={c._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={tdThStyle}><strong>{c.subject || c.title || 'Complaint'}</strong></td>
-                        <td style={tdThStyle}>{c.category || '-'}</td>
-                        <td style={tdThStyle}>
-                          <span style={badgeStatus(c.status)}>
-                            {translateStatus(c.status, t)}
-                          </span>
-                        </td>
-                        <td style={tdThStyle}>{c.officerNote || c.reply || '-'}</td>
-                        <td style={{ ...tdThStyle, textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                            <button onClick={() => setComplaintDetails(c)} style={btnActionOutline}>
-                              👁️ {t('view')}
-                            </button>
-                            <button
-                              onClick={() =>
-                                setReplyModal({
-                                  open: true,
-                                  complaint: c,
-                                  reply: c.officerNote || c.reply || '',
-                                  status: c.status || 'Pending',
-                                })
-                              }
-                              style={btnActionOutline}
+                    filteredComplaints.map((c, index) => {
+                      const fullImage = getFullImageUrl(c.imageUrl);
+                      const cId = c._id || c.id || `complaint-${index}`;
+                      return (
+                        <tr key={cId} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={tdThStyle}>
+                            <div
+                              style={{
+                                width: '42px',
+                                height: '42px',
+                                minWidth: '42px',
+                                minHeight: '42px',
+                                borderRadius: '8px',
+                                backgroundColor: '#f1f5f9',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '18px',
+                              }}
                             >
-                              📝 {t('replyStatus')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                              {fullImage ? (
+                                <img
+                                  src={fullImage}
+                                  alt="Complaint evidence"
+                                  loading="lazy"
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.parentElement.innerHTML = '📷';
+                                  }}
+                                />
+                              ) : (
+                                '📝'
+                              )}
+                            </div>
+                          </td>
+                          <td style={tdThStyle}>
+                            <strong style={{ display: 'block', fontSize: '13px' }}>
+                              {c.referenceNo || 'CMP-GENERAL'}
+                            </strong>
+                            <div style={{ fontSize: '12px', color: '#64748b', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {c.description || '-'}
+                            </div>
+                          </td>
+                          <td style={tdThStyle}>
+                            <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>
+                              {c.type || '-'}
+                            </span>
+                          </td>
+                          <td style={tdThStyle}>{c.location || '-'}</td>
+                          <td style={tdThStyle}>
+                            <div>{c.submittedBy || 'Public User'}</div>
+                            {c.isAnonymous && (
+                              <span style={{ fontSize: '10px', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#475569' }}>
+                                Anonymous
+                              </span>
+                            )}
+                          </td>
+                          <td style={tdThStyle}>
+                            <span style={badgeStatus(c.status)}>
+                              {translateStatus(c.status, t)}
+                            </span>
+                          </td>
+                          <td style={{ ...tdThStyle, textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button onClick={() => setComplaintDetails(c)} style={btnActionOutline}>
+                                👁️ {t('view')}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setReplyModal({
+                                    open: true,
+                                    complaint: c,
+                                    reply: c.officerNote || c.reply || '',
+                                    status: c.status || 'Pending',
+                                  })
+                                }
+                                style={btnActionOutline}
+                              >
+                                📝 {t('replyStatus')}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -1555,7 +1510,7 @@ const GNPortal = () => {
           </DataSection>
         )}
 
-        {/* NOTICES / ANNOUNCEMENTS SECTION */}
+        {/* NOTICES SECTION */}
         {activeSection === 'notices' && (
           <DataSection title={t('noticesTitle')} theme={theme}>
             <Toolbar>
@@ -1578,9 +1533,7 @@ const GNPortal = () => {
                 <option value="Health">Health</option>
               </select>
               <button
-                onClick={() =>
-                  setNoticeModal({ open: true, mode: 'create', data: null })
-                }
+                onClick={() => setNoticeModal({ open: true, mode: 'create', data: null })}
                 style={btnPrimary}
               >
                 {t('createNotice')}
@@ -1605,75 +1558,52 @@ const GNPortal = () => {
                   {filteredNotices.length === 0 ? (
                     <EmptyTableRow colSpan="6" text={t('noResults')} />
                   ) : (
-                    filteredNotices.map((n) => (
-                      <tr key={n._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={tdThStyle}>
-                          <div
-                            style={{
-                              width: '42px',
-                              height: '42px',
-                              minWidth: '42px',
-                              minHeight: '42px',
-                              borderRadius: '8px',
-                              backgroundColor: '#e2e8f0',
-                              overflow: 'hidden',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <img
-                              src={n.image || 'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop'}
-                              alt={n.title || 'Announcement'}
-                              loading="lazy"
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="%2394a3b8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>';
-                              }}
-                            />
-                          </div>
-                        </td>
-                        <td style={tdThStyle}>
-                          <strong>{n.title}</strong>
-                          <div style={{ fontSize: '11px', color: '#64748b' }}>
-                            {n.description ? `${n.description.slice(0, 50)}...` : ''}
-                          </div>
-                        </td>
-                        <td style={tdThStyle}>
-                          <span style={badgeStatus('Accepted')}>
-                            {n.category || 'General'}
-                          </span>
-                        </td>
-                        <td style={tdThStyle}>{n.date || '-'} {n.time ? `at ${n.time}` : ''}</td>
-                        <td style={tdThStyle}>{n.location || '-'}</td>
-                        <td style={{ ...tdThStyle, textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                            <button
-                              onClick={() =>
-                                setNoticeModal({ open: true, mode: 'edit', data: n })
-                              }
-                              style={btnActionOutline}
-                            >
-                              {t('edit')}
-                            </button>
-                            <button
-                              onClick={() =>
-                                setDeleteConfirm({
-                                  open: true,
-                                  type: 'notice',
-                                  id: n._id,
-                                  name: n.title,
-                                })
-                              }
-                              style={btnActionRed}
-                            >
-                              {t('delete')}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                    filteredNotices.map((n, index) => {
+                      const noticeId = n._id || n.id || `notice-${index}`;
+                      return (
+                        <tr key={noticeId} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={tdThStyle}>
+                            <NoticeThumbnail src={n.image} alt={n.title} />
+                          </td>
+                          <td style={tdThStyle}>
+                            <strong>{n.title}</strong>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              {n.description ? `${n.description.slice(0, 50)}...` : ''}
+                            </div>
+                          </td>
+                          <td style={tdThStyle}>
+                            <span style={badgeStatus('Accepted')}>
+                              {n.category || 'General'}
+                            </span>
+                          </td>
+                          <td style={tdThStyle}>{n.date || '-'} {n.time ? `at ${n.time}` : ''}</td>
+                          <td style={tdThStyle}>{n.location || '-'}</td>
+                          <td style={{ ...tdThStyle, textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button
+                                onClick={() => setNoticeModal({ open: true, mode: 'edit', data: n })}
+                                style={btnActionOutline}
+                              >
+                                {t('edit')}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setDeleteConfirm({
+                                    open: true,
+                                    type: 'notice',
+                                    id: noticeId,
+                                    name: n.title,
+                                  })
+                                }
+                                style={btnActionRed}
+                              >
+                                {t('delete')}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -1682,7 +1612,7 @@ const GNPortal = () => {
         )}
       </main>
 
-      {/* VILLAGER MODAL */}
+      {/* VILLAGER CREATE / EDIT MODAL */}
       {villagerModal.open && (
         <Modal
           theme={theme}
@@ -1692,58 +1622,163 @@ const GNPortal = () => {
             {villagerModal.mode === 'edit' ? t('edit') : t('addVillager')}
           </h3>
           <form onSubmit={handleSaveVillager}>
-            <label style={labelStyle}>{t('fullName')}</label>
-            <input
-              type="text"
-              name="fullName"
-              defaultValue={villagerModal.data?.fullName || ''}
-              required
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('nic')}</label>
-            <input
-              type="text"
-              name="nic"
-              defaultValue={villagerModal.data?.nic || ''}
-              required
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('houseNumber')}</label>
-            <input
-              type="text"
-              name="houseNumber"
-              defaultValue={villagerModal.data?.houseNumber || ''}
-              required
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('phone')}</label>
-            <input
-              type="text"
-              name="phone"
-              defaultValue={villagerModal.data?.phone || ''}
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('email')}</label>
-            <input
-              type="email"
-              name="email"
-              defaultValue={villagerModal.data?.email || ''}
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('address')}</label>
-            <input
-              type="text"
-              name="address"
-              defaultValue={villagerModal.data?.address || ''}
-              style={inputStyle(theme)}
-            />
-            <label style={labelStyle}>{t('familyDetails')}</label>
-            <textarea
-              name="familyDetails"
-              defaultValue={villagerModal.data?.familyDetails || ''}
-              rows="3"
-              style={{ ...inputStyle(theme), resize: 'vertical' }}
-            />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
+              <div>
+                <label style={labelStyle}>{t('fullName')}</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  defaultValue={villagerModal.data?.fullName || ''}
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('nic')}</label>
+                <input
+                  type="text"
+                  name="nic"
+                  defaultValue={villagerModal.data?.nic || ''}
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('houseNumber')}</label>
+                <input
+                  type="text"
+                  name="houseNumber"
+                  defaultValue={villagerModal.data?.houseNumber || ''}
+                  required
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('phone')}</label>
+                <input
+                  type="text"
+                  name="phone"
+                  defaultValue={villagerModal.data?.phone || ''}
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('email')}</label>
+                <input
+                  type="email"
+                  name="email"
+                  defaultValue={villagerModal.data?.email || ''}
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('gender')}</label>
+                <select
+                  name="gender"
+                  defaultValue={villagerModal.data?.gender || 'Female'}
+                  style={inputStyle(theme)}
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('dateOfBirth')}</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  defaultValue={villagerModal.data?.dateOfBirth ? villagerModal.data.dateOfBirth.slice(0, 10) : ''}
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('occupation')}</label>
+                <input
+                  type="text"
+                  name="occupation"
+                  defaultValue={villagerModal.data?.occupation || ''}
+                  placeholder="Farmer, Teacher, etc."
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('maritalStatus')}</label>
+                <select
+                  name="maritalStatus"
+                  defaultValue={villagerModal.data?.maritalStatus || 'Married'}
+                  style={inputStyle(theme)}
+                >
+                  <option value="Married">Married</option>
+                  <option value="Single">Single</option>
+                  <option value="Divorced">Divorced</option>
+                  <option value="Widowed">Widowed</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('role')}</label>
+                <input
+                  type="text"
+                  name="role"
+                  defaultValue={villagerModal.data?.role || 'Head of Household'}
+                  placeholder="Head of Household / Member"
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('relationshipToHead')}</label>
+                <input
+                  type="text"
+                  name="relationshipToHead"
+                  defaultValue={villagerModal.data?.relationshipToHead || 'Self'}
+                  placeholder="Self, Spouse, Son, Daughter"
+                  style={inputStyle(theme)}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>{t('householdHeadNIC')}</label>
+                <input
+                  type="text"
+                  name="householdHeadNIC"
+                  defaultValue={villagerModal.data?.householdHeadNIC || ''}
+                  placeholder="NIC of head of house"
+                  style={inputStyle(theme)}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginTop: '10px' }}>
+              <label style={labelStyle}>{t('address')}</label>
+              <input
+                type="text"
+                name="address"
+                defaultValue={villagerModal.data?.address || ''}
+                style={inputStyle(theme)}
+              />
+            </div>
+
+            <div style={{ marginTop: '10px' }}>
+              <label style={labelStyle}>{t('familyDetails')}</label>
+              <textarea
+                name="familyDetails"
+                defaultValue={villagerModal.data?.familyDetails || ''}
+                rows="2"
+                placeholder="Additional remarks or family structure notes..."
+                style={{ ...inputStyle(theme), resize: 'vertical' }}
+              />
+            </div>
+
             <div style={modalActions}>
               <button
                 type="button"
@@ -1757,6 +1792,30 @@ const GNPortal = () => {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* VILLAGER DETAILS MODAL */}
+      {villagerDetails && (
+        <Modal theme={theme} onClose={() => setVillagerDetails(null)}>
+          <h3 style={modalHeading}>👤 {t('villagerDetails')}</h3>
+          <DetailRow label={t('fullName')} value={villagerDetails.fullName || villagerDetails.name || '-'} />
+          <DetailRow label={t('nic')} value={villagerDetails.nic || '-'} />
+          <DetailRow label={t('houseNumber')} value={villagerDetails.houseNumber || '-'} />
+          <DetailRow label="Gender / DOB" value={`${villagerDetails.gender || '-'} | ${villagerDetails.dateOfBirth || '-'}`} />
+          <DetailRow label={t('phone')} value={villagerDetails.phone || villagerDetails.contact || '-'} />
+          <DetailRow label={t('email')} value={villagerDetails.email || '-'} />
+          <DetailRow label={t('occupation')} value={villagerDetails.occupation || '-'} />
+          <DetailRow label={t('maritalStatus')} value={villagerDetails.maritalStatus || '-'} />
+          <DetailRow label="Role / Relation" value={`${villagerDetails.role || '-'} (${villagerDetails.relationshipToHead || '-'})`} />
+          <DetailRow label="Head NIC" value={villagerDetails.householdHeadNIC || '-'} />
+          <DetailRow label={t('address')} value={villagerDetails.address || '-'} />
+          <DetailRow label={t('familyDetails')} value={villagerDetails.familyDetails || '-'} />
+          <div style={modalActions}>
+            <button onClick={() => setVillagerDetails(null)} style={btnActionOutline}>
+              {t('close')}
+            </button>
+          </div>
         </Modal>
       )}
 
@@ -1784,31 +1843,21 @@ const GNPortal = () => {
         </Modal>
       )}
 
-      {/* VILLAGER DETAILS MODAL */}
-      {villagerDetails && (
-        <Modal theme={theme} onClose={() => setVillagerDetails(null)}>
-          <h3 style={modalHeading}>👤 {t('villagerDetails')}</h3>
-          <DetailRow label={t('fullName')} value={villagerDetails.fullName || villagerDetails.name || '-'} />
-          <DetailRow label={t('nic')} value={villagerDetails.nic || '-'} />
-          <DetailRow label={t('houseNumber')} value={villagerDetails.houseNumber || '-'} />
-          <DetailRow label={t('phone')} value={villagerDetails.phone || villagerDetails.contact || '-'} />
-          <DetailRow label={t('email')} value={villagerDetails.email || '-'} />
-          <DetailRow label={t('address')} value={villagerDetails.address || '-'} />
-          <DetailRow label={t('familyDetails')} value={villagerDetails.familyDetails || '-'} />
-          <div style={modalActions}>
-            <button onClick={() => setVillagerDetails(null)} style={btnActionOutline}>
-              {t('close')}
-            </button>
-          </div>
-        </Modal>
-      )}
-
       {/* COMPLAINT DETAILS MODAL */}
       {complaintDetails && (
         <Modal theme={theme} onClose={() => setComplaintDetails(null)}>
           <h3 style={modalHeading}>📝 {t('complaintDetails')}</h3>
-          <DetailRow label={t('subject')} value={complaintDetails.subject || complaintDetails.title || '-'} />
-          <DetailRow label={t('category')} value={complaintDetails.category || '-'} />
+          <DetailRow label="Ref No" value={<strong>{complaintDetails.referenceNo || 'CMP-GENERAL'}</strong>} />
+          <DetailRow label={t('category')} value={<span style={{ textTransform: 'capitalize' }}>{complaintDetails.type || '-'}</span>} />
+          <DetailRow label={t('location')} value={complaintDetails.location || '-'} />
+          <DetailRow label="Assigned Officer" value={complaintDetails.officer || 'GN Officer'} />
+          <DetailRow
+            label={t('submittedBy')}
+            value={`${complaintDetails.submittedBy || 'Public User'} ${complaintDetails.isAnonymous ? '(Anonymous)' : ''}`}
+          />
+          {complaintDetails.houseNumber && (
+            <DetailRow label={t('houseNumber')} value={complaintDetails.houseNumber} />
+          )}
           <DetailRow
             label={t('status')}
             value={
@@ -1817,6 +1866,15 @@ const GNPortal = () => {
               </span>
             }
           />
+          <DetailRow
+            label="Date Submitted"
+            value={
+              complaintDetails.createdAt
+                ? new Date(complaintDetails.createdAt).toLocaleString()
+                : '-'
+            }
+          />
+
           <div style={{ marginTop: '15px' }}>
             <label style={labelStyle}>{t('description')}</label>
             <div
@@ -1826,11 +1884,37 @@ const GNPortal = () => {
                 backgroundColor: theme === 'dark' ? '#0f172a' : '#f8fafc',
                 lineHeight: '1.6',
                 fontSize: '13px',
+                border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0',
               }}
             >
               {complaintDetails.description || '-'}
             </div>
           </div>
+
+          {complaintDetails.imageUrl && (
+            <div style={{ marginTop: '15px' }}>
+              <label style={labelStyle}>{t('evidence')}</label>
+              <div
+                style={{
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  maxHeight: '220px',
+                  backgroundColor: '#f1f5f9',
+                  border: '1px solid #e2e8f0',
+                }}
+              >
+                <img
+                  src={getFullImageUrl(complaintDetails.imageUrl)}
+                  alt="Evidence"
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           <div style={{ marginTop: '15px' }}>
             <label style={labelStyle}>{t('officerReply')}</label>
             <div
@@ -1840,11 +1924,13 @@ const GNPortal = () => {
                 backgroundColor: theme === 'dark' ? '#0f172a' : '#f8fafc',
                 lineHeight: '1.6',
                 fontSize: '13px',
+                border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0',
               }}
             >
-              {complaintDetails.officerNote || complaintDetails.reply || '-'}
+              {complaintDetails.officerNote || complaintDetails.reply || 'No remarks provided yet.'}
             </div>
           </div>
+
           <div style={modalActions}>
             <button onClick={() => setComplaintDetails(null)} style={btnActionOutline}>
               {t('close')}
@@ -1879,11 +1965,7 @@ const GNPortal = () => {
             value={noteModal.note}
             onChange={(e) => setNoteModal({ ...noteModal, note: e.target.value })}
             style={{ ...inputStyle(theme), resize: 'vertical' }}
-            placeholder={
-              lang === 'si'
-                ? 'හමුවීම පිළිබඳ සටහනක් ඇතුළත් කරන්න...'
-                : 'Enter an officer note...'
-            }
+            placeholder={lang === 'si' ? 'හමුවීම පිළිබඳ සටහනක් ඇතුළත් කරන්න...' : 'Enter an officer note...'}
           />
           <div style={modalActions}>
             <button
@@ -1903,11 +1985,13 @@ const GNPortal = () => {
       {replyModal.open && (
         <Modal
           theme={theme}
-          onClose={() =>
-            setReplyModal({ open: false, complaint: null, reply: '', status: '' })
-          }
+          onClose={() => setReplyModal({ open: false, complaint: null, reply: '', status: '' })}
         >
           <h3 style={modalHeading}>{t('replyStatus')}</h3>
+          <p style={{ fontSize: '12px', color: '#64748b', marginTop: '-10px', marginBottom: '15px' }}>
+            Ref: <strong>{replyModal.complaint?.referenceNo || 'CMP-GENERAL'}</strong>
+          </p>
+
           <label style={labelStyle}>{t('status')}</label>
           <select
             value={replyModal.status}
@@ -1923,15 +2007,18 @@ const GNPortal = () => {
           <textarea
             rows="5"
             value={replyModal.reply}
+            placeholder={
+              lang === 'si'
+                ? 'පැමිණිල්ල සම්බන්ධයෙන් ගත් ක්‍රියාමාර්ගය හෝ සටහන ඇතුළත් කරන්න...'
+                : 'Enter official remarks or actions taken...'
+            }
             onChange={(e) => setReplyModal({ ...replyModal, reply: e.target.value })}
             style={{ ...inputStyle(theme), resize: 'vertical' }}
           />
 
           <div style={modalActions}>
             <button
-              onClick={() =>
-                setReplyModal({ open: false, complaint: null, reply: '', status: '' })
-              }
+              onClick={() => setReplyModal({ open: false, complaint: null, reply: '', status: '' })}
               style={btnActionOutline}
             >
               {t('cancel')}
@@ -1943,7 +2030,7 @@ const GNPortal = () => {
         </Modal>
       )}
 
-      {/* NOTICE / ANNOUNCEMENT MODAL */}
+      {/* NOTICE MODAL */}
       {noticeModal.open && (
         <Modal
           theme={theme}
@@ -1965,7 +2052,6 @@ const GNPortal = () => {
                   style={inputStyle(theme)}
                 />
               </div>
-
               <div>
                 <label style={labelStyle}>{t('type')}</label>
                 <input
@@ -1989,7 +2075,6 @@ const GNPortal = () => {
                   style={inputStyle(theme)}
                 />
               </div>
-
               <div>
                 <label style={labelStyle}>{t('location')}</label>
                 <input
@@ -2008,19 +2093,18 @@ const GNPortal = () => {
                 <input
                   type="text"
                   name="date"
-                  defaultValue={noticeModal.data?.date || 'Oct 1, 2026'}
+                  defaultValue={noticeModal.data?.date || ''}
                   placeholder="Oct 1, 2026"
                   required
                   style={inputStyle(theme)}
                 />
               </div>
-
               <div>
                 <label style={labelStyle}>{t('time')}</label>
                 <input
                   type="text"
                   name="time"
-                  defaultValue={noticeModal.data?.time || '10:00 AM'}
+                  defaultValue={noticeModal.data?.time || ''}
                   placeholder="10:00 AM"
                   required
                   style={inputStyle(theme)}
@@ -2032,7 +2116,7 @@ const GNPortal = () => {
             <input
               type="text"
               name="image"
-              defaultValue={noticeModal.data?.image || 'https://images.unsplash.com/photo-1517649763962-0c6232662000?q=80&w=800&auto=format&fit=crop'}
+              defaultValue={noticeModal.data?.image || DEFAULT_NOTICE_IMAGE}
               placeholder="https://images.unsplash.com/..."
               style={inputStyle(theme)}
             />
@@ -2116,14 +2200,12 @@ const GNPortal = () => {
         </Modal>
       )}
 
-      {/* HOVER CSS */}
       <style>
         {`
           .hover-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
           }
-
           @media (max-width: 850px) {
             form {
               grid-template-columns: 1fr !important;
@@ -2150,7 +2232,6 @@ const GNPortal = () => {
 /* =========================================================
    REUSABLE SUB-COMPONENTS
 ========================================================= */
-
 const DashboardCard = ({ theme, icon, title, value, color, onClick }) => (
   <div
     onClick={onClick}
@@ -2305,7 +2386,7 @@ const DetailRow = ({ label, value }) => (
   <div
     style={{
       display: 'grid',
-      gridTemplateColumns: '130px 1fr',
+      gridTemplateColumns: '150px 1fr',
       gap: '10px',
       padding: '11px 0',
       borderBottom: '1px solid #e2e8f0',
@@ -2316,10 +2397,6 @@ const DetailRow = ({ label, value }) => (
     <div>{value}</div>
   </div>
 );
-
-/* =========================================================
-   STYLE OBJECTS & HELPERS
-========================================================= */
 
 const translateStatus = (status, t) => {
   const map = {
@@ -2341,14 +2418,6 @@ const panelStyle = (theme) => ({
   borderRadius: '20px',
   boxShadow: '0 4px 20px -2px rgba(0,0,0,0.04)',
   border: theme === 'dark' ? '1px solid #334155' : '1px solid #f1f5f9',
-});
-
-const scheduleMiniCard = (theme) => ({
-  backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
-  padding: '12px 14px',
-  borderRadius: '12px',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-  border: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0',
 });
 
 const sectionTitle = {
@@ -2512,7 +2581,7 @@ const modalBody = (theme) => ({
   padding: '25px',
   borderRadius: '16px',
   width: '100%',
-  maxWidth: '560px',
+  maxWidth: '650px',
   boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
 });
 
