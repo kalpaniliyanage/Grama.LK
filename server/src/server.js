@@ -691,42 +691,158 @@ app.delete("/api/welfare/funds/:id", async (req, res) => {
   }
 });
 
-/* =========================================================
-   YOUTH & SPORTS PORTAL ROUTES
-========================================================= */
-app.get("/api/sports/events", async (req, res) => {
+// ==========================================
+// 1. YOUTH MEMBERS MODEL & ROUTES
+// ==========================================
+const youthMemberSchema = new mongoose.Schema({
+  houseNumber: String,
+  name: String,
+  age: Number,
+  sport: String,
+  phone: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+const YouthMember = mongoose.models.YouthMember || mongoose.model("YouthMember", youthMemberSchema, "youthmembers");
+
+app.get("/api/sports/members", async (req, res) => {
   try {
-    const events = await SportsEvent.find().sort({ createdAt: -1 });
-    res.json(events);
+    const members = await YouthMember.find({});
+    res.json(members);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching events" });
+    res.status(500).json({ message: "දත්ත ලබාගැනීම අසාර්ථක විය." });
   }
 });
 
-app.post("/api/sports/events", async (req, res) => {
+app.post("/api/sports/members", async (req, res) => {
   try {
-    const newEvent = await SportsEvent.create(req.body);
-    res.status(201).json({ success: true, newEvent });
+    const { houseNumber, name, age, sport, phone } = req.body;
+    const newMember = new YouthMember({ houseNumber, name, age, sport, phone });
+    await newMember.save();
+    res.status(201).json({ success: true, message: "සාර්ථකයි!", member: newMember });
   } catch (error) {
-    res.status(500).json({ message: "Error saving event" });
+    console.error("Youth member save error:", error);
+    res.status(500).json({ message: "ලියාපදිංචි කිරීම අසාර්ථක විය." });
   }
 });
+
+// ==========================================
+// 2. MONTHLY FEES MODEL & ROUTES (New Database Collection)
+// ==========================================
+const feeSchema = new mongoose.Schema({
+  houseNumber: String,
+  memberName: String,
+  month: String,
+  amount: Number,
+  status: { type: String, default: "Paid" },
+  date: { type: Date, default: Date.now }
+});
+
+const SportFee = mongoose.models.SportFee || mongoose.model("SportFee", feeSchema, "youthfees");
+
+app.get("/api/sports/fees", async (req, res) => {
+  try {
+    const fees = await SportFee.find({});
+    res.json(fees);
+  } catch (error) {
+    res.status(500).json({ message: "දත්ත ලබාගැනීම අසාර්ථක විය." });
+  }
+});
+
+app.post("/api/sports/fees", async (req, res) => {
+  try {
+    const { houseNumber, memberName, month, amount, status } = req.body;
+    const newFee = new SportFee({ houseNumber, memberName, month, amount, status });
+    await newFee.save();
+    res.status(201).json({ success: true, message: "ගෙවීම සාර්ථකයි!", fee: newFee });
+  } catch (error) {
+    console.error("Fee save error:", error);
+    res.status(500).json({ message: "ගෙවීම් සටහන් කිරීම අසාර්ථක විය." });
+  }
+});
+
+// ==========================================
+// 3. INVENTORY MODEL & ROUTES (New Database Collection)
+// ==========================================
+const inventorySchema = new mongoose.Schema({
+  itemName: String,
+  quantity: Number,
+  condition: String
+});
+
+const SportInventory = mongoose.models.SportInventory || mongoose.model("SportInventory", inventorySchema, "sportsinventories");
 
 app.get("/api/sports/inventory", async (req, res) => {
   try {
-    const items = await SportsInventory.find().sort({ createdAt: -1 });
+    const items = await SportInventory.find({});
     res.json(items);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching inventory" });
+    res.status(500).json({ message: "දත්ත ලබාගැනීම අසාර්ථක විය." });
   }
 });
 
 app.post("/api/sports/inventory", async (req, res) => {
   try {
-    const newItem = await SportsInventory.create(req.body);
-    res.status(201).json({ success: true, newItem });
+    const { itemName, quantity, condition } = req.body;
+    const newItem = new SportInventory({ itemName, quantity, condition });
+    await newItem.save();
+    res.status(201).json({ success: true, message: "උපකරණය එකතු විය!", item: newItem });
   } catch (error) {
-    res.status(500).json({ message: "Error saving inventory" });
+    console.error("Inventory save error:", error);
+    res.status(500).json({ message: "උපකරණ එකතු කිරීම අසාර්ථක විය." });
+  }
+});
+// PUT & DELETE ROUTES FOR YOUTH MEMBERS, FEES, INVENTORY
+app.put("/api/sports/members/:id", async (req, res) => {
+  const updated = await YouthMember.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json({ success: true, updated });
+});
+app.delete("/api/sports/members/:id", async (req, res) => {
+  await YouthMember.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+app.put("/api/sports/fees/:id", async (req, res) => {
+  const updated = await SportFee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json({ success: true, updated });
+});
+app.delete("/api/sports/fees/:id", async (req, res) => {
+  await SportFee.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+app.put("/api/sports/inventory/:id", async (req, res) => {
+  const updated = await SportInventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json({ success: true, updated });
+});
+app.delete("/api/sports/inventory/:id", async (req, res) => {
+  await SportInventory.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+
+
+// GET VILLAGERS BY HOUSE NUMBER
+app.get("/api/villagers", async (req, res) => {
+  try {
+    const { houseNumber } = req.query;
+    const db = mongoose.connection.db;
+    
+    if (!db) {
+      return res.status(500).json({ message: "Database connection not found" });
+    }
+
+    let query = {};
+    if (houseNumber) {
+      // Case-insensitive ලෙස house number එක සෙවීම
+      query = { houseNumber: { $regex: new RegExp(`^${houseNumber.trim()}$`, "i") } };
+    }
+
+    const villagers = await db.collection("villagers").find(query).toArray();
+    res.json(villagers);
+  } catch (error) {
+    console.error("Error fetching villagers:", error);
+    res.status(500).json({ message: "ගම්වැසියන්ගේ දත්ත ලබාගැනීම අසාර්ථක විය." });
   }
 });
 
