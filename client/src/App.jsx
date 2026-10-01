@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import GNPortal from './components/pages/GNPortal';
 
@@ -2097,6 +2097,7 @@ switch (role) {
       )}
     </div>
       }/>
+      <Route path="/gn-portal" element={<GNPortal />} /> 
       <Route path="/welfare-portal" element={<WelfarePortal />} />
     <Route path="/youth-sports-portal" element={<YouthSportsPortal />} />
   </Routes>  
