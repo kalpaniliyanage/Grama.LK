@@ -1,8 +1,3 @@
-import Welfare from "../models/Welfare.js";
-import WelfareFund from "../models/WelfareFund.js";
-import SportsEvent from "../models/SportsEvent.js";
-import SportsInventory from "../models/SportsInventory.js";
-import WelfareMember from "../models/WelfareMember.js";
 import mongoose from "mongoose";
 import express from "express";
 import cors from "cors";
@@ -14,13 +9,19 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GoogleGenAI } from "@google/genai";
 
-// GN Portal Routes Import
+// Optional portal route import
 import gnRoutes from "./routes/gnRoutes.js";
 
 dotenv.config();
 
+/* =========================================================
+   APP CONFIGURATION
+========================================================= */
+
 const app = express();
+
 const PORT = process.env.PORT || 5000;
+
 const ROOT = process.cwd();
 
 const JWT_SECRET =
@@ -44,7 +45,7 @@ console.log(
 );
 
 /* =========================================================
-   MONGODB ATLAS CONFIG
+   MONGODB ATLAS CONFIGURATION
 ========================================================= */
 
 const mongoUsername =
@@ -59,48 +60,24 @@ const mongoCluster =
 const mongoDatabase =
   process.env.MONGO_DATABASE || "gramalk";
 
-if (!mongoUsername || !mongoPassword || !mongoCluster) {
-  console.error("MongoDB environment variables are missing.");
+if (
+  !mongoUsername ||
+  !mongoPassword ||
+  !mongoCluster
+) {
+  console.error(
+    "MongoDB environment variables are missing."
+  );
+
   process.exit(1);
 }
 
 const mongoURI =
   `mongodb+srv://${encodeURIComponent(
     mongoUsername
-  )}:` +
-  `${encodeURIComponent(
+  )}:${encodeURIComponent(
     mongoPassword
-  )}@${mongoCluster}/` +
-  `${mongoDatabase}?authSource=admin`;
-
-try {
-  await mongoose.connect(mongoURI);
-
-  console.log(
-    "================================="
-  );
-
-  console.log(
-    "MongoDB Atlas Connected Successfully!"
-  );
-
-  console.log(
-    "Database:",
-    mongoDatabase
-  );
-
-  console.log(
-    "================================="
-  );
-} catch (error) {
-  console.error(
-    "MongoDB Connection Failed:"
-  );
-
-  console.error(error.message);
-
-  process.exit(1);
-}
+  )}@${mongoCluster}/${mongoDatabase}?authSource=admin`;
 
 /* =========================================================
    DIRECTORIES
@@ -137,9 +114,13 @@ fs.mkdirSync(
 /* =========================================================
    MIDDLEWARE
 ========================================================= */
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ],
     credentials: true,
   })
 );
@@ -159,12 +140,15 @@ app.use(
 app.use(
   "/uploads",
   express.static(
-    path.join(ROOT, "uploads")
+    path.join(
+      ROOT,
+      "uploads"
+    )
   )
 );
 
 /* =========================================================
-   MULTER CONFIGURATION
+   MULTER - COMPLAINT IMAGE UPLOAD
 ========================================================= */
 
 const complaintStorage =
@@ -190,11 +174,14 @@ const complaintStorage =
           file.originalname
         );
 
-      cb(
-        null,
+      const filename =
         `${Date.now()}-${Math.round(
           Math.random() * 1e9
-        )}${extension}`
+        )}${extension}`;
+
+      cb(
+        null,
+        filename
       );
     },
   });
@@ -211,7 +198,7 @@ const complaintUpload =
   });
 
 /* =========================================================
-   MULTER - FORM PDF UPLOADS
+   MULTER - FORM PDF UPLOAD
 ========================================================= */
 
 const formStorage =
@@ -237,18 +224,22 @@ const formStorage =
           file.originalname
         );
 
-      cb(
-        null,
+      const filename =
         `${Date.now()}-${Math.round(
           Math.random() * 1e9
-        )}${extension}`
+        )}${extension}`;
+
+      cb(
+        null,
+        filename
       );
     },
   });
 
 const formUpload =
   multer({
-    storage: formStorage,
+    storage:
+      formStorage,
 
     limits: {
       fileSize:
@@ -268,7 +259,10 @@ const formUpload =
       if (
         extension === ".pdf"
       ) {
-        cb(null, true);
+        cb(
+          null,
+          true
+        );
       } else {
         cb(
           new Error(
@@ -280,7 +274,7 @@ const formUpload =
   });
 
 /* =========================================================
-   MONGOOSE MODELS & SCHEMAS
+   USER SCHEMA
 ========================================================= */
 
 const userSchema =
@@ -318,6 +312,7 @@ const userSchema =
         default: "",
       },
     },
+
     {
       timestamps: true,
       strict: false,
@@ -332,114 +327,7 @@ const User =
   );
 
 /* =========================================================
-   DEFAULT PORTAL USERS
-========================================================= */
-
-/*
-   IMPORTANT:
-
-   Passwords below are ONLY used when the accounts
-   do not already exist.
-
-   They are NEVER stored as plain text.
-
-   bcrypt converts them into hashes before
-   saving them to MongoDB Atlas.
-*/
-
-async function createDefaultPortalUsers() {
-  const portalUsers = [
-    {
-      username: "gnadmin",
-      password: "ChangeMe123!",
-      role: "gnadmin",
-      fullName: "GN Officer",
-      email: "gnadmin@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "welfare",
-      password: "ChangeMe123!",
-      role: "welfare",
-      fullName: "Welfare Officer",
-      email: "welfare@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "health",
-      password: "ChangeMe123!",
-      role: "health",
-      fullName: "Health Officer",
-      email: "health@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "deathaid",
-      password: "ChangeMe123!",
-      role: "deathaid",
-      fullName: "Death Aid Officer",
-      email: "deathaid@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "family001",
-      password: "1234",
-      role: "family",
-      fullName: "Family User",
-      email: "family001@gramalk.lk",
-      houseNumber: "H001",
-    },
-  ];
-  for (const account of portalUsers) {
-    const hashedPassword = await bcrypt.hash(
-      account.password,
-      10
-    );
-
-    const existingUser = await User.findOne({
-      username: account.username,
-    });
-
-    if (!existingUser) {
-      const hashedPassword = await bcrypt.hash(account.password, 10);
-      await User.create({
-        username: account.username,
-        password: hashedPassword,
-        role: account.role,
-        fullName: account.fullName,
-        email: account.email,
-        houseNumber: account.houseNumber,
-      });
-
-      console.log(
-        `Created portal user: ${account.username}`
-      );
-    } else {
-      existingUser.password = hashedPassword;
-      existingUser.role = account.role;
-      existingUser.fullName = account.fullName;
-      existingUser.email = account.email;
-      existingUser.houseNumber = account.houseNumber;
-
-      await existingUser.save();
-
-      console.log(
-        `Updated portal user: ${account.username}`
-      );
-    }
-  }
-
-  console.log(
-    "Portal user setup completed."
-  );
-}
-
-/* =========================================================
-   OFFICE
+   OFFICE SCHEMA
 ========================================================= */
 
 const officeSchema =
@@ -459,7 +347,7 @@ const Office =
   );
 
 /* =========================================================
-   GOVERNMENT OFFICES
+   GOVERNMENT OFFICE
 ========================================================= */
 
 const governmentOfficeSchema =
@@ -607,26 +495,39 @@ const VillageActivity =
 /* =========================================================
    AUTHENTICATION
 ========================================================= */
+
 function createToken(user) {
   return jwt.sign(
     {
       id: user._id,
       username: user.username,
       role: user.role,
-      houseNumber: user.houseNumber || "",
+      houseNumber:
+        user.houseNumber || "",
     },
+
     JWT_SECRET,
-    { expiresIn: "7d" }
+
+    {
+      expiresIn: "7d",
+    }
   );
 }
 
-function authMiddleware(req, res, next) {
+function authMiddleware(
+  req,
+  res,
+  next
+) {
   try {
     const authorization =
       req.headers.authorization;
 
     if (!authorization) {
-      return res.status(401).json({ message: "Authentication required." });
+      return res.status(401).json({
+        message:
+          "Authentication required.",
+      });
     }
 
     const parts =
@@ -650,7 +551,10 @@ function authMiddleware(req, res, next) {
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token." });
+    return res.status(401).json({
+      message:
+        "Invalid or expired token.",
+    });
   }
 }
 
@@ -685,7 +589,127 @@ function roleMiddleware(
 }
 
 /* =========================================================
-   COMMON API ROUTES
+   DEFAULT PORTAL USERS
+========================================================= */
+
+async function createDefaultPortalUsers() {
+  const portalUsers = [
+    {
+      username: "gnadmin",
+      password: "ChangeMe123!",
+      role: "gnadmin",
+      fullName: "GN Officer",
+      email: "gnadmin@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "welfare",
+      password: "ChangeMe123!",
+      role: "welfare",
+      fullName: "Welfare Officer",
+      email: "welfare@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "health",
+      password: "ChangeMe123!",
+      role: "health",
+      fullName: "Health Officer",
+      email: "health@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "deathaid",
+      password: "ChangeMe123!",
+      role: "deathaid",
+      fullName: "Death Aid Officer",
+      email: "deathaid@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "family001",
+      password: "1234",
+      role: "family",
+      fullName: "Family User",
+      email: "family001@gramalk.lk",
+      houseNumber: "H001",
+    },
+  ];
+
+  for (
+    const account of portalUsers
+  ) {
+    const hashedPassword =
+      await bcrypt.hash(
+        account.password,
+        10
+      );
+
+    const existingUser =
+      await User.findOne({
+        username:
+          account.username,
+      });
+
+    if (!existingUser) {
+      await User.create({
+        username:
+          account.username,
+
+        password:
+          hashedPassword,
+
+        role:
+          account.role,
+
+        fullName:
+          account.fullName,
+
+        email:
+          account.email,
+
+        houseNumber:
+          account.houseNumber,
+      });
+
+      console.log(
+        `Created portal user: ${account.username}`
+      );
+    } else {
+      existingUser.password =
+        hashedPassword;
+
+      existingUser.role =
+        account.role;
+
+      existingUser.fullName =
+        account.fullName;
+
+      existingUser.email =
+        account.email;
+
+      existingUser.houseNumber =
+        account.houseNumber;
+
+      await existingUser.save();
+
+      console.log(
+        `Updated portal user: ${account.username}`
+      );
+    }
+  }
+
+  console.log(
+    "Portal user setup completed."
+  );
+}
+
+/* =========================================================
+   HEALTH CHECK
 ========================================================= */
 
 app.get(
@@ -702,6 +726,9 @@ app.get(
           .readyState === 1
           ? "connected"
           : "disconnected",
+
+      gemini:
+        Boolean(gemini),
     });
   }
 );
@@ -712,7 +739,10 @@ app.get(
 
 app.post(
   "/api/login",
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const {
         username = "",
@@ -721,10 +751,14 @@ app.post(
       } = req.body;
 
       const loginUsername =
-        username.trim();
+        String(
+          username
+        ).trim();
 
       const loginHouseNumber =
-        houseNumber.trim();
+        String(
+          houseNumber
+        ).trim();
 
       if (
         !loginUsername &&
@@ -745,30 +779,24 @@ app.post(
 
       let user = null;
 
-      /* -------------------------------------------------
-         LOGIN USING USERNAME
-      ------------------------------------------------- */
-
       if (loginUsername) {
-        user = await User.findOne({
-          username: loginUsername,
-        });
+        user =
+          await User.findOne({
+            username:
+              loginUsername,
+          });
       }
 
-      /* -------------------------------------------------
-         IF USERNAME NOT FOUND, TRY HOUSE NUMBER
-      ------------------------------------------------- */
-
-      if (!user && loginHouseNumber) {
-        user = await User.findOne({
-          houseNumber:
-            loginHouseNumber,
-        });
+      if (
+        !user &&
+        loginHouseNumber
+      ) {
+        user =
+          await User.findOne({
+            houseNumber:
+              loginHouseNumber,
+          });
       }
-
-      /* -------------------------------------------------
-         USER NOT FOUND
-      ------------------------------------------------- */
 
       if (!user) {
         return res.status(401).json({
@@ -777,21 +805,21 @@ app.post(
         });
       }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid username, house number or password." });
-    }
+      const passwordMatch =
+        await bcrypt.compare(
+          password,
+          user.password
+        );
 
-      /* -------------------------------------------------
-         CREATE JWT TOKEN
-      ------------------------------------------------- */
+      if (!passwordMatch) {
+        return res.status(401).json({
+          message:
+            "Invalid username, house number or password.",
+        });
+      }
 
       const token =
         createToken(user);
-
-      /* -------------------------------------------------
-         SUCCESS
-      ------------------------------------------------- */
 
       return res.json({
         success: true,
@@ -802,7 +830,8 @@ app.post(
         token,
 
         user: {
-          id: user._id,
+          id:
+            user._id,
 
           username:
             user.username,
@@ -820,7 +849,6 @@ app.post(
             user.email || "",
         },
       });
-
     } catch (error) {
       console.error(
         "Login error:",
@@ -863,7 +891,7 @@ app.get(
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         user,
       });
@@ -873,7 +901,7 @@ app.get(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load user.",
       });
@@ -896,13 +924,19 @@ app.get(
         await Office.find()
           .sort({
             createdAt: -1,
-          });
+          })
+          .lean();
 
-      res.json(offices);
+      return res.json(
+        offices
+      );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get offices error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load offices.",
       });
@@ -923,13 +957,16 @@ app.post(
           req.body
         );
 
-      res.status(201).json(
+      return res.status(201).json(
         office
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create office error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to create office.",
       });
@@ -953,13 +990,19 @@ app.get(
           .find()
           .sort({
             createdAt: -1,
-          });
+          })
+          .lean();
 
-      res.json(offices);
+      return res.json(
+        offices
+      );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get government offices error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load government offices.",
       });
@@ -982,13 +1025,19 @@ app.get(
         await Form.find()
           .sort({
             createdAt: -1,
-          });
+          })
+          .lean();
 
-      res.json(forms);
+      return res.json(
+        forms
+      );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get forms error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load forms.",
       });
@@ -999,7 +1048,9 @@ app.get(
 app.post(
   "/api/forms",
   authMiddleware,
-  formUpload.single("file"),
+  formUpload.single(
+    "file"
+  ),
   async (
     req,
     res
@@ -1025,13 +1076,16 @@ app.post(
           data
         );
 
-      res.status(201).json(
+      return res.status(201).json(
         form
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create form error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to create form.",
       });
@@ -1055,15 +1109,19 @@ app.get(
           .find()
           .sort({
             createdAt: -1,
-          });
+          })
+          .lean();
 
-      res.json(
+      return res.json(
         announcements
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get announcements error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load announcements.",
       });
@@ -1084,13 +1142,16 @@ app.post(
           req.body
         );
 
-      res.status(201).json(
+      return res.status(201).json(
         announcement
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create announcement error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to create announcement.",
       });
@@ -1102,9 +1163,14 @@ app.post(
    COMPLAINTS
 ========================================================= */
 
+/*
+   Anonymous complaint submission is allowed.
+   If a user is logged in, their username/house number
+   will also be stored.
+*/
+
 app.post(
   "/api/complaints",
-  authMiddleware,
   complaintUpload.single(
     "image"
   ),
@@ -1116,22 +1182,40 @@ app.post(
       const data = {
         ...req.body,
 
-        username:
-          req.user.username,
-
-        houseNumber:
-          req.body.houseNumber ||
-          req.user.houseNumber ||
-          "",
-
         status:
           req.body.status ||
           "Pending",
       };
 
+      /*
+         If logged-in user exists,
+         save their information.
+      */
+
+      if (req.user) {
+        data.username =
+          req.user.username;
+
+        data.houseNumber =
+          req.body.houseNumber ||
+          req.user.houseNumber ||
+          "";
+      } else {
+        data.username =
+          req.body.username ||
+          "Anonymous";
+
+        data.houseNumber =
+          req.body.houseNumber ||
+          "";
+      }
+
       if (req.file) {
         data.imageUrl =
           `/uploads/complaints/${req.file.filename}`;
+
+        data.imageName =
+          req.file.originalname;
       }
 
       const complaint =
@@ -1139,20 +1223,33 @@ app.post(
           data
         );
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
+
+        message:
+          "Complaint submitted successfully.",
+
         complaint,
       });
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Create complaint error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
+        success: false,
+
         message:
           "Failed to submit complaint.",
       });
     }
   }
 );
+
+/* =========================================================
+   COMPLAINT LIST
+========================================================= */
 
 app.get(
   "/api/complaints",
@@ -1162,14 +1259,14 @@ app.get(
     res
   ) => {
     try {
-      let complaints;
-
       const staffRoles = [
         "gnadmin",
         "welfare",
         "health",
         "deathaid",
       ];
+
+      let complaints;
 
       if (
         staffRoles.includes(
@@ -1181,7 +1278,8 @@ app.get(
             .find()
             .sort({
               createdAt: -1,
-            });
+            })
+            .lean();
       } else {
         complaints =
           await Complaint
@@ -1191,16 +1289,20 @@ app.get(
             })
             .sort({
               createdAt: -1,
-            });
+            })
+            .lean();
       }
 
-      res.json(
+      return res.json(
         complaints
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Get complaints error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load complaints.",
       });
@@ -1237,14 +1339,16 @@ app.get(
           createdAt: 1,
         });
 
-      res.json(chats);
+      return res.json(
+        chats
+      );
     } catch (error) {
       console.error(
         "Get chats error:",
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load chats.",
       });
@@ -1271,7 +1375,7 @@ app.post(
             req.user.id,
         });
 
-      res.status(201).json(
+      return res.status(201).json(
         chat
       );
     } catch (error) {
@@ -1280,7 +1384,7 @@ app.post(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to save chat.",
       });
@@ -1303,16 +1407,19 @@ app.get(
         await Officer.find()
           .sort({
             createdAt: -1,
-          });
+          })
+          .lean();
 
-      res.json(officers);
+      return res.json(
+        officers
+      );
     } catch (error) {
       console.error(
         "Get officers error:",
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load officers.",
       });
@@ -1333,7 +1440,7 @@ app.post(
           req.body
         );
 
-      res.status(201).json(
+      return res.status(201).json(
         officer
       );
     } catch (error) {
@@ -1342,7 +1449,7 @@ app.post(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to create officer.",
       });
@@ -1366,9 +1473,10 @@ app.get(
           .find()
           .sort({
             createdAt: -1,
-          });
+          })
+          .lean();
 
-      res.json(
+      return res.json(
         activities
       );
     } catch (error) {
@@ -1377,7 +1485,7 @@ app.get(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to load village activities.",
       });
@@ -1398,7 +1506,7 @@ app.post(
           req.body
         );
 
-      res.status(201).json(
+      return res.status(201).json(
         activity
       );
     } catch (error) {
@@ -1407,7 +1515,7 @@ app.post(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
         message:
           "Failed to create village activity.",
       });
@@ -1416,9 +1524,69 @@ app.post(
 );
 
 /* =========================================================
+   WELFARE FUNDS
+========================================================= */
+
+/*
+   This is a REAL API route.
+   It must send data using res.json().
+*/
+
+app.get(
+  "/api/welfare/funds",
+  async (
+    req,
+    res
+  ) => {
+    try {
+      /*
+         These models are optional.
+         This route safely checks whether the
+         collections exist in the database.
+      */
+
+      const welfareFunds =
+        mongoose.connection.db
+          ? await mongoose.connection
+              .db
+              .collection("welfarefunds")
+              .find({})
+              .sort({
+                createdAt: -1,
+              })
+              .toArray()
+          : [];
+
+      return res.json(
+        welfareFunds
+      );
+    } catch (error) {
+      console.error(
+        "Get welfare funds error:",
+        error
+      );
+
+      return res.status(500).json({
+        message:
+          "Failed to load welfare funds.",
+      });
+    }
+  }
+);
+
+/* =========================================================
    GEMINI WEBSITE CONTEXT
 ========================================================= */
-app.get("/api/welfare/funds", async (req, res) => {
+
+/*
+   IMPORTANT:
+   This is a FUNCTION, not an Express route.
+
+   Gemini uses this function to get the latest
+   information from MongoDB.
+*/
+
+async function getWebsiteContext() {
   try {
     const [
       offices,
@@ -1428,22 +1596,22 @@ app.get("/api/welfare/funds", async (req, res) => {
       officers,
       activities,
     ] = await Promise.all([
-      Office.find().lean(),
-
-      GovernmentOffice
-        .find()
+      Office.find()
         .lean(),
 
-      Form.find().lean(),
-
-      Announcement
-        .find()
+      GovernmentOffice.find()
         .lean(),
 
-      Officer.find().lean(),
+      Form.find()
+        .lean(),
 
-      VillageActivity
-        .find()
+      Announcement.find()
+        .lean(),
+
+      Officer.find()
+        .lean(),
+
+      VillageActivity.find()
         .lean(),
     ]);
 
@@ -1457,7 +1625,7 @@ app.get("/api/welfare/funds", async (req, res) => {
     };
   } catch (error) {
     console.error(
-      "Context error:",
+      "Website context error:",
       error
     );
 
@@ -1489,17 +1657,21 @@ You are the GramaLK government services assistant.
 
 Answer clearly and simply.
 
-Use only the information available in the
+Use ONLY the information available in the
 GramaLK database when answering questions
 about GramaLK services.
 
 Do not invent offices, officers, forms,
-announcements, activities, contacts or
-government information.
+announcements, activities, contacts,
+or government information.
 
-If information is not available, say that
-it is not currently available in the
-GramaLK database.
+If the requested information is not available,
+say:
+
+"That information is not currently available
+in the GramaLK database."
+
+Do not guess.
 
 OFFICES:
 ${JSON.stringify(
@@ -1549,15 +1721,18 @@ ${message}
 
   try {
     const response =
-      await gemini.models.generateContent(
-        {
-          model:
-            "gemini-3.8-flash",
+      await gemini.models.generateContent({
+        /*
+           Use a model available to your Gemini API key.
+           If your existing Gemini setup uses another model,
+           you can change this value.
+        */
+        model:
+          "gemini-2.5-flash",
 
-          contents:
-            prompt,
-        }
-      );
+        contents:
+          prompt,
+      });
 
     if (
       response &&
@@ -1565,13 +1740,17 @@ ${message}
     ) {
       return response.text;
     }
+
+    return null;
   } catch (error) {
     console.error(
       "Gemini error:",
       error.message
     );
+
+    return null;
   }
-});
+}
 
 /* =========================================================
    CHATBOT
@@ -1597,8 +1776,17 @@ app.post(
         });
       }
 
+      /*
+         Get fresh information from MongoDB.
+      */
+
       const context =
         await getWebsiteContext();
+
+      /*
+         Send database information
+         to Gemini.
+      */
 
       const answer =
         await tryGemini(
@@ -1613,8 +1801,8 @@ app.post(
         });
       }
 
-      res.json({
-        success: true,
+      return res.json({
+        success: false,
 
         reply:
           "Sorry, I could not process your request right now. Please try again.",
@@ -1625,7 +1813,9 @@ app.post(
         error
       );
 
-      res.status(500).json({
+      return res.status(500).json({
+        success: false,
+
         message:
           "Chat service failed.",
       });
@@ -1634,7 +1824,23 @@ app.post(
 );
 
 /* =========================================================
-   GLOBAL ERROR HANDLER & START SERVER
+   GN ROUTES
+========================================================= */
+
+/*
+   If gnRoutes.js exports an Express router,
+   this mounts it under /api/gn.
+*/
+
+if (gnRoutes) {
+  app.use(
+    "/api/gn",
+    gnRoutes
+  );
+}
+
+/* =========================================================
+   GLOBAL ERROR HANDLER
 ========================================================= */
 
 app.use(
@@ -1654,12 +1860,16 @@ app.use(
       multer.MulterError
     ) {
       return res.status(400).json({
+        success: false,
+
         message:
           `Upload error: ${error.message}`,
       });
     }
 
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
+
       message:
         error.message ||
         "Internal server error.",
@@ -1673,32 +1883,101 @@ app.use(
 
 async function startServer() {
   try {
-    await mongoose.connect(mongoURI);
-    console.log("================================");
-    console.log("MongoDB Atlas Connected Successfully!");
-    console.log("Database:", mongoDatabase);
-    console.log("================================");
+    /*
+       MongoDB is connected ONLY HERE.
+    */
+
+    await mongoose.connect(
+      mongoURI
+    );
+
+    console.log(
+      "================================"
+    );
+
+    console.log(
+      "MongoDB Atlas Connected Successfully!"
+    );
+
+    console.log(
+      "Database:",
+      mongoDatabase
+    );
+
+    console.log(
+      "================================"
+    );
+
+    /*
+       Create/update default users.
+    */
 
     await createDefaultPortalUsers();
-    app.listen(PORT, "0.0.0.0", () => {
-  console.log("================================");
-  console.log(`GramaLK backend running on port ${PORT}`);
-  console.log(`Local: http://localhost:${PORT}`);
-  console.log(`Network: http://0.0.0.0:${PORT}`);
-  console.log("MongoDB: Atlas");
-  console.log("Portals: Enabled");
-  console.log("================================");
-});
 
+    /*
+       Start Express server.
+    */
+
+    app.listen(
+      PORT,
+      "0.0.0.0",
+      () => {
+        console.log(
+          "================================"
+        );
+
+        console.log(
+          `GramaLK backend running on port ${PORT}`
+        );
+
+        console.log(
+          `Local: http://localhost:${PORT}`
+        );
+
+        console.log(
+          `Network: http://0.0.0.0:${PORT}`
+        );
+
+        console.log(
+          "MongoDB: Atlas"
+        );
+
+        console.log(
+          `Gemini: ${Boolean(gemini)}`
+        );
+
+        console.log(
+          "Portals: Enabled"
+        );
+
+        console.log(
+          "================================"
+        );
+      }
+    );
   } catch (error) {
+    console.error(
+      "================================"
+    );
+
     console.error(
       "SERVER STARTUP ERROR:"
     );
 
-    console.error(error);
+    console.error(
+      error.message
+    );
+
+    console.error(
+      "================================"
+    );
 
     process.exit(1);
   }
 }
 
-startServer();
+/* =========================================================
+   RUN SERVER
+========================================================= */
+
+startServer(); 
