@@ -621,12 +621,12 @@ async function createDefaultPortalUsers() {
       houseNumber: "",
     },
 
-    {
-      username: "deathaid",
+        {
+      username: "youthsports",
       password: "ChangeMe123!",
-      role: "deathaid",
-      fullName: "Death Aid Officer",
-      email: "deathaid@gramalk.lk",
+      role: "youthsports",
+      fullName: "Youth and Sports Officer",
+      email: "youthsports@gramalk.lk",
       houseNumber: "",
     },
 
@@ -732,6 +732,23 @@ app.get(
     });
   }
 );
+
+/* =========================================================
+   forms
+========================================================= */
+
+app.get("/api/forms", async (req, res) => {
+  try {
+    const forms = await Form.find().sort({ createdAt: -1 });
+    res.json(forms);
+  } catch (error) {
+    console.error("Forms fetch error:", error);
+    res.status(500).json({
+      message: "Failed to load forms",
+    });
+  }
+});
+
 
 /* =========================================================
    LOGIN
