@@ -311,6 +311,26 @@ const userSchema =
         type: String,
         default: "",
       },
+
+      /*
+         Portal fields are supported.
+         strict:false also allows existing
+         portal fields already stored in MongoDB.
+      */
+      portal: {
+        type: String,
+        default: "",
+      },
+
+      assignedPortal: {
+        type: String,
+        default: "",
+      },
+
+      portalType: {
+        type: String,
+        default: "",
+      },
     },
 
     {
@@ -327,7 +347,7 @@ const User =
   );
 
 /* =========================================================
-   OFFICE SCHEMA
+   OTHER SCHEMAS
 ========================================================= */
 
 const officeSchema =
@@ -346,10 +366,6 @@ const Office =
     officeSchema
   );
 
-/* =========================================================
-   GOVERNMENT OFFICE
-========================================================= */
-
 const governmentOfficeSchema =
   new mongoose.Schema(
     {},
@@ -367,10 +383,6 @@ const GovernmentOffice =
     "governmentoffices"
   );
 
-/* =========================================================
-   FORM
-========================================================= */
-
 const formSchema =
   new mongoose.Schema(
     {},
@@ -386,10 +398,6 @@ const Form =
     "Form",
     formSchema
   );
-
-/* =========================================================
-   ANNOUNCEMENT
-========================================================= */
 
 const announcementSchema =
   new mongoose.Schema(
@@ -408,10 +416,6 @@ const Announcement =
     "announcements"
   );
 
-/* =========================================================
-   COMPLAINT
-========================================================= */
-
 const complaintSchema =
   new mongoose.Schema(
     {},
@@ -428,10 +432,6 @@ const Complaint =
     complaintSchema,
     "complaints"
   );
-
-/* =========================================================
-   CHAT
-========================================================= */
 
 const chatSchema =
   new mongoose.Schema(
@@ -450,10 +450,6 @@ const Chat =
     "chats"
   );
 
-/* =========================================================
-   OFFICER
-========================================================= */
-
 const officerSchema =
   new mongoose.Schema(
     {},
@@ -470,10 +466,6 @@ const Officer =
     officerSchema,
     "officers"
   );
-
-/* =========================================================
-   VILLAGE ACTIVITIES
-========================================================= */
 
 const villageActivitySchema =
   new mongoose.Schema(
@@ -493,15 +485,81 @@ const VillageActivity =
   );
 
 /* =========================================================
+   PORTAL RESOLUTION
+========================================================= */
+
+/*
+   This is the important fix.
+
+   It supports portal information already stored
+   in MongoDB and also automatically maps the
+   user's role to the correct portal.
+
+   Therefore Youth & Sports:
+   role = "youthsports"
+
+   becomes:
+
+   portal = "Youth & Sports"
+*/
+
+function getPortalForUser(user) {
+  const existingPortal =
+    user.portal ||
+    user.assignedPortal ||
+    user.portalType ||
+    "";
+
+  if (existingPortal) {
+    return String(
+      existingPortal
+    ).trim();
+  }
+
+  const role =
+    String(
+      user.role || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const portalMap = {
+    gnadmin: "GN",
+    welfare: "Welfare",
+    health: "Health",
+    youthsports: "Youth & Sports",
+    deathaid: "Death Aid",
+    family: "Family",
+  };
+
+  return (
+    portalMap[role] ||
+    ""
+  );
+}
+
+/* =========================================================
    AUTHENTICATION
 ========================================================= */
 
 function createToken(user) {
+  const portal =
+    getPortalForUser(user);
+
   return jwt.sign(
     {
       id: user._id,
-      username: user.username,
-      role: user.role,
+
+      username:
+        user.username,
+
+      role:
+        user.role,
+
+      portal:
+
+        portal,
+
       houseNumber:
         user.houseNumber || "",
     },
@@ -598,6 +656,7 @@ async function createDefaultPortalUsers() {
       username: "gnadmin",
       password: "ChangeMe123!",
       role: "gnadmin",
+      portal: "GN",
       fullName: "GN Officer",
       email: "gnadmin@gramalk.lk",
       houseNumber: "",
@@ -607,6 +666,7 @@ async function createDefaultPortalUsers() {
       username: "welfare",
       password: "ChangeMe123!",
       role: "welfare",
+      portal: "Welfare",
       fullName: "Welfare Officer",
       email: "welfare@gramalk.lk",
       houseNumber: "",
@@ -616,17 +676,33 @@ async function createDefaultPortalUsers() {
       username: "health",
       password: "ChangeMe123!",
       role: "health",
+      portal: "Health",
       fullName: "Health Officer",
       email: "health@gramalk.lk",
       houseNumber: "",
     },
 
-        {
+    {
       username: "youthsports",
       password: "ChangeMe123!",
       role: "youthsports",
-      fullName: "Youth and Sports Officer",
-      email: "youthsports@gramalk.lk",
+      portal: "Youth & Sports",
+      fullName:
+        "Youth Sports Officer",
+      email:
+        "youthsports@gramalk.lk",
+      houseNumber: "",
+    },
+
+    {
+      username: "deathaid",
+      password: "ChangeMe123!",
+      role: "deathaid",
+      portal: "Death Aid",
+      fullName:
+        "Death Aid Officer",
+      email:
+        "deathaid@gramalk.lk",
       houseNumber: "",
     },
 
@@ -634,8 +710,10 @@ async function createDefaultPortalUsers() {
       username: "family001",
       password: "1234",
       role: "family",
+      portal: "Family",
       fullName: "Family User",
-      email: "family001@gramalk.lk",
+      email:
+        "family001@gramalk.lk",
       houseNumber: "H001",
     },
   ];
@@ -666,6 +744,12 @@ async function createDefaultPortalUsers() {
         role:
           account.role,
 
+        portal:
+          account.portal,
+
+        assignedPortal:
+          account.portal,
+
         fullName:
           account.fullName,
 
@@ -680,11 +764,22 @@ async function createDefaultPortalUsers() {
         `Created portal user: ${account.username}`
       );
     } else {
+      /*
+         IMPORTANT:
+         We update the portal information too.
+      */
+
       existingUser.password =
         hashedPassword;
 
       existingUser.role =
         account.role;
+
+      existingUser.portal =
+        account.portal;
+
+      existingUser.assignedPortal =
+        account.portal;
 
       existingUser.fullName =
         account.fullName;
@@ -698,7 +793,7 @@ async function createDefaultPortalUsers() {
       await existingUser.save();
 
       console.log(
-        `Updated portal user: ${account.username}`
+        `Updated portal user: ${account.username} -> ${account.portal}`
       );
     }
   }
@@ -732,23 +827,6 @@ app.get(
     });
   }
 );
-
-/* =========================================================
-   forms
-========================================================= */
-
-app.get("/api/forms", async (req, res) => {
-  try {
-    const forms = await Form.find().sort({ createdAt: -1 });
-    res.json(forms);
-  } catch (error) {
-    console.error("Forms fetch error:", error);
-    res.status(500).json({
-      message: "Failed to load forms",
-    });
-  }
-});
-
 
 /* =========================================================
    LOGIN
@@ -835,8 +913,23 @@ app.post(
         });
       }
 
+      /*
+         Resolve portal from MongoDB / role.
+      */
+      const portal =
+        getPortalForUser(user);
+
+      /*
+         Create JWT with portal.
+      */
       const token =
         createToken(user);
+
+      /*
+         IMPORTANT:
+         Portal information is now sent
+         to the frontend.
+      */
 
       return res.json({
         success: true,
@@ -855,6 +948,15 @@ app.post(
 
           role:
             user.role,
+
+          portal:
+            portal,
+
+          assignedPortal:
+            portal,
+
+          portalType:
+            portal,
 
           houseNumber:
             user.houseNumber || "",
@@ -908,9 +1010,24 @@ app.get(
         });
       }
 
+      const portal =
+        getPortalForUser(user);
+
       return res.json({
         success: true,
-        user,
+
+        user: {
+          ...user.toObject(),
+
+          portal:
+            portal,
+
+          assignedPortal:
+            portal,
+
+          portalType:
+            portal,
+        },
       });
     } catch (error) {
       console.error(
@@ -1180,12 +1297,6 @@ app.post(
    COMPLAINTS
 ========================================================= */
 
-/*
-   Anonymous complaint submission is allowed.
-   If a user is logged in, their username/house number
-   will also be stored.
-*/
-
 app.post(
   "/api/complaints",
   complaintUpload.single(
@@ -1203,11 +1314,6 @@ app.post(
           req.body.status ||
           "Pending",
       };
-
-      /*
-         If logged-in user exists,
-         save their information.
-      */
 
       if (req.user) {
         data.username =
@@ -1280,6 +1386,7 @@ app.get(
         "gnadmin",
         "welfare",
         "health",
+        "youthsports",
         "deathaid",
       ];
 
@@ -1544,11 +1651,6 @@ app.post(
    WELFARE FUNDS
 ========================================================= */
 
-/*
-   This is a REAL API route.
-   It must send data using res.json().
-*/
-
 app.get(
   "/api/welfare/funds",
   async (
@@ -1556,17 +1658,13 @@ app.get(
     res
   ) => {
     try {
-      /*
-         These models are optional.
-         This route safely checks whether the
-         collections exist in the database.
-      */
-
       const welfareFunds =
         mongoose.connection.db
           ? await mongoose.connection
               .db
-              .collection("welfarefunds")
+              .collection(
+                "welfarefunds"
+              )
               .find({})
               .sort({
                 createdAt: -1,
@@ -1595,14 +1693,6 @@ app.get(
    GEMINI WEBSITE CONTEXT
 ========================================================= */
 
-/*
-   IMPORTANT:
-   This is a FUNCTION, not an Express route.
-
-   Gemini uses this function to get the latest
-   information from MongoDB.
-*/
-
 async function getWebsiteContext() {
   try {
     const [
@@ -1612,25 +1702,26 @@ async function getWebsiteContext() {
       announcements,
       officers,
       activities,
-    ] = await Promise.all([
-      Office.find()
-        .lean(),
+    ] =
+      await Promise.all([
+        Office.find().lean(),
 
-      GovernmentOffice.find()
-        .lean(),
+        GovernmentOffice
+          .find()
+          .lean(),
 
-      Form.find()
-        .lean(),
+        Form.find().lean(),
 
-      Announcement.find()
-        .lean(),
+        Announcement
+          .find()
+          .lean(),
 
-      Officer.find()
-        .lean(),
+        Officer.find().lean(),
 
-      VillageActivity.find()
-        .lean(),
-    ]);
+        VillageActivity
+          .find()
+          .lean(),
+      ]);
 
     return {
       offices,
@@ -1739,11 +1830,6 @@ ${message}
   try {
     const response =
       await gemini.models.generateContent({
-        /*
-           Use a model available to your Gemini API key.
-           If your existing Gemini setup uses another model,
-           you can change this value.
-        */
         model:
           "gemini-2.5-flash",
 
@@ -1793,17 +1879,8 @@ app.post(
         });
       }
 
-      /*
-         Get fresh information from MongoDB.
-      */
-
       const context =
         await getWebsiteContext();
-
-      /*
-         Send database information
-         to Gemini.
-      */
 
       const answer =
         await tryGemini(
@@ -1843,11 +1920,6 @@ app.post(
 /* =========================================================
    GN ROUTES
 ========================================================= */
-
-/*
-   If gnRoutes.js exports an Express router,
-   this mounts it under /api/gn.
-*/
 
 if (gnRoutes) {
   app.use(
@@ -1900,10 +1972,6 @@ app.use(
 
 async function startServer() {
   try {
-    /*
-       MongoDB is connected ONLY HERE.
-    */
-
     await mongoose.connect(
       mongoURI
     );
@@ -1925,15 +1993,7 @@ async function startServer() {
       "================================"
     );
 
-    /*
-       Create/update default users.
-    */
-
     await createDefaultPortalUsers();
-
-    /*
-       Start Express server.
-    */
 
     app.listen(
       PORT,

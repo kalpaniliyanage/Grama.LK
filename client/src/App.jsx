@@ -988,23 +988,35 @@ export default function App() {
                     ""
                 ).toLowerCase();
 
-                let localFile = form.file || "";
+                const storedFile =
+                  form.file || form.fileUrl || "";
+
+                let localFile = storedFile;
 
                 if (
+                  localFile.startsWith("/uploads/")
+                ) {
+                  localFile = new URL(
+                    localFile,
+                    API
+                  ).toString();
+                }
+
+                if (!localFile &&
                   title.includes("aswesuma")
                 ) {
                   localFile =
                     "/forms/aswesuma.pdf";
                 }
 
-                if (
+                if (!localFile &&
                   title.includes("health")
                 ) {
                   localFile =
                     "/forms/healthcare.pdf";
                 }
 
-                if (
+                if (!localFile &&
                   title.includes("disaster")
                 ) {
                   localFile =
@@ -2924,48 +2936,10 @@ export default function App() {
                         index
                       ) => {
 
-                        /*
-                          Always determine a valid
-                          local PDF path.
-                        */
-
-                        const title =
-                          String(
-                            form.title ||
-                              form.name ||
-                              ""
-                          ).toLowerCase();
-
-                        let formFile =
+                        const formFile =
                           form.file ||
+                          form.fileUrl ||
                           "";
-
-                        if (
-                          title.includes(
-                            "aswesuma"
-                          )
-                        ) {
-                          formFile =
-                            "/forms/aswesuma.pdf";
-                        }
-
-                        if (
-                          title.includes(
-                            "health"
-                          )
-                        ) {
-                          formFile =
-                            "/forms/healthcare.pdf";
-                        }
-
-                        if (
-                          title.includes(
-                            "disaster"
-                          )
-                        ) {
-                          formFile =
-                            "/forms/disaster-application.pdf";
-                        }
 
                         return (
                           <article
