@@ -5,6 +5,7 @@ import "./index.css";
 import GNPortal from "./components/pages/GNPortal";
 import WelfarePortal from "./components/pages/WelfarePortal";
 import YouthSportsPortal from "./components/pages/youthSportsPortal";
+import FamilyPortal from "./components/pages/FamilyPortal";
 
 const API =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -4134,6 +4135,12 @@ export default function App() {
           <YouthSportsPortal />
         }
       />
+
+      <Route
+        path="/family-portal"
+        element={<FamilyPortal />}
+      />
+      
     </Routes>
   );
 }
