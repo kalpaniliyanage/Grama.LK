@@ -1,3 +1,15 @@
+import React from 'react';
+
+function GNPortal() {
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Grama Niladhari (GN) Office Portal</h1>
+      <p>GN Portal සාර්ථකව Load විය!</p>
+    </div>
+  );
+}
+
+export default GNPortal;
 import React, { useState, useEffect, useMemo } from 'react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/gn';

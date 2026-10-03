@@ -12,6 +12,7 @@ import { GoogleGenAI } from "@google/genai";
 // Optional portal route import
 import gnRoutes from "./routes/gnRoutes.js";
 
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config();
 
 /* =========================================================
@@ -45,9 +46,20 @@ console.log(
 );
 
 /* =========================================================
+   MONGODB CONNECTION
    MONGODB ATLAS CONFIGURATION
 ========================================================= */
 
+const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/gramalk";
+
+try {
+  await mongoose.connect(mongoURI);
+  console.log("=================================");
+  console.log("MongoDB Connected Successfully!");
+  console.log("=================================");
+} catch (error) {
+  console.error("MongoDB Connection Failed:", error.message);
+}
 const mongoUsername =
   process.env.MONGO_USERNAME;
 

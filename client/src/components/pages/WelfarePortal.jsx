@@ -1,3 +1,15 @@
+import React from 'react';
+
+function WelfarePortal() {
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Welfare Portal</h1>
+      <p>Welfare Portal කොටස සකස් වෙමින් පවතියි...</p>
+    </div>
+  );
+}
+
+export default WelfarePortal;
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
