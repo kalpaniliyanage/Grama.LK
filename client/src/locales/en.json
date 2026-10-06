@@ -30,7 +30,7 @@
   "cancel": "Cancel",
   "save_success": "Information saved successfully!",
   "fund_save_success": "Monthly fee payment recorded successfully!",
-  "server_error": "Could not connect to the server."
+  "server_error": "Could not connect to the server.",
   "welcome": "Welcome, PHM Officer",
   "subtitle": "Public Health Midwife Portal",
   "assignedArea": "Assigned Area: Division 05",
@@ -62,5 +62,17 @@
   "phiArea": "Division: Division 05",
   "phiPhone": "Contact: 0719876543",
   "announcementTitlePlaceholder": "Announcement Title",
-  "announcementDetailPlaceholder": "Enter details..."
+  "announcementDetailPlaceholder": "Enter details...",
+  "announcementsTitle": "Health Announcements",
+  "addAnnouncementTitle": "➕ Add New Announcement",
+  "editAnnouncementTitle": "✏️ Edit Announcement",
+  "titlePlaceholder": "Announcement Title",
+  "descPlaceholder": "Enter description...",
+  "publishBtn": "Publish",
+  "updateBtn": "Update",
+  "cancelBtn": "Cancel",
+  "existingAnnouncements": "Existing Announcements",
+  "noAnnouncements": "No announcements available.",
+  "editBtn": "Edit",
+  "deleteBtn": "Delete"
 }

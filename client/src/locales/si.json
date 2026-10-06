@@ -30,7 +30,7 @@
   "cancel": "අවලංගු කරන්න",
   "save_success": "තොරතුරු සාර්ථකව ඇතුළත් කළා!",
   "fund_save_success": "මාසික සාමාජික ගාස්තු ගෙවීම සාර්ථකව සටහන් කළා!",
-  "server_error": "Server එකට සම්බන්ධ වීමට නොහැකි විය."
+  "server_error": "Server එකට සම්බන්ධ වීමට නොහැකි විය.",
   "welcome": "සාදරයෙන් පිළිගනිමු, PHM නිලධාරිනියනි",
   "subtitle": "මහජන සෞඛ්‍ය පවුල් සෞඛ්‍ය සේවිකා පෝටලය",
   "assignedArea": "අයත් වසම: කොට්ඨාසය 05",
@@ -62,5 +62,17 @@
   "phiArea": "වසම: කොට්ඨාසය 05",
   "phiPhone": "දුරකථන: 0719876543",
   "announcementTitlePlaceholder": "නිවේදනයේ මාතෘකාව",
-  "announcementDetailPlaceholder": "විස්තරය ඇතුළත් කරන්න..."
+  "announcementDetailPlaceholder": "විස්තරය ඇතුළත් කරන්න...",
+  "announcementsTitle": "සෞඛ්‍ය නිවේදන",
+  "addAnnouncementTitle": "➕ අලුත් නිවේදනයක් එකතු කරන්න",
+  "editAnnouncementTitle": "✏️ නිවේදනය සංස්කරණය කරන්න",
+  "titlePlaceholder": "නිවේදනයේ මාතෘකාව",
+  "descPlaceholder": "විස්තරය ඇතුළත් කරන්න...",
+  "publishBtn": "පළ කරන්න",
+  "updateBtn": "යාවත්කාලීන කරන්න",
+  "cancelBtn": "අවලංගු කරන්න",
+  "existingAnnouncements": "පවතින නිවේදන",
+  "noAnnouncements": "නිවේදන කිසිවක් නැත.",
+  "editBtn": "වෙනස් කරන්න",
+  "deleteBtn": "මකා දමන්න"
 }

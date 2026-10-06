@@ -45,52 +45,22 @@ console.log(
   `Gemini API key loaded: ${Boolean(gemini)}`
 );
 
-/* =========================================================
+/* ==========================================================================
    MONGODB CONNECTION
-   MONGODB ATLAS CONFIGURATION
-========================================================= */
+   ========================================================================== */
 
-const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/gramalk";
+const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/gramalk";
 
-try {
-  await mongoose.connect(mongoURI);
-  console.log("=================================");
-  console.log("MongoDB Connected Successfully!");
-  console.log("=================================");
-} catch (error) {
-  console.error("MongoDB Connection Failed:", error.message);
-}
-const mongoUsername =
-  process.env.MONGO_USERNAME;
-
-const mongoPassword =
-  process.env.MONGO_PASSWORD;
-
-const mongoCluster =
-  process.env.MONGO_CLUSTER;
-
-const mongoDatabase =
-  process.env.MONGO_DATABASE || "gramalk";
-
-if (
-  !mongoUsername ||
-  !mongoPassword ||
-  !mongoCluster
-) {
-  console.error(
-    "MongoDB environment variables are missing."
-  );
-
-  process.exit(1);
-}
-
-const mongoURI =
-  `mongodb+srv://${encodeURIComponent(
-    mongoUsername
-  )}:${encodeURIComponent(
-    mongoPassword
-  )}@${mongoCluster}/${mongoDatabase}?authSource=admin`;
-
+mongoose
+  .connect(mongoURI)
+  .then(() => {
+    console.log("=================================");
+    console.log("MongoDB Connected Successfully!");
+    console.log("=================================");
+  })
+  .catch((err) => {
+    console.error("MongoDB Connection Error:", err);
+  });
 /* =========================================================
    DIRECTORIES
 ========================================================= */
@@ -1995,10 +1965,10 @@ async function startServer() {
     console.log(
       "MongoDB Atlas Connected Successfully!"
     );
-
+    
     console.log(
       "Database:",
-      mongoDatabase
+      "gramalk"
     );
 
     console.log(

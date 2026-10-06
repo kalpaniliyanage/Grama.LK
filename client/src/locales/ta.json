@@ -30,7 +30,7 @@
   "cancel": "ரத்து செய்",
   "save_success": "தகவல் வெற்றிகரமாக சேமிக்கப்பட்டது!",
   "fund_save_success": "மாதாந்திர கட்டணம் வெற்றிகரமாக பதிவு செய்யப்பட்டது!",
-  "server_error": "சேவையகத்துடன் இணைக்க முடியவில்லை."
+  "server_error": "சேவையகத்துடன் இணைக்க முடியவில்லை.",
   "welcome": "வரவேற்கிறோம், PHM அதிகாரி",
   "subtitle": "குடும்ப சுகாதார செவிலியர் நுழைவாயில்",
   "assignedArea": "ஒதுக்கப்பட்ட பகுதி: பிரிவு 05",
@@ -62,5 +62,17 @@
   "phiArea": "பிரிவு: பிரிவு 05",
   "phiPhone": "தொலைபேசி: 0719876543",
   "announcementTitlePlaceholder": "அறிவிப்புத் தலைப்பு",
-  "announcementDetailPlaceholder": "விவரங்களை உள்ளிடவும்..."
+  "announcementDetailPlaceholder": "விவரங்களை உள்ளிடவும்...",
+  "announcementsTitle": "சுகாதார அறிவிப்புகள்",
+  "addAnnouncementTitle": "➕ புதிய அறிவிப்பைச் சேர்க்கவும்",
+  "editAnnouncementTitle": "✏️ அறிவிப்பைத் திருத்தவும்",
+  "titlePlaceholder": "அறிவிப்பின் தலைப்பு",
+  "descPlaceholder": "விவரங்களை உள்ளிடவும்...",
+  "publishBtn": "வெளியிடு",
+  "updateBtn": "புதுப்பித்திடு",
+  "cancelBtn": "இரத்து செய்",
+  "existingAnnouncements": "தற்போதுள்ள அறிவிப்புகள்",
+  "noAnnouncements": "அறிவிப்புகள் எதுவும் இல்லை.",
+  "editBtn": "திருத்து",
+  "deleteBtn": "நீக்கு"
 }
