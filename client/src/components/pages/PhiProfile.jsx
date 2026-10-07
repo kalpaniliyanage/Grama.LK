@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import en from '../../locales/en.json';
 import si from '../../locales/si.json';
 import ta from '../../locales/ta.json';
+import './PhiProfile.css'; // CSS File එක Import කර ඇත
 
 const translations = { en, si, ta };
 
@@ -10,32 +11,53 @@ const PhiProfile = () => {
   const t = translations[lang];
 
   return (
-    <div style={styles.container}>
-      <div style={styles.langBar}>
-        <button style={lang === 'si' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('si')}>සිංහල</button>
-        <button style={lang === 'en' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('en')}>English</button>
-        <button style={lang === 'ta' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('ta')}>தமிழ்</button>
+    <div className="profile-container">
+      {/* Top Bar Navigation */}
+      <div className="profile-topbar">
+        <div className="profile-badge">
+          <span className="badge-icon">👤</span>
+          <span>PHI Officer Profile</span>
+        </div>
+
+        <div className="profile-lang-bar">
+          <button className={`lang-btn ${lang === 'si' ? 'active' : ''}`} onClick={() => setLang('si')}>සිංහල</button>
+          <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>English</button>
+          <button className={`lang-btn ${lang === 'ta' ? 'active' : ''}`} onClick={() => setLang('ta')}>தமிழ்</button>
+        </div>
       </div>
 
-      <h2>{t.phiProfileTitle}</h2>
+      {/* Main Header Card */}
+      <header className="profile-header-card">
+        <div>
+          <h2>{t.phiProfileTitle || "මහජන සෞඛ්‍ය පරීක්ෂක ගිණුම් තොරතුරු"}</h2>
+          <p className="profile-subtitle">ඔබගේ නිල සේවා තොරතුරු සහ සම්බන්ධතා විස්තර</p>
+        </div>
+      </header>
 
-      <div style={styles.card}>
-        <p style={styles.info}><strong>{t.phiName}</strong></p>
-        <p style={styles.info}><strong>{t.phiRole}</strong></p>
-        <p style={styles.info}><strong>{t.phiArea}</strong></p>
-        <p style={styles.info}><strong>{t.phiPhone}</strong></p>
+      {/* Profile Details Card */}
+      <div className="profile-card">
+        <div className="profile-avatar-section">
+          <div className="avatar-circle">🩺</div>
+          <div>
+            <h3>{t.phiName || "නිලධාරියාගේ නම"}</h3>
+            <span className="role-tag">{t.phiRole || "මහජන සෞඛ්‍ය පරීක්ෂක (PHI)"}</span>
+          </div>
+        </div>
+
+        <div className="profile-info-grid">
+          <div className="info-item">
+            <span className="info-label">📍 අයත් බලප්‍රදේශය</span>
+            <span className="info-value">{t.phiArea || "කොට්ඨාසය 05"}</span>
+          </div>
+
+          <div className="info-item">
+            <span className="info-label">📞 දුරකථන අංකය</span>
+            <span className="info-value">{t.phiPhone || "077 123 4567"}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: { padding: '20px', fontFamily: 'Arial, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh' },
-  langBar: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '15px' },
-  langBtn: { padding: '6px 14px', backgroundColor: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-  activeLangBtn: { padding: '6px 14px', backgroundColor: '#008080', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
-  card: { backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', maxWidth: '400px', marginTop: '15px' },
-  info: { margin: '10px 0', fontSize: '15px', color: '#333' }
 };
 
 export default PhiProfile;

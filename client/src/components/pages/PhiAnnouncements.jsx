@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import en from '../../locales/en.json';
 import si from '../../locales/si.json';
 import ta from '../../locales/ta.json';
+import './PhiAnnouncements.css'; // CSS File එක Import කර ඇත
 
 const translations = { en, si, ta };
 
@@ -33,58 +34,80 @@ const PhiAnnouncements = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.langBar}>
-        <button style={lang === 'si' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('si')}>සිංහල</button>
-        <button style={lang === 'en' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('en')}>English</button>
-        <button style={lang === 'ta' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('ta')}>தமிழ்</button>
+    <div className="phi-container">
+      {/* Top Bar Navigation */}
+      <div className="phi-topbar">
+        <div className="phi-badge">
+          <span className="badge-icon">📢</span>
+          <span>PHI Announcements Portal</span>
+        </div>
+
+        <div className="phi-lang-bar">
+          <button className={`lang-btn ${lang === 'si' ? 'active' : ''}`} onClick={() => setLang('si')}>සිංහල</button>
+          <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>English</button>
+          <button className={`lang-btn ${lang === 'ta' ? 'active' : ''}`} onClick={() => setLang('ta')}>தமிழ்</button>
+        </div>
       </div>
 
-      <h2>{t.phiAnnouncementsTitle}</h2>
+      {/* Header Card */}
+      <header className="phi-header-card">
+        <div>
+          <h2>{t.phiAnnouncementsTitle || "PHI සෞඛ්‍ය නිවේදන කළමනාකරණය"}</h2>
+          <p className="phi-subtitle">ප්‍රදේශවාසීන් දැනුවත් කිරීම සඳහා නව නිවේදන පලකිරීම සහ කළමනාකරණය</p>
+        </div>
+      </header>
 
-      {/* New Announcement Form */}
-     <form onSubmit={handleAdd} style={styles.form}>
-  <input 
-    type="text" 
-    placeholder={t.announcementTitlePlaceholder || "Announcement Title"} 
-    value={newTitle} 
-    onChange={(e) => setNewTitle(e.target.value)} 
-    style={styles.input} 
-    required 
-  />
-  <textarea 
-    placeholder={t.announcementDetailPlaceholder || "Enter details..."} 
-    value={newDetail} 
-    onChange={(e) => setNewDetail(e.target.value)} 
-    style={{ ...styles.input, height: '80px' }} 
-    required 
-  />
-  <button type="submit" style={styles.btn}>{t.addAnnouncementBtn}</button>
-</form>
+      <div className="phi-content-grid">
+        {/* Form Card */}
+        <div className="phi-card form-card">
+          <h3>➕ නව නිවේදනයක් එක් කරන්න</h3>
+          <form onSubmit={handleAdd} className="phi-form">
+            <div className="form-group">
+              <label>නිවේදනයේ මාතෘකාව</label>
+              <input 
+                type="text" 
+                placeholder={t.announcementTitlePlaceholder || "උදා: ඩෙංගු මර්දන වැඩසටහන"} 
+                value={newTitle} 
+                onChange={(e) => setNewTitle(e.target.value)} 
+                required 
+              />
+            </div>
 
-      {/* List */}
-      <div style={{ marginTop: '20px' }}>
-        {announcements.map((item) => (
-          <div key={item.id} style={styles.card}>
-            <h4 style={{ margin: '0 0 5px 0' }}>{item.title}</h4>
-            <p style={{ margin: '5px 0', fontSize: '14px', color: '#444' }}>{item.detail}</p>
-            <small style={{ color: '#888' }}>📅 {item.date}</small>
+            <div className="form-group">
+              <label>විස්තරය</label>
+              <textarea 
+                placeholder={t.announcementDetailPlaceholder || "නිවේදනයේ සම්පූර්ණ විස්තරය ඇතුළත් කරන්න..."} 
+                value={newDetail} 
+                onChange={(e) => setNewDetail(e.target.value)} 
+                required 
+              />
+            </div>
+
+            <button type="submit" className="btn-submit">
+              {t.addAnnouncementBtn || "පල කරන්න →"}
+            </button>
+          </form>
+        </div>
+
+        {/* Announcements List */}
+        <div className="phi-card list-card">
+          <h3>📋 සක්‍රිය නිවේදන ලැයිස්තුව</h3>
+          
+          <div className="announcements-list">
+            {announcements.map((item) => (
+              <div key={item.id} className="announcement-item">
+                <div className="item-header">
+                  <h4>{item.title}</h4>
+                  <span className="date-badge">📅 {item.date}</span>
+                </div>
+                <p>{item.detail}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: { padding: '20px', fontFamily: 'Arial, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh' },
-  langBar: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '15px' },
-  langBtn: { padding: '6px 14px', backgroundColor: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-  activeLangBtn: { padding: '6px 14px', backgroundColor: '#008080', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
-  form: { backgroundColor: '#fff', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '500px' },
-  input: { padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' },
-  btn: { backgroundColor: '#008080', color: '#fff', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
-  card: { backgroundColor: '#fff', padding: '15px', borderRadius: '6px', marginBottom: '12px', borderLeft: '4px solid #008080', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }
 };
 
 export default PhiAnnouncements;

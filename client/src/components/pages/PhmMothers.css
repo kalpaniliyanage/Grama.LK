@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Background Photo + Blur Overlay */
+.mothers-container {
+  padding: 32px 40px;
+  min-height: 100vh;
+  position: relative;
+
+  background-image: linear-gradient(
+      rgba(248, 250, 252, 0.88), 
+      rgba(248, 250, 252, 0.95)
+    ), 
+    url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1920&auto=format&fit=crop');
+  
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Topbar Styles */
+.mothers-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.mothers-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #059669;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(236, 253, 245, 0.9);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #a7f3d0;
+  backdrop-filter: blur(8px);
+}
+
+/* Header Card */
+.mothers-header-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 28px 32px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.mothers-header-card h2 {
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.mothers-subtitle {
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Base Card Styling with Glassmorphism */
+.mothers-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 28px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.mothers-card h3 {
+  font-size: 17px;
+  color: #0f172a;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Grid Layout for Mothers Cards */
+.mothers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.mother-item-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #10b981;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  transition: all 0.25s ease;
+}
+
+.mother-item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(5, 150, 105, 0.08);
+  border-color: #a7f3d0;
+}
+
+.mother-avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.mother-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.mother-details h4 {
+  font-size: 16px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.mother-address {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 700;
+  color: #059669;
+  background-color: #ecfdf5;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #a7f3d0;
+  margin: 4px 0;
+}
+
+.mother-contact {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 600;
+}

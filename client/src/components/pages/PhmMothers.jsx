@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './PhmMothers.css'; // CSS File එක Import කර ඇත
 
 const PhmMothers = () => {
   const [mothers] = useState([
@@ -8,17 +9,40 @@ const PhmMothers = () => {
   ]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <h2>👩‍👧 Families & Mothers (ලියාපදිංචි මව්වරුන් සහ පවුල්)</h2>
-      <div style={{ marginTop: '20px' }}>
-        {mothers.map((m) => (
-          <div key={m.id} style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '6px', borderLeft: '4px solid #008080', marginBottom: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <h4 style={{ margin: '0 0 5px 0' }}>{m.name}</h4>
-            <p style={{ margin: '3px 0', fontSize: '13px', color: '#555' }}>📍 {m.address}</p>
-            <p style={{ margin: '3px 0', fontSize: '13px', color: '#008080', fontWeight: 'bold' }}>ℹ️ {m.status}</p>
-            <small style={{ color: '#777' }}>📞 {m.contact}</small>
-          </div>
-        ))}
+    <div className="mothers-container">
+      {/* Top Bar Badge */}
+      <div className="mothers-topbar">
+        <div className="mothers-badge">
+          <span className="badge-icon">👩‍👧</span>
+          <span>PHM Family Healthcare Services</span>
+        </div>
+      </div>
+
+      {/* Main Header Card */}
+      <header className="mothers-header-card">
+        <div>
+          <h2>Families & Mothers (ලියාපදිංචි මව්වරුන් සහ පවුල්)</h2>
+          <p className="mothers-subtitle">කොට්ඨාසයේ ලියාපදිංචි ගැබිනි මව්වරුන් සහ ළදරු මව්වරුන්ගේ තොරතුරු</p>
+        </div>
+      </header>
+
+      {/* Mothers List Grid */}
+      <div className="mothers-card">
+        <h3>📋 ලියාපදිංචි ලැයිස්තුව ({mothers.length})</h3>
+
+        <div className="mothers-grid">
+          {mothers.map((m) => (
+            <div key={m.id} className="mother-item-card">
+              <div className="mother-avatar-circle">🤰</div>
+              <div className="mother-details">
+                <h4>{m.name}</h4>
+                <p className="mother-address">📍 {m.address}</p>
+                <div className="status-badge">ℹ️ {m.status}</div>
+                <p className="mother-contact">📞 {m.contact}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

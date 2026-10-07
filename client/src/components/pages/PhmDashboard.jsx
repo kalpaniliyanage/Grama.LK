@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../../services/api'; // Axios instance එක import කරගන්න
+import API from '../../services/api';
 import en from '../../locales/en.json';
 import si from '../../locales/si.json';
 import ta from '../../locales/ta.json';
+import './PhmDashboard.css'; // CSS File එක Import කර ඇත
 
 const translations = { en, si, ta };
 
@@ -12,10 +13,8 @@ const PhmDashboard = () => {
   const t = translations[lang];
   const navigate = useNavigate();
 
-  // වසම් Modal එක පාලනය කිරීමට State
   const [showAreaModal, setShowAreaModal] = useState(false);
 
-  // Backend එකෙන් ගන්නා Dashboard Dynamic Counts සඳහා States
   const [stats, setStats] = useState({
     mothersCount: 0,
     requestsCount: 0,
@@ -23,18 +22,15 @@ const PhmDashboard = () => {
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
-  // අයත් වසම් ලැයිස්තුව (Sample Data)
   const assignedAreas = [
     { id: '05-A', name: 'කොට්ඨාසය 05 - උතුර' },
     { id: '05-B', name: 'කොට්ඨාසය 05 - දකුණ' },
     { id: '05-C', name: 'කොට්ඨාසය 05 - මධ්‍යම' },
   ];
 
-  // Backend API එකෙන් Dashboard දත්ත ලබා ගැනීම
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        // ඔබේ Backend එකෙහි අදාළ Routes වලට අනුව මේවා වෙනස් කරගත හැක
         const [mothersRes, requestsRes, announcementsRes] = await Promise.allSettled([
           API.get('/mothers/count'),
           API.get('/requests/count'),
@@ -57,99 +53,127 @@ const PhmDashboard = () => {
   }, []);
 
   return (
-    <div style={styles.container}>
-      {/* Language Switcher */}
-      <div style={styles.langBar}>
-        <button style={lang === 'si' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('si')}>සිංහල</button>
-        <button style={lang === 'en' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('en')}>English</button>
-        <button style={lang === 'ta' ? styles.activeLangBtn : styles.langBtn} onClick={() => setLang('ta')}>தமிழ்</button>
-      </div>
-
-      <header style={styles.header}>
-        <div>
-          <h2>{t.welcome || "සාදරයෙන් පිළිගනිමු, PHM නිලධාරිනියනි"}</h2>
-          <p style={styles.subtitle}>{t.subtitle || "මහජන සෞඛ්‍ය පවුල් සෞඛ්‍ය සේවිකා පෝටලය"}</p>
+    <div className="phm-dashboard-container">
+      {/* Top Bar / Language Selector */}
+      <div className="phm-topbar">
+        <div className="phm-portal-badge">
+          <span className="badge-icon">🩺</span>
+          <span>Public Health Services</span>
         </div>
 
-        {/* අයත් වසම Click කළ විට Modal එක Open වේ */}
-        <span 
-          style={styles.areaBadgeClickable} 
+        <div className="phm-lang-bar">
+          <button className={`lang-btn ${lang === 'si' ? 'active' : ''}`} onClick={() => setLang('si')}>සිංහල</button>
+          <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>English</button>
+          <button className={`lang-btn ${lang === 'ta' ? 'active' : ''}`} onClick={() => setLang('ta')}>தமிழ்</button>
+        </div>
+      </div>
+
+      {/* Header Section */}
+      <header className="phm-header-card">
+        <div>
+          <h2>{t.welcome || "සාදරයෙන් පිළිගනිමු, PHM නිලධාරිනියනි"}</h2>
+          <p className="phm-subtitle">{t.subtitle || "මහජන සෞඛ්‍ය පවුල් සෞඛ්‍ය සේවිකා පෝටලය"}</p>
+        </div>
+
+        <button 
+          className="area-badge-btn" 
           onClick={() => setShowAreaModal(true)}
           title="අයත් වසම් ලැයිස්තුව බලන්න"
         >
-          {t.assignedArea || "අයත් වසම: කොට්ඨාසය 05 📍"}
-        </span>
+          <span>📍</span> {t.assignedArea || "අයත් වසම: කොට්ඨාසය 05"}
+        </button>
       </header>
 
-      {/* Quick Summary Cards */}
-      <div style={styles.statsGrid}>
-        <div style={styles.clickableCard} onClick={() => navigate('/phm-mothers')}>
-          <h4>{t.statMothers || "ලියාපදිංචි මව්වරුන්"}</h4>
-          <p style={styles.statNumber}>{loadingStats ? '...' : stats.mothersCount}</p>
+      {/* Dynamic Summary Cards */}
+      <div className="phm-stats-grid">
+        <div className="phm-card stat-card card-green" onClick={() => navigate('/phm-mothers')}>
+          <div className="stat-icon-wrapper">👩‍👦</div>
+          <div className="stat-info">
+            <h4>{t.statMothers || "ලියාපදිංචි මව්වරුන්"}</h4>
+            <p className="stat-number">{loadingStats ? '...' : stats.mothersCount}</p>
+          </div>
         </div>
 
-        <div style={styles.clickableCard} onClick={() => navigate('/phm-requests')}>
-          <h4>{t.statRequests || "විසඳීමට ඇති ඉල්ලීම්"}</h4>
-          <p style={styles.statNumber}>{loadingStats ? '...' : stats.requestsCount}</p>
+        <div className="phm-card stat-card card-amber" onClick={() => navigate('/phm-requests')}>
+          <div className="stat-icon-wrapper">📋</div>
+          <div className="stat-info">
+            <h4>{t.statRequests || "විසඳීමට ඇති ඉල්ලීම්"}</h4>
+            <p className="stat-number">{loadingStats ? '...' : stats.requestsCount}</p>
+          </div>
         </div>
 
-        <div style={styles.clickableCard} onClick={() => navigate('/phm-announcements')}>
-          <h4>{t.statNotices || "සක්‍රිය නිවේදන"}</h4>
-          <p style={styles.statNumber}>{loadingStats ? '...' : stats.announcementsCount}</p>
+        <div className="phm-card stat-card card-blue" onClick={() => navigate('/phm-announcements')}>
+          <div className="stat-icon-wrapper">📢</div>
+          <div className="stat-info">
+            <h4>{t.statNotices || "සක්‍රිය නිවේදන"}</h4>
+            <p className="stat-number">{loadingStats ? '...' : stats.announcementsCount}</p>
+          </div>
         </div>
       </div>
 
-      {/* Main Actions */}
-      <div style={styles.actionSection}>
+      {/* Quick Action Section */}
+      <div className="phm-card action-section">
         <h3>{t.quickActions || "ක්ෂණික පියවර"}</h3>
-        <div style={styles.actionGrid}>
-          <button style={styles.actionBtn} onClick={() => navigate('/phm-announcements')}>
-            📢 {t.btnAnnouncements || "සෞඛ්‍ය නිවේදන"}
+        <div className="action-grid">
+          <button className="action-btn" onClick={() => navigate('/phm-announcements')}>
+            <span className="btn-icon">📢</span>
+            <div className="btn-text">
+              <strong>{t.btnAnnouncements || "සෞඛ්‍ය නිවේදන"}</strong>
+              <small>නව නිවේදන පලකිරීම සහ කළමනාකරණය</small>
+            </div>
           </button>
 
-          <button style={styles.actionBtn} onClick={() => navigate('/phm-mothers')}>
-            👩‍👦 {t.btnMothers || "පවුල් සහ මව්වරුන්"}
+          <button className="action-btn" onClick={() => navigate('/phm-mothers')}>
+            <span className="btn-icon">👩‍👦</span>
+            <div className="btn-text">
+              <strong>{t.btnMothers || "පවුල් සහ මව්වරුන්"}</strong>
+              <small>තොරතුරු සහ සායනික වාර්තා</small>
+            </div>
           </button>
 
-          <button style={styles.actionBtn} onClick={() => navigate('/phm-requests')}>
-            📋 {t.btnRequests || "පැමිණිලි සහ ඉල්ලීම්"}
+          <button className="action-btn" onClick={() => navigate('/phm-requests')}>
+            <span className="btn-icon">📋</span>
+            <div className="btn-text">
+              <strong>{t.btnRequests || "පැමිණිලි සහ ඉල්ලීම්"}</strong>
+              <small>ප්‍රදේශවාසීන්ගේ ඉල්ලීම් පරික්ෂාව</small>
+            </div>
           </button>
         </div>
       </div>
 
-      {/* 📌 අයත් වසම් පෙන්වන Modal (Popup) එක */}
+      {/* Modal Popup */}
       {showAreaModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <div style={styles.modalHeader}>
-              <h3 style={{ margin: 0, color: '#008080' }}>🏡 අයත් වසම් / කොට්ඨාස ලැයිස්තුව</h3>
-              <button style={styles.closeBtn} onClick={() => setShowAreaModal(false)}>✕</button>
+        <div className="modal-overlay" onClick={() => setShowAreaModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🏡 අයත් වසම් / කොට්ඨාස ලැයිස්තුව</h3>
+              <button className="close-btn" onClick={() => setShowAreaModal(false)}>✕</button>
             </div>
 
-            <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
+            <p className="modal-subtext">
               ඔබට අයත් ප්‍රදේශයේ දැනට සේවය ලබාදෙන කොට්ඨාස පහත දැක්වේ:
             </p>
 
-            <ul style={styles.areaList}>
+            <ul className="area-list">
               {assignedAreas.map((area) => (
-                <li key={area.id} style={styles.areaListItem}>
-                  <span>📍 {area.name}</span>
-                  <span style={styles.areaCode}>{area.id}</span>
+                <li key={area.id} className="area-list-item">
+                  <span className="area-name">📍 {area.name}</span>
+                  <span className="area-code">{area.id}</span>
                 </li>
               ))}
             </ul>
 
-            <div style={styles.modalFooter}>
+            <div className="modal-footer">
               <button 
-                style={styles.profileNavBtn}
+                className="btn-secondary"
                 onClick={() => {
                   setShowAreaModal(false);
                   navigate('/phm-profile');
                 }}
               >
-                👤 ගිණුම් විස්තර (Profile) වෙත යන්න
+                👤 Profile වෙත යන්න
               </button>
-              <button style={styles.modalCloseBtn} onClick={() => setShowAreaModal(false)}>
+              <button className="btn-close" onClick={() => setShowAreaModal(false)}>
                 වසා දමන්න
               </button>
             </div>
@@ -158,34 +182,6 @@ const PhmDashboard = () => {
       )}
     </div>
   );
-};
-
-const styles = {
-  container: { padding: '20px', fontFamily: 'Arial, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh' },
-  langBar: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '15px' },
-  langBtn: { padding: '6px 14px', backgroundColor: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-  activeLangBtn: { padding: '6px 14px', backgroundColor: '#008080', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
-  subtitle: { color: '#6c757d', marginTop: '4px', fontSize: '14px' },
-  areaBadgeClickable: { backgroundColor: '#e6f2f2', color: '#008080', padding: '8px 14px', borderRadius: '15px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', transition: '0.2s', border: '1px solid #008080' },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '25px' },
-  clickableCard: { backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', textAlign: 'center', cursor: 'pointer', border: '1px solid #e2e8f0' },
-  statNumber: { fontSize: '28px', fontWeight: 'bold', color: '#008080', marginTop: '10px' },
-  actionSection: { backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' },
-  actionGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginTop: '15px' },
-  actionBtn: { padding: '15px', backgroundColor: '#f0f7f7', color: '#008080', border: '1px solid #008080', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' },
-
-  /* Modal Styles */
-  modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  modalContent: { backgroundColor: '#fff', padding: '25px', borderRadius: '10px', width: '90%', maxWidth: '450px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
-  modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px' },
-  closeBtn: { background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#888' },
-  areaList: { listStyle: 'none', padding: 0, margin: '20px 0' },
-  areaListItem: { display: 'flex', justifyContent: 'space-between', padding: '10px 12px', backgroundColor: '#f8f9fa', marginBottom: '8px', borderRadius: '6px', borderLeft: '4px solid #008080', fontSize: '14px' },
-  areaCode: { color: '#666', fontSize: '12px', fontWeight: 'bold' },
-  modalFooter: { display: 'flex', justifyContent: 'space-between', marginTop: '20px', gap: '10px' },
-  profileNavBtn: { padding: '8px 12px', backgroundColor: '#e6f2f2', color: '#008080', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' },
-  modalCloseBtn: { padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }
 };
 
 export default PhmDashboard;
