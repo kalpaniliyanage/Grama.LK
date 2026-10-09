@@ -116,6 +116,9 @@ const dashboardWords = {
     noteSaved: 'Note saved successfully.',
     replySaved: 'Reply and status updated successfully.',
     villagerCreated: 'Villager created successfully.',
+    familyAccountCreated: 'Family login created. Give these credentials to the household and ask them to change the temporary password after their first login.',
+    familyUsername: 'Family username',
+    temporaryPassword: 'Temporary password',
     villagerUpdated: 'Villager updated successfully.',
     villagerDeleted: 'Villager deleted successfully.',
     noticeCreated: 'Announcement published successfully.',
@@ -232,6 +235,9 @@ const dashboardWords = {
     noteSaved: 'සටහන සාර්ථකව සුරකින ලදී.',
     replySaved: 'පිළිතුර සහ තත්ත්වය සාර්ථකව සුරකින ලදී.',
     villagerCreated: 'පුරවැසියා සාර්ථකව එක්කරන ලදී.',
+    familyAccountCreated: 'පවුලේ පිවිසුම සාදන ලදී. මෙම තොරතුරු පවුලට ලබාදී, පළමු පිවිසුමෙන් පසු තාවකාලික මුරපදය වෙනස් කරන ලෙස දන්වන්න.',
+    familyUsername: 'පවුලේ පරිශීලක නාමය',
+    temporaryPassword: 'තාවකාලික මුරපදය',
     villagerUpdated: 'පුරවැසි තොරතුරු යාවත්කාලීන කරන ලදී.',
     villagerDeleted: 'පුරවැසි වාර්තාව මකා දමන ලදී.',
     noticeCreated: 'නිවේදනය සාර්ථකව පළකරන ලදී.',
@@ -348,6 +354,9 @@ const dashboardWords = {
     noteSaved: 'குறிப்பு வெற்றிகரமாக சேமிக்கப்பட்டது.',
     replySaved: 'பதில் வெற்றிகரமாக சேமிக்கப்பட்டது.',
     villagerCreated: 'கிராமவாசி வெற்றிகரமாக சேர்க்கப்பட்டார்.',
+    familyAccountCreated: 'குடும்ப உள்நுழைவு உருவாக்கப்பட்டது. இந்த விபரங்களை குடும்பத்தினரிடம் கொடுத்து, முதல் உள்நுழைவுக்குப் பிறகு தற்காலிக கடவுச்சொல்லை மாற்றச் சொல்லுங்கள்.',
+    familyUsername: 'குடும்ப பயனர்பெயர்',
+    temporaryPassword: 'தற்காலிக கடவுச்சொல்',
     villagerUpdated: 'கிராமவாசி தகவல் புதுப்பிக்கப்பட்டது.',
     villagerDeleted: 'கிராமவாசி பதிவு நீக்கப்பட்டது.',
     noticeCreated: 'அறிவிப்பு வெற்றிகரமாக வெளியிடப்பட்டது.',
@@ -400,6 +409,7 @@ const GNPortal = () => {
   const [villagerSearch, setVillagerSearch] = useState('');
   const [villagerModal, setVillagerModal] = useState({ open: false, mode: 'create', data: null });
   const [villagerDetails, setVillagerDetails] = useState(null);
+  const [newFamilyCredentials, setNewFamilyCredentials] = useState(null);
 
   const [complaints, setComplaints] = useState([]);
   const [complaintFilter, setComplaintFilter] = useState('All');
@@ -595,10 +605,11 @@ const GNPortal = () => {
     const url = isEdit ? `${API}/villagers/${targetId}` : `${API}/villagers`;
 
     try {
-      const saved = await apiRequest(url, {
+      const responseData = await apiRequest(url, {
         method: isEdit ? 'PUT' : 'POST',
         body: JSON.stringify(payload),
       });
+      const { familyAccount, ...saved } = responseData;
 
       if (isEdit) {
         setVillagers((prev) =>
@@ -607,7 +618,11 @@ const GNPortal = () => {
         showAlert(t('villagerUpdated'));
       } else {
         setVillagers((prev) => [saved, ...prev]);
-        showAlert(t('villagerCreated'));
+        if (familyAccount) {
+          setNewFamilyCredentials(familyAccount);
+        } else {
+          showAlert(t('villagerCreated'));
+        }
       }
 
       setVillagerModal({ open: false, mode: 'create', data: null });
@@ -2275,6 +2290,28 @@ const GNPortal = () => {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {newFamilyCredentials && (
+        <Modal
+          theme={theme}
+          onClose={() => setNewFamilyCredentials(null)}
+        >
+          <h3 style={modalHeading}>{t('familyUsername')} / {t('temporaryPassword')}</h3>
+          <p style={{ color: theme === 'dark' ? '#cbd5e1' : '#475569', lineHeight: 1.5 }}>
+            {t('familyAccountCreated')}
+          </p>
+          <DetailRow label={t('familyUsername')} value={newFamilyCredentials.username} />
+          <DetailRow label={t('temporaryPassword')} value={newFamilyCredentials.temporaryPassword} />
+          <div style={modalActions}>
+            <button
+              onClick={() => setNewFamilyCredentials(null)}
+              style={btnPrimary}
+            >
+              {t('close')}
+            </button>
+          </div>
         </Modal>
       )}
 

@@ -346,6 +346,55 @@ const User =
     userSchema
   );
 
+// Family Portal uses the same villagers collection used by the GN Portal
+const FamilyVillager =
+  mongoose.models.FamilyVillager ||
+  mongoose.model(
+    "FamilyVillager",
+    new mongoose.Schema(
+      {},
+      {
+        strict: false,
+        timestamps: true,
+      }
+    ),
+    "villagers"
+  );
+
+// =========================================================
+// FAMILY APPOINTMENT MODELS
+// =========================================================
+
+// GN appointments
+const FamilyGNAppointment =
+  mongoose.models.FamilyGNAppointment ||
+  mongoose.model(
+    "FamilyGNAppointment",
+    new mongoose.Schema(
+      {},
+      {
+        strict: false,
+        timestamps: true,
+      }
+    ),
+    "appointments"
+  );
+
+// PHI and Midwife appointments
+const FamilyHealthAppointment =
+  mongoose.models.FamilyHealthAppointment ||
+  mongoose.model(
+    "FamilyHealthAppointment",
+    new mongoose.Schema(
+      {},
+      {
+        strict: false,
+        timestamps: true,
+      }
+    ),
+    "healthappointments"
+  );
+
 /* =========================================================
    OTHER SCHEMAS
 ========================================================= */
@@ -562,6 +611,7 @@ function createToken(user) {
 
       houseNumber:
         user.houseNumber || "",
+      passwordVersion: user.passwordVersion || 0,
     },
 
     JWT_SECRET,
@@ -572,7 +622,12 @@ function createToken(user) {
   );
 }
 
-function authMiddleware(
+function requiresPasswordChange(user) {
+  return user?.mustChangePassword === true ||
+    user?.mustChangePassword === "true";
+}
+
+async function authMiddleware(
   req,
   res,
   next
@@ -607,6 +662,15 @@ function authMiddleware(
         JWT_SECRET
       );
 
+    if (req.user.role === "family") {
+      const current = await User.findById(req.user.id);
+      if (!current || current.role !== "family") return res.status(401).json({ message: "Account not found." });
+      if ((current.passwordVersion || 0) !== (req.user.passwordVersion || 0)) return res.status(401).json({ message: "Session expired. Log in again." });
+      if (requiresPasswordChange(current) && req.path !== "/api/family/change-password") {
+        return res.status(403).json({ message: "Change temporary password first.", mustChangePassword: true });
+      }
+      req.user.houseNumber = current.houseNumber;
+    }
     next();
   } catch (error) {
     return res.status(401).json({
@@ -651,156 +715,21 @@ function roleMiddleware(
 ========================================================= */
 
 async function createDefaultPortalUsers() {
-  const portalUsers = [
-    {
-      username: "gnadmin",
-      password: "ChangeMe123!",
-      role: "gnadmin",
-      portal: "GN",
-      fullName: "GN Officer",
-      email: "gnadmin@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "welfare",
-      password: "ChangeMe123!",
-      role: "welfare",
-      portal: "Welfare",
-      fullName: "Welfare Officer",
-      email: "welfare@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "health",
-      password: "ChangeMe123!",
-      role: "health",
-      portal: "Health",
-      fullName: "Health Officer",
-      email: "health@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "youthsports",
-      password: "ChangeMe123!",
-      role: "youthsports",
-      portal: "Youth & Sports",
-      fullName:
-        "Youth Sports Officer",
-      email:
-        "youthsports@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "deathaid",
-      password: "ChangeMe123!",
-      role: "deathaid",
-      portal: "Death Aid",
-      fullName:
-        "Death Aid Officer",
-      email:
-        "deathaid@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "family001",
-      password: "1234",
-      role: "family",
-      portal: "Family",
-      fullName: "Family User",
-      email:
-        "family001@gramalk.lk",
-      houseNumber: "H001",
-    },
+  // Existing users are NEVER updated by this function.
+  // No family account is auto-seeded here; existing family001 is preserved in MongoDB.
+  const staff = [
+    ["gnadmin", "GN", "GN Officer"],
+    ["welfare", "Welfare", "Welfare Officer"],
+    ["health", "Health", "Health Officer"],
+    ["youthsports", "Youth & Sports", "Youth Sports Officer"],
+    ["deathaid", "Death Aid", "Death Aid Officer"]
   ];
-
-  for (
-    const account of portalUsers
-  ) {
-    const hashedPassword =
-      await bcrypt.hash(
-        account.password,
-        10
-      );
-
-    const existingUser =
-      await User.findOne({
-        username:
-          account.username,
-      });
-
-    if (!existingUser) {
-      await User.create({
-        username:
-          account.username,
-
-        password:
-          hashedPassword,
-
-        role:
-          account.role,
-
-        portal:
-          account.portal,
-
-        assignedPortal:
-          account.portal,
-
-        fullName:
-          account.fullName,
-
-        email:
-          account.email,
-
-        houseNumber:
-          account.houseNumber,
-      });
-
-      console.log(
-        `Created portal user: ${account.username}`
-      );
-    } else {
-      /*
-         IMPORTANT:
-         We update the portal information too.
-      */
-
-      existingUser.password =
-        hashedPassword;
-
-      existingUser.role =
-        account.role;
-
-      existingUser.portal =
-        account.portal;
-
-      existingUser.assignedPortal =
-        account.portal;
-
-      existingUser.fullName =
-        account.fullName;
-
-      existingUser.email =
-        account.email;
-
-      existingUser.houseNumber =
-        account.houseNumber;
-
-      await existingUser.save();
-
-      console.log(
-        `Updated portal user: ${account.username} -> ${account.portal}`
-      );
-    }
+  for (const [username, portal, fullName] of staff) {
+    const existing = await User.findOne({ username });
+    if (existing) continue;
+    // Do not silently create staff accounts with known hardcoded passwords.
+    console.warn(`Missing staff account: ${username}. No account created.`);
   }
-
-  console.log(
-    "Portal user setup completed."
-  );
 }
 
 /* =========================================================
@@ -960,6 +889,7 @@ app.post(
 
           houseNumber:
             user.houseNumber || "",
+          mustChangePassword: requiresPasswordChange(user),
 
           fullName:
             user.fullName || "",
@@ -979,6 +909,87 @@ app.post(
 
         message:
           "Login failed.",
+      });
+    }
+  }
+);
+
+/* =========================================================
+   FAMILY PASSWORD CHANGE
+========================================================= */
+
+app.post(
+  "/api/family/change-password",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      if (req.user.role !== "family") {
+        return res.status(403).json({
+          message: "Family account required.",
+        });
+      }
+
+      const {
+        currentPassword = "",
+        newPassword = "",
+      } = req.body || {};
+
+      if (
+        typeof currentPassword !== "string" ||
+        typeof newPassword !== "string" ||
+        newPassword.length < 6 ||
+        newPassword.length > 72
+      ) {
+        return res.status(400).json({
+          message: "New password must contain 6-72 characters, including at least one letter and one number.",
+        });
+      }
+
+      if (!/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+        return res.status(400).json({
+          message: "New password must include at least one letter and one number.",
+        });
+      }
+
+      const user = await User.findById(req.user.id);
+
+      if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+        return res.status(401).json({
+          message: "Current password is incorrect.",
+        });
+      }
+
+      if (currentPassword === newPassword) {
+        return res.status(400).json({
+          message: "Choose a different password.",
+        });
+      }
+
+      const updated = await User.updateOne(
+        { _id: user._id, password: user.password },
+        {
+          $set: {
+            password: await bcrypt.hash(newPassword, 12),
+            mustChangePassword: false,
+            passwordVersion: (user.passwordVersion || 0) + 1,
+          },
+        }
+      );
+
+      if (updated.modifiedCount !== 1) {
+        return res.status(409).json({
+          message: "Password was changed elsewhere. Please log in again.",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Password changed. Please log in again.",
+      });
+    } catch (error) {
+      console.error("Family password change failed:", error);
+      return res.status(500).json({
+        message: "Password change failed.",
       });
     }
   }
@@ -1921,12 +1932,471 @@ app.post(
    GN ROUTES
 ========================================================= */
 
+app.post(
+  "/api/gn/villagers",
+  authMiddleware,
+  roleMiddleware("gnadmin"),
+  async (req, res) => {
+    let createdAccountId;
+    try {
+      const houseNumber =
+        typeof req.body?.houseNumber === "string"
+          ? req.body.houseNumber.trim()
+          : "";
+
+      if (!houseNumber || houseNumber.length > 32) {
+        return res.status(400).json({
+          message: "Enter a valid house number (1-32 characters).",
+        });
+      }
+
+      const matchingAccount = await User.findOne({
+        $or: [
+          { houseNumber },
+          { username: houseNumber },
+        ],
+      });
+
+      if (matchingAccount && matchingAccount.role !== "family") {
+        return res.status(409).json({
+          message: "This house number is already assigned to a non-family account.",
+        });
+      }
+
+      let familyAccount;
+      if (!matchingAccount) {
+        const passwordHash = await bcrypt.hash(houseNumber, 12);
+        const account = await User.create({
+          username: houseNumber,
+          houseNumber,
+          role: "family",
+          portal: "Family",
+          assignedPortal: "Family",
+          password: passwordHash,
+          mustChangePassword: true,
+          passwordVersion: 0,
+        });
+        createdAccountId = account._id;
+        familyAccount = {
+          username: houseNumber,
+          temporaryPassword: houseNumber,
+        };
+      }
+
+      const villager = await FamilyVillager.create({
+        ...req.body,
+        houseNumber,
+      });
+
+      return res.status(201).json({
+        ...villager.toObject(),
+        ...(familyAccount ? { familyAccount } : {}),
+      });
+    } catch (error) {
+      if (createdAccountId) {
+        try {
+          await User.deleteOne({ _id: createdAccountId });
+        } catch (rollbackError) {
+          console.error("Failed to roll back family account after villager registration error:", rollbackError);
+        }
+      }
+      console.error("GN villager registration failed:", error);
+      return res.status(500).json({
+        message: "Failed to register villager and family account.",
+      });
+    }
+  }
+);
+
 if (gnRoutes) {
   app.use(
     "/api/gn",
     gnRoutes
   );
 }
+
+/* =========================================================
+   FAMILY PORTAL ROUTES
+========================================================= */
+
+// Get family members belonging to the logged-in household
+app.get(
+  "/api/family/members",
+  authMiddleware,
+  roleMiddleware("family"),
+  async (req, res) => {
+    try {
+      // House number comes from the logged-in user's JWT token
+      const houseNumber = req.user.houseNumber;
+
+      if (!houseNumber) {
+        return res.status(400).json({
+          success: false,
+          message: "House number is not available.",
+        });
+      }
+
+      // Get only villagers who belong to this house
+      const members = await FamilyVillager.find({
+        houseNumber: houseNumber,
+      })
+        .sort({ fullName: 1 })
+        .lean();
+
+      return res.json({
+        success: true,
+        houseNumber: houseNumber,
+        members: members,
+      });
+    } catch (error) {
+      console.error(
+        "Family members load error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to load family members.",
+      });
+    }
+  }
+);
+
+/* =========================================================
+   FAMILY MEMBER MANAGEMENT
+========================================================= */
+
+// Add a new member to the logged-in household
+app.post(
+  "/api/family/members",
+  authMiddleware,
+  roleMiddleware("family"),
+  async (req, res) => {
+    try {
+      const houseNumber = req.user.houseNumber;
+
+      const member = await FamilyVillager.create({
+        ...req.body,
+
+        // Never trust a house number sent from the browser
+        houseNumber: houseNumber,
+      });
+
+      res.status(201).json({
+        success: true,
+        member,
+      });
+    } catch (error) {
+      console.error("Add family member error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to add family member.",
+      });
+    }
+  }
+);
+
+// Edit a member only if that member belongs to this house
+app.put(
+  "/api/family/members/:id",
+  authMiddleware,
+  roleMiddleware("family"),
+  async (req, res) => {
+    try {
+      const houseNumber = req.user.houseNumber;
+
+      const member =
+        await FamilyVillager.findOneAndUpdate(
+          {
+            _id: req.params.id,
+            houseNumber: houseNumber,
+          },
+          {
+            ...req.body,
+            houseNumber: houseNumber,
+          },
+          {
+            new: true,
+          }
+        );
+
+      if (!member) {
+        return res.status(404).json({
+          success: false,
+          message: "Family member not found.",
+        });
+      }
+
+      res.json({
+        success: true,
+        member,
+      });
+    } catch (error) {
+      console.error("Update family member error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to update family member.",
+      });
+    }
+  }
+);
+
+// Delete only a member belonging to the logged-in house
+app.delete(
+  "/api/family/members/:id",
+  authMiddleware,
+  roleMiddleware("family"),
+  async (req, res) => {
+    try {
+      const houseNumber = req.user.houseNumber;
+
+      const member =
+        await FamilyVillager.findOneAndDelete({
+          _id: req.params.id,
+          houseNumber: houseNumber,
+        });
+
+      if (!member) {
+        return res.status(404).json({
+          success: false,
+          message: "Family member not found.",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Family member deleted.",
+      });
+    } catch (error) {
+      console.error("Delete family member error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to delete family member.",
+      });
+    }
+  }
+);
+
+
+/* =========================================================
+   CREATE FAMILY APPOINTMENT
+========================================================= */
+
+app.post(
+  "/api/family/appointments",
+  authMiddleware,
+  roleMiddleware("family"),
+  async (req, res) => {
+    try {
+      const {
+        memberId,
+        provider,
+        date,
+        time,
+        purpose,
+        description,
+      } = req.body;
+
+      // Check required fields
+      if (
+        !memberId ||
+        !provider ||
+        !date ||
+        !time ||
+        !purpose
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Please complete all required fields.",
+        });
+      }
+
+      // Make sure the selected family member
+      // belongs to the logged-in household
+      const member = await FamilyVillager.findOne({
+        _id: memberId,
+        houseNumber: req.user.houseNumber,
+      });
+
+      if (!member) {
+        return res.status(404).json({
+          success: false,
+          message: "Family member not found.",
+        });
+      }
+
+      // ================= GN APPOINTMENT =================
+      if (provider === "GN Officer") {
+        const appointment =
+          await FamilyGNAppointment.create({
+            // MongoDB validator requires an ObjectId
+            userId: member._id,
+
+            // MongoDB validator requires Date type
+            date: new Date(date),
+
+            time: time,
+            purpose: purpose,
+
+            // Optional additional information
+            description: description || "",
+
+            // Allowed by existing MongoDB validator
+            status: "Pending",
+          });
+
+        return res.status(201).json({
+          success: true,
+          appointment,
+        });
+      }
+
+      // ================= PHI / MIDWIFE =================
+      // These are stored separately because the existing
+      // GN appointments collection is specifically for GN.
+      const healthAppointment =
+        await FamilyHealthAppointment.create({
+          userId: member._id,
+
+          villagerName: member.fullName,
+
+          houseNumber: req.user.houseNumber,
+
+          provider: provider,
+
+          date: new Date(date),
+
+          time: time,
+
+          purpose: purpose,
+
+          description: description || "",
+
+          status: "Pending",
+
+          requestedBy: req.user.username,
+        });
+
+      return res.status(201).json({
+        success: true,
+        appointment: healthAppointment,
+      });
+    } catch (error) {
+      console.error(
+        "Create family appointment error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create appointment.",
+      });
+    }
+  }
+);
+
+/* =========================================================
+   GET FAMILY APPOINTMENTS
+========================================================= */
+
+app.get(
+  "/api/family/appointments",
+  authMiddleware,
+  roleMiddleware("family"),
+  async (req, res) => {
+    try {
+      const houseNumber = req.user.houseNumber;
+
+      // Get all members belonging to this household
+      const familyMembers = await FamilyVillager.find({
+        houseNumber: houseNumber,
+      }).lean();
+
+      const memberIds = familyMembers.map(
+        (member) => member._id
+      );
+
+      // GN appointments are linked using userId
+      const gnAppointments =
+        await FamilyGNAppointment.find({
+          userId: { $in: memberIds },
+        })
+          .sort({ createdAt: -1 })
+          .lean();
+
+      // Add information needed by Family Portal UI
+      const formattedGNAppointments =
+        gnAppointments.map((appointment) => {
+          const member = familyMembers.find(
+            (item) =>
+              String(item._id) ===
+              String(appointment.userId)
+          );
+
+          return {
+            ...appointment,
+
+            provider: "GN Officer",
+
+            villagerName:
+              member?.fullName || "Family Member",
+
+            houseNumber: houseNumber,
+          };
+        });
+
+      // PHI / Midwife requests
+      const healthAppointments =
+        await FamilyHealthAppointment.find({
+          houseNumber: houseNumber,
+        })
+          .sort({ createdAt: -1 })
+          .lean();
+
+      const formattedHealthAppointments =
+        healthAppointments.map((appointment) => ({
+          ...appointment,
+
+          villagerName:
+            appointment.villagerName ||
+            familyMembers.find(
+              (item) =>
+                String(item._id) ===
+                String(appointment.userId)
+            )?.fullName ||
+            "Family Member",
+        }));
+
+      // Send both types to the frontend
+      const appointments = [
+        ...formattedGNAppointments,
+        ...formattedHealthAppointments,
+      ].sort(
+        (a, b) =>
+          new Date(b.createdAt) -
+          new Date(a.createdAt)
+      );
+
+      return res.json({
+        success: true,
+        appointments,
+      });
+    } catch (error) {
+      console.error(
+        "Load family appointments error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to load appointments.",
+      });
+    }
+  }
+);
 
 /* =========================================================
    GLOBAL ERROR HANDLER
@@ -2057,4 +2527,4 @@ async function startServer() {
    RUN SERVER
 ========================================================= */
 
-startServer(); 
+startServer();
