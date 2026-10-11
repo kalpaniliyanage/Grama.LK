@@ -5,6 +5,8 @@ import "./index.css";
 import GNPortal from "./components/pages/GNPortal";
 import WelfarePortal from "./components/pages/WelfarePortal";
 import YouthSportsPortal from "./components/pages/youthSportsPortal";
+import FamilyPortal from "./components/pages/FamilyPortal";
+import ChangeFamilyPassword from "./components/pages/ChangeFamilyPassword";
 
 const API =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -1650,6 +1652,11 @@ export default function App() {
         setLoginMessage(
           "This account does not belong to the selected portal."
         );
+        return;
+      }
+
+      if (role === "family" && data.user?.mustChangePassword) {
+        window.location.href = "/family/change-password";
         return;
       }
 
@@ -4180,6 +4187,13 @@ export default function App() {
           <YouthSportsPortal />
         }
       />
+
+      <Route path="/family/change-password" element={<ChangeFamilyPassword />} />
+      <Route
+        path="/family-portal"
+        element={<FamilyPortal />}
+      />
+      
     </Routes>
   );
 }
