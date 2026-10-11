@@ -1003,6 +1003,13 @@ export default function YouthSportsPortal() {
           </div>
         </div>
       )}
+import React from 'react';
+
+function YouthSportsPortal() {
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Youth & Sports Portal</h1>
+      <p>Youth & Sports Portal කොටස සකස් වෙමින් පවතියි...</p>
     </div>
   );
 }
@@ -1049,3 +1056,4 @@ const styles = {
   modalCancelBtn: { flex: 1, padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", backgroundColor: "#f3f4f6", fontWeight: "700", cursor: "pointer" },
   modalConfirmBtn: { flex: 1, padding: "10px", borderRadius: "8px", border: "none", backgroundColor: "#ef4444", color: "#ffffff", fontWeight: "700", cursor: "pointer" }
 };
+export default YouthSportsPortal;
