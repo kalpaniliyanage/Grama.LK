@@ -1,15 +1,40 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+
+import {
+  useNavigate,
+  useLocation,
+  Routes,
+  Route,
+} from "react-router-dom";
+
 import "./index.css";
-
-import GNPortal from "./components/pages/GNPortal";
-import WelfarePortal from "./components/pages/WelfarePortal";
-import YouthSportsPortal from "./components/pages/youthSportsPortal";
-import FamilyPortal from "./components/pages/FamilyPortal";
-import ChangeFamilyPassword from "./components/pages/ChangeFamilyPassword";
-
+import "./i18n"; 
 const API =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+
+
+// Pages Import
+import Login from './components/pages/Login';
+import GNPortal from './components/pages/GNPortal';
+import FamilyPortal from './components/pages/FamilyPortal';
+import WelfarePortal from './components/pages/WelfarePortal';
+import HealthPortal from './components/pages/HealthPortal';
+import YouthSportsPortal from './components/pages/youthSportsPortal';
+
+// PHM & PHI Pages (ඔබගේ කොටස්)
+import PhmDashboard from './components/pages/PhmDashboard';
+import PhmMothers from './components/pages/PhmMothers';
+import PhmRequests from './components/pages/PhmRequests';
+import PhmProfile from './components/pages/PhmProfile';
+import PhiAnnouncements from './components/pages/PhiAnnouncements';
+import PhiProfile from './components/pages/PhiProfile';
+
 
 /* =========================================================
    TRANSLATIONS
@@ -427,26 +452,8 @@ const words = {
       "கிராம மக்களுக்காக சமூக சுகாதார விழிப்புணர்வு நிகழ்ச்சி நடைபெறும்.",
   },
 };
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Pages Import
-import Login from './components/pages/Login';
-import GNPortal from './components/pages/GNPortal';
-import FamilyPortal from './components/pages/FamilyPortal';
-import WelfarePortal from './components/pages/WelfarePortal';
-import HealthPortal from './components/pages/HealthPortal';
-import YouthSportsPortal from './components/pages/youthSportsPortal';
 
-// PHM & PHI Pages (ඔබගේ කොටස්)
-import PhmDashboard from './components/pages/PhmDashboard';
-import PhmMothers from './components/pages/PhmMothers';
-import PhmRequests from './components/pages/PhmRequests';
-import PhmProfile from './components/pages/PhmProfile';
-import PhiAnnouncements from './components/pages/PhiAnnouncements';
-import PhiProfile from './components/pages/PhiProfile';
-
-function App() {
 /* =========================================================
    STATIC DATA
 ========================================================= */
@@ -779,33 +786,15 @@ function localized(item, lang, field = "title") {
       : "En";
 
   return (
-    <Router>
-      <Routes>
-        {/* Main Landing / Default Page එක Login හෝ Main Health Portal එකට */}
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login />} />
-
-        {/* Portals created by team members */}
-        <Route path="/gn-portal" element={<GNPortal />} />
-        <Route path="/family-portal" element={<FamilyPortal />} />
-        <Route path="/welfare-portal" element={<WelfarePortal />} />
-        <Route path="/health-portal" element={<HealthPortal />} />
-        <Route path="/youth-sports-portal" element={<YouthSportsPortal />} />
-
-        {/* Your Modules (PHM & PHI) */}
-        <Route path="/phm-dashboard" element={<PhmDashboard />} />
-        <Route path="/phm-mothers" element={<PhmMothers />} />
-        <Route path="/phm-requests" element={<PhmRequests />} />
-        <Route path="/phm-profile" element={<PhmProfile />} />
-        
-        <Route path="/phi-announcements" element={<PhiAnnouncements />} />
-        <Route path="/phi-profile" element={<PhiProfile />} />
-      </Routes>
-    </Router>
+    item?.[`${field}${suffix}`] ||
+    item?.[`${field}En`] ||
+    item?.[field] ||
+    ""
   );
 }
 
-export default App;
+function getLocalizedValue(item, field, suffix) {
+  return (
     item?.[`${field}${suffix}`] ||
     item?.[`${field}En`] ||
     item?.[field] ||
@@ -1861,6 +1850,7 @@ export default function App() {
   ======================================================= */
 
   return (
+    <>
     <Routes>
       <Route
         path="/"
@@ -4188,12 +4178,14 @@ export default function App() {
         }
       />
 
-      <Route path="/family/change-password" element={<ChangeFamilyPassword />} />
       <Route
         path="/family-portal"
         element={<FamilyPortal />}
       />
+
+      <Route path="/health-portal" element={<HealthPortal />} /> 
       
     </Routes>
+    </>
   );
 }

@@ -30,7 +30,7 @@
   "cancel": "Cancel",
   "save_success": "Information saved successfully!",
   "fund_save_success": "Monthly fee payment recorded successfully!",
-  "server_error": "Could not connect to the server."
+  "server_error": "Could not connect to the server.",
   "welcome": "Welcome, PHM Officer",
   "subtitle": "Public Health Midwife Portal",
   "assignedArea": "Assigned Area: Division 05",

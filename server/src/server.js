@@ -45,51 +45,33 @@ console.log(
   `Gemini API key loaded: ${Boolean(gemini)}`
 );
 
+
 /* =========================================================
    MONGODB CONNECTION
-   MONGODB ATLAS CONFIGURATION
 ========================================================= */
 
-const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/gramalk";
+const mongoUsername = process.env.MONGO_USERNAME;
+const mongoPassword = process.env.MONGO_PASSWORD;
+const mongoCluster = process.env.MONGO_CLUSTER;
+const mongoDatabase = process.env.MONGO_DATABASE || "gramalk";
 
-try {
-  await mongoose.connect(mongoURI);
-  console.log("=================================");
-  console.log("MongoDB Connected Successfully!");
-  console.log("=================================");
-} catch (error) {
-  console.error("MongoDB Connection Failed:", error.message);
-}
-const mongoUsername =
-  process.env.MONGO_USERNAME;
+const mongoURI =
+  process.env.MONGODB_URI ||
+  process.env.MONGO_URI ||
+  (mongoUsername && mongoPassword && mongoCluster
+    ? `mongodb+srv://${encodeURIComponent(
+        mongoUsername
+      )}:${encodeURIComponent(
+        mongoPassword
+      )}@${mongoCluster}/${mongoDatabase}?authSource=admin`
+    : null);
 
-const mongoPassword =
-  process.env.MONGO_PASSWORD;
-
-const mongoCluster =
-  process.env.MONGO_CLUSTER;
-
-const mongoDatabase =
-  process.env.MONGO_DATABASE || "gramalk";
-
-if (
-  !mongoUsername ||
-  !mongoPassword ||
-  !mongoCluster
-) {
+if (!mongoURI) {
   console.error(
     "MongoDB environment variables are missing."
   );
-
   process.exit(1);
 }
-
-const mongoURI =
-  `mongodb+srv://${encodeURIComponent(
-    mongoUsername
-  )}:${encodeURIComponent(
-    mongoPassword
-  )}@${mongoCluster}/${mongoDatabase}?authSource=admin`;
 
 /* =========================================================
    DIRECTORIES
@@ -2409,6 +2391,207 @@ app.get(
     }
   }
 );
+
+
+/* =========================================================
+   HEALTH PORTAL API
+========================================================= */
+
+// Health staff-only access
+function healthStaffOnly(req, res, next) {
+  const role = String(req.user?.role || "").toLowerCase();
+  const portal = String(req.user?.portal || "").toLowerCase();
+
+  if (
+    role !== "health" &&
+    portal !== "health"
+  ) {
+    return res.status(403).json({
+      success: false,
+      message: "Health Portal access required.",
+    });
+  }
+
+  next();
+}
+
+// GET: Health Portal dashboard data
+app.get(
+  "/api/health-portal/dashboard",
+  authMiddleware,
+  healthStaffOnly,
+  async (req, res) => {
+    try {
+      const [mothers, requests, announcements] = await Promise.all([
+        FamilyVillager.find({
+          $or: [
+            { category: /mother/i },
+            { relationship: /mother/i },
+            { isMother: true },
+            { pregnancyStatus: { $exists: true, $ne: "" } },
+          ],
+        }).lean(),
+
+        FamilyHealthAppointment.find({})
+          .sort({ createdAt: -1 })
+          .lean(),
+
+        Announcement.find({
+          $or: [
+            { portal: /health/i },
+            { audience: /health/i },
+            { category: /health/i },
+            { portal: { $exists: false } },
+          ],
+        })
+          .sort({ createdAt: -1 })
+          .lean(),
+      ]);
+
+      res.json({
+        success: true,
+        stats: {
+          mothers: mothers.length,
+          totalRequests: requests.length,
+          pendingRequests: requests.filter(
+            (item) => item.status === "Pending"
+          ).length,
+          announcements: announcements.length,
+        },
+        mothers,
+        requests,
+        announcements,
+      });
+    } catch (error) {
+      console.error("Health dashboard error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to load Health Portal dashboard.",
+      });
+    }
+  }
+);
+
+// GET: All PHI / Midwife appointment requests
+app.get(
+  "/api/health-portal/requests",
+  authMiddleware,
+  healthStaffOnly,
+  async (req, res) => {
+    try {
+      const requests = await FamilyHealthAppointment.find({})
+        .sort({ createdAt: -1 })
+        .lean();
+
+      res.json({
+        success: true,
+        requests,
+      });
+    } catch (error) {
+      console.error("Health requests error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to load health requests.",
+      });
+    }
+  }
+);
+
+// PUT: Update appointment request status
+app.put(
+  "/api/health-portal/requests/:id",
+  authMiddleware,
+  healthStaffOnly,
+  async (req, res) => {
+    try {
+      const allowedStatuses = [
+        "Pending",
+        "Approved",
+        "Resolved",
+        "Rejected",
+      ];
+
+      const status = String(req.body?.status || "");
+
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid request status.",
+        });
+      }
+
+      const request = await FamilyHealthAppointment.findByIdAndUpdate(
+        req.params.id,
+        { $set: { status } },
+        { new: true, runValidators: true }
+      );
+
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          message: "Appointment request not found.",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Request status updated.",
+        request,
+      });
+    } catch (error) {
+      console.error("Update health request error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update request.",
+      });
+    }
+  }
+);
+
+// POST: Create a Health Portal announcement
+app.post(
+  "/api/health-portal/announcements",
+  authMiddleware,
+  healthStaffOnly,
+  async (req, res) => {
+    try {
+      const title = String(req.body?.title || "").trim();
+      const message = String(
+        req.body?.message || req.body?.description || ""
+      ).trim();
+
+      if (!title || !message) {
+        return res.status(400).json({
+          success: false,
+          message: "Title and message are required.",
+        });
+      }
+
+      const announcement = await Announcement.create({
+        title,
+        message,
+        description: message,
+        portal: "Health",
+        audience: "Health",
+        category: "Health",
+        createdBy: req.user.username,
+        createdAt: new Date(),
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Announcement published.",
+        announcement,
+      });
+    } catch (error) {
+      console.error("Create health announcement error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to publish announcement.",
+      });
+    }
+  }
+); 
 
 /* =========================================================
    GLOBAL ERROR HANDLER

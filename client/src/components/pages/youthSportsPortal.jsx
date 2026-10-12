@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const youthTranslations = {
   en: {
@@ -163,7 +164,297 @@ const youthTranslations = {
   }
 };
 
-export default function YouthSportsPortal() {
+const styles = {
+  container: {
+    padding: "30px",
+    minHeight: "100vh",
+    fontFamily: "'Inter', sans-serif",
+  },
+  topBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+  langContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap",
+  },
+  langBtn: {
+    padding: "8px 16px",
+    borderRadius: "20px",
+    border: "2px solid #10b981",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontSize: "13px",
+  },
+  actionControls: {
+    display: "flex",
+    gap: "12px",
+    flexWrap: "wrap",
+  },
+  themeToggleBtn: {
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#3b82f6",
+    color: "#ffffff",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+  logoutBtn: {
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#ef4444",
+    color: "#ffffff",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+  header: {
+    marginBottom: "25px",
+    background: "linear-gradient(135deg, #065f46 0%, #10b981 100%)",
+    padding: "25px 30px",
+    borderRadius: "16px",
+    color: "#ffffff",
+  },
+  backBtn: {
+    padding: "8px 16px",
+    marginBottom: "15px",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  title: {
+    margin: 0,
+    fontSize: "28px",
+    fontWeight: "800",
+    color: "#ffffff",
+  },
+  subtitle: {
+    margin: "6px 0 0 0",
+    color: "#d1fae5",
+    fontSize: "14px",
+  },
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "20px",
+    marginBottom: "25px",
+  },
+  statCard: {
+    padding: "20px",
+    borderRadius: "14px",
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+    borderLeft: "5px solid #10b981",
+    border: "1px solid #e5e7eb",
+  },
+  statIcon: {
+    fontSize: "32px",
+    backgroundColor: "#d1fae5",
+    padding: "10px",
+    borderRadius: "12px",
+  },
+  statNumber: {
+    margin: 0,
+    fontSize: "22px",
+    fontWeight: "700",
+  },
+  statLabel: {
+    margin: "2px 0 0 0",
+    fontSize: "13px",
+  },
+  tabContainer: {
+    display: "flex",
+    gap: "12px",
+    marginBottom: "25px",
+    flexWrap: "wrap",
+  },
+  tabBtn: {
+    padding: "12px 24px",
+    borderRadius: "10px",
+    border: "1px solid #a7f3d0",
+    backgroundColor: "#ffffff",
+    color: "#065f46",
+    fontSize: "15px",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+  activeTabBtn: {
+    backgroundColor: "#10b981",
+    color: "#ffffff",
+    borderColor: "#10b981",
+  },
+  contentGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 400px), 1fr))",
+    gap: "25px",
+  },
+  card: {
+    padding: "25px",
+    borderRadius: "16px",
+    border: "1px solid #e5e7eb",
+    minWidth: 0,
+  },
+  cardTitle: {
+    marginTop: 0,
+    marginBottom: "20px",
+    fontSize: "18px",
+    fontWeight: "700",
+    borderBottom: "2px solid #ecfdf5",
+    paddingBottom: "12px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+  formGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  label: {
+    fontSize: "14px",
+    fontWeight: "600",
+  },
+  input: {
+    padding: "11px 14px",
+    borderRadius: "8px",
+    border: "1px solid #d1d5db",
+    fontSize: "14px",
+    outline: "none",
+    width: "100%",
+    boxSizing: "border-box",
+  },
+  submitBtn: {
+    padding: "12px",
+    backgroundColor: "#10b981",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "8px",
+    fontWeight: "700",
+    fontSize: "15px",
+    cursor: "pointer",
+    marginTop: "10px",
+  },
+  editBtn: {
+    padding: "6px 12px",
+    backgroundColor: "#3b82f6",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "12px",
+    cursor: "pointer",
+    fontWeight: "700",
+  },
+  deleteBtn: {
+    padding: "6px 12px",
+    backgroundColor: "#ef4444",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "12px",
+    cursor: "pointer",
+    fontWeight: "700",
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    marginTop: "10px",
+  },
+  th: {
+    padding: "12px",
+    textAlign: "left",
+    fontSize: "13px",
+    fontWeight: "700",
+    borderBottom: "2px solid #a7f3d0",
+    whiteSpace: "nowrap",
+  },
+  td: {
+    padding: "12px",
+    fontSize: "14px",
+    borderBottom: "1px solid #f3f4f6",
+  },
+  toastCard: {
+    position: "fixed",
+    top: "20px",
+    right: "20px",
+    maxWidth: "calc(100vw - 40px)",
+    padding: "14px 22px",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+    zIndex: 999999,
+  },
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "16px",
+    overflowY: "auto",
+    zIndex: 999999,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: "420px",
+    padding: "30px",
+    borderRadius: "20px",
+    textAlign: "center",
+    boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
+    boxSizing: "border-box",
+  },
+  modalIcon: {
+    fontSize: "45px",
+    marginBottom: "10px",
+  },
+  modalTitle: {
+    margin: "0 0 10px 0",
+    fontSize: "18px",
+    fontWeight: "700",
+  },
+  modalActions: {
+    display: "flex",
+    gap: "12px",
+    justifyContent: "center",
+    marginTop: "15px",
+  },
+  modalCancelBtn: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: "8px",
+    border: "1px solid #d1d5db",
+    backgroundColor: "#f3f4f6",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    padding: "10px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#ef4444",
+    color: "#ffffff",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+};
+
+const YouthSportsPortal = () => {
   const { i18n } = useTranslation();
   const [currentLng, setCurrentLng] = useState(i18n.language || localStorage.getItem("gramalk_lang") || "si");
 
@@ -990,70 +1281,48 @@ export default function YouthSportsPortal() {
         </div>
       )}
 
+      
       {/* Logout Modal */}
       {showLogoutModal && (
         <div style={styles.modalOverlay}>
-          <div style={{ ...styles.modalCard, backgroundColor: theme.cardBg, color: theme.text }}>
+          <div
+            style={{
+              ...styles.modalCard,
+              backgroundColor: theme.cardBg,
+              color: theme.text,
+            }}
+          >
             <div style={styles.modalIcon}>🚪</div>
             <h3 style={styles.modalTitle}>{txt("logout")}?</h3>
+
+            <p>ඔබට ප්‍රධාන Dashboard එකට යාමට අවශ්‍යද?</p>
+
             <div style={styles.modalActions}>
-              <button style={styles.modalCancelBtn} onClick={() => setShowLogoutModal(false)}>Cancel</button>
-              <button style={styles.modalConfirmBtn} onClick={() => { localStorage.removeItem("gramalk_token"); window.location.href = "/login"; }}>{txt("logout")}</button>
+              <button
+                type="button"
+                style={styles.modalCancelBtn}
+                onClick={() => setShowLogoutModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                style={styles.modalConfirmBtn}
+                onClick={() => {
+                  localStorage.removeItem("gramalk_token");
+                  window.location.href = "/";
+                }}
+              >
+                {txt("logout")}
+              </button>
             </div>
           </div>
         </div>
       )}
-import React from 'react';
-
-function YouthSportsPortal() {
-  return (
-    <div style={{ padding: '20px' }}>
-      <h1>Youth & Sports Portal</h1>
-      <p>Youth & Sports Portal කොටස සකස් වෙමින් පවතියි...</p>
     </div>
   );
-}
-
-const styles = {
-  container: { padding: "30px", minHeight: "100vh", fontFamily: "'Inter', sans-serif" },
-  topBar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" },
-  langContainer: { display: "flex", alignItems: "center", gap: "8px" },
-  langBtn: { padding: "8px 16px", borderRadius: "20px", border: "2px solid #10b981", fontWeight: "700", cursor: "pointer", fontSize: "13px" },
-  actionControls: { display: "flex", gap: "12px" },
-  themeToggleBtn: { padding: "8px 16px", borderRadius: "8px", border: "none", backgroundColor: "#3b82f6", color: "#ffffff", fontWeight: "700", cursor: "pointer" },
-  logoutBtn: { padding: "8px 16px", borderRadius: "8px", border: "none", backgroundColor: "#ef4444", color: "#ffffff", fontWeight: "700", cursor: "pointer" },
-  header: { marginBottom: "25px", background: "linear-gradient(135deg, #065f46 0%, #10b981 100%)", padding: "25px 30px", borderRadius: "16px", color: "#ffffff" },
-  backBtn: { padding: "8px 16px", marginBottom: "15px", backgroundColor: "rgba(255, 255, 255, 0.2)", border: "1px solid rgba(255, 255, 255, 0.3)", borderRadius: "8px", cursor: "pointer", fontWeight: "600", color: "#ffffff" },
-  title: { margin: 0, fontSize: "28px", fontWeight: "800", color: "#ffffff" },
-  subtitle: { margin: "6px 0 0 0", color: "#d1fae5", fontSize: "14px" },
-  statsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px", marginBottom: "25px" },
-  statCard: { padding: "20px", borderRadius: "14px", display: "flex", alignItems: "center", gap: "15px", borderLeft: "5px solid #10b981", border: "1px solid #e5e7eb" },
-  statIcon: { fontSize: "32px", backgroundColor: "#d1fae5", padding: "10px", borderRadius: "12px" },
-  statNumber: { margin: 0, fontSize: "22px", fontWeight: "700" },
-  statLabel: { margin: "2px 0 0 0", fontSize: "13px" },
-  tabContainer: { display: "flex", gap: "12px", marginBottom: "25px", flexWrap: "wrap" },
-  tabBtn: { padding: "12px 24px", borderRadius: "10px", border: "1px solid #a7f3d0", backgroundColor: "#ffffff", color: "#065f46", fontSize: "15px", fontWeight: "700", cursor: "pointer" },
-  activeTabBtn: { backgroundColor: "#10b981", color: "#ffffff", borderColor: "#10b981" },
-  contentGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "25px" },
-  card: { padding: "25px", borderRadius: "16px", border: "1px solid #e5e7eb" },
-  cardTitle: { marginTop: 0, marginBottom: "20px", fontSize: "18px", fontWeight: "700", borderBottom: "2px solid #ecfdf5", paddingBottom: "12px" },
-  form: { display: "flex", flexDirection: "column", gap: "16px" },
-  formGroup: { display: "flex", flexDirection: "column", gap: "6px" },
-  label: { fontSize: "14px", fontWeight: "600" },
-  input: { padding: "11px 14px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none" },
-  submitBtn: { padding: "12px", backgroundColor: "#10b981", color: "#ffffff", border: "none", borderRadius: "8px", fontWeight: "700", fontSize: "15px", cursor: "pointer", marginTop: "10px" },
-  editBtn: { padding: "6px 12px", backgroundColor: "#3b82f6", color: "#ffffff", border: "none", borderRadius: "6px", fontSize: "12px", cursor: "pointer", fontWeight: "700" },
-  deleteBtn: { padding: "6px 12px", backgroundColor: "#ef4444", color: "#ffffff", border: "none", borderRadius: "6px", fontSize: "12px", cursor: "pointer", fontWeight: "700" },
-  table: { width: "100%", borderCollapse: "collapse", marginTop: "10px" },
-  th: { padding: "12px", textAlign: "left", fontSize: "13px", fontWeight: "700", borderBottom: "2px solid #a7f3d0" },
-  td: { padding: "12px", fontSize: "14px", borderBottom: "1px solid #f3f4f6" },
-  toastCard: { position: "fixed", top: "20px", right: "20px", padding: "14px 22px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)", zIndex: 999999 },
-  modalOverlay: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999999 },
-  modalCard: { width: "90%", maxWidth: "420px", padding: "30px", borderRadius: "20px", textAlign: "center", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" },
-  modalIcon: { fontSize: "45px", marginBottom: "10px" },
-  modalTitle: { margin: "0 0 10px 0", fontSize: "18px", fontWeight: "700" },
-  modalActions: { display: "flex", gap: "12px", justifyContent: "center", marginTop: "15px" },
-  modalCancelBtn: { flex: 1, padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", backgroundColor: "#f3f4f6", fontWeight: "700", cursor: "pointer" },
-  modalConfirmBtn: { flex: 1, padding: "10px", borderRadius: "8px", border: "none", backgroundColor: "#ef4444", color: "#ffffff", fontWeight: "700", cursor: "pointer" }
 };
+
 export default YouthSportsPortal;
+ 
