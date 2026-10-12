@@ -27,14 +27,6 @@ import WelfarePortal from './components/pages/WelfarePortal';
 import HealthPortal from './components/pages/HealthPortal';
 import YouthSportsPortal from './components/pages/youthSportsPortal';
 
-// PHM & PHI Pages (ඔබගේ කොටස්)
-import PhmDashboard from './components/pages/PhmDashboard';
-import PhmMothers from './components/pages/PhmMothers';
-import PhmRequests from './components/pages/PhmRequests';
-import PhmProfile from './components/pages/PhmProfile';
-import PhiAnnouncements from './components/pages/PhiAnnouncements';
-import PhiProfile from './components/pages/PhiProfile';
-
 
 /* =========================================================
    TRANSLATIONS
@@ -1700,6 +1692,36 @@ export default function App() {
   /* =======================================================
      CHATBOT
   ======================================================= */
+
+async function sendMessageToBot(message) {
+  setLoading(true);
+
+  try {
+    const response = await fetch("http://localhost:5000/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Chat request failed.");
+    }
+
+    const reply = data.reply || "Sorry, no answer was returned.";
+
+    // මෙතැන ඔයාගේ දැනට තිබෙන chat messages state එකට
+    // reply එක add කරන code එක යොදන්න.
+    console.log("Chatbot reply:", reply);
+  } catch (error) {
+    console.error("Chatbot error:", error);
+  } finally {
+    setLoading(false);
+  }
+} 
 
   useEffect(() => {
     if (

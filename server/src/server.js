@@ -47,12 +47,9 @@ console.log(
 
 
 /* =========================================================
-<<<<<<< HEAD
    MONGODB CONNECTION
-=======
-   MONGODB ATLAS CONFIGURATION
->>>>>>> kalpani-server-fix
 ========================================================= */
+
 
 const mongoUsername = process.env.MONGO_USERNAME;
 const mongoPassword = process.env.MONGO_PASSWORD;
@@ -62,37 +59,16 @@ const mongoDatabase = process.env.MONGO_DATABASE || "gramalk";
 const mongoURI =
   process.env.MONGODB_URI ||
   process.env.MONGO_URI ||
-  (mongoUsername && mongoPassword && mongoCluster
-    ? `mongodb+srv://${encodeURIComponent(
-        mongoUsername
-      )}:${encodeURIComponent(
-        mongoPassword
-      )}@${mongoCluster}/${mongoDatabase}?authSource=admin`
-    : null);
+  (
+    mongoUsername && mongoPassword && mongoCluster
+      ? `mongodb+srv://${encodeURIComponent(mongoUsername)}:${encodeURIComponent(mongoPassword)}@${mongoCluster}/${mongoDatabase}?authSource=admin`
+      : null
+  );
 
 if (!mongoURI) {
-  console.error(
-    "MongoDB environment variables are missing."
-  );
-<<<<<<< HEAD
+  console.error("MongoDB environment variables are missing.");
   process.exit(1);
-}
-
-=======
-
-  process.exit(1);
-}
-
-const mongoURI =
-  `mongodb+srv://${encodeURIComponent(
-    mongoUsername
-  )}:` +
-  `${encodeURIComponent(
-    mongoPassword
-  )}@${mongoCluster}/` +
-  `${mongoDatabase}?authSource=admin`;
-
->>>>>>> kalpani-server-fix
+} 
 /* =========================================================
    DIRECTORIES
 ========================================================= */
@@ -131,7 +107,10 @@ fs.mkdirSync(
 
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ],
     credentials: true,
   })
 );
@@ -357,7 +336,6 @@ const User =
     userSchema
   );
 
-<<<<<<< HEAD
 // Family Portal uses the same villagers collection used by the GN Portal
 const FamilyVillager =
   mongoose.models.FamilyVillager ||
@@ -371,126 +349,8 @@ const FamilyVillager =
       }
     ),
     "villagers"
-=======
-/* =========================================================
-   DEFAULT PORTAL USERS
-========================================================= */
-
-async function createDefaultPortalUsers() {
-  const portalUsers = [
-    {
-      username: "gnadmin",
-      password: "ChangeMe123!",
-      role: "gnadmin",
-      fullName: "GN Officer",
-      email: "gnadmin@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "welfare",
-      password: "ChangeMe123!",
-      role: "welfare",
-      fullName: "Welfare Officer",
-      email: "welfare@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "health",
-      password: "ChangeMe123!",
-      role: "health",
-      fullName: "Health Officer",
-      email: "health@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "deathaid",
-      password: "ChangeMe123!",
-      role: "deathaid",
-      fullName: "Death Aid Officer",
-      email: "deathaid@gramalk.lk",
-      houseNumber: "",
-    },
-
-    {
-      username: "family001",
-      password: "1234",
-      role: "family",
-      fullName: "Family User",
-      email: "family001@gramalk.lk",
-      houseNumber: "H001",
-    },
-  ];
-
-  for (const account of portalUsers) {
-    const existingUser =
-      await User.findOne({
-        username:
-          account.username,
-      });
-
-    const hashedPassword =
-      await bcrypt.hash(
-        account.password,
-        10
-      );
-
-    if (!existingUser) {
-      await User.create({
-        username:
-          account.username,
-
-        password:
-          hashedPassword,
-
-        role:
-          account.role,
-
-        fullName:
-          account.fullName,
-
-        email:
-          account.email,
-
-        houseNumber:
-          account.houseNumber,
-      });
-
-      console.log(
-        `Created portal user: ${account.username}`
-      );
-    } else {
-      existingUser.password =
-        hashedPassword;
-
-      existingUser.role =
-        account.role;
-
-      existingUser.fullName =
-        account.fullName;
-
-      existingUser.email =
-        account.email;
-
-      existingUser.houseNumber =
-        account.houseNumber;
-
-      await existingUser.save();
-
-      console.log(
-        `Updated portal user: ${account.username}`
-      );
-    }
-  }
-
-  console.log(
-    "Portal user setup completed."
->>>>>>> kalpani-server-fix
   );
 
-<<<<<<< HEAD
 // =========================================================
 // FAMILY APPOINTMENT MODELS
 // =========================================================
@@ -525,8 +385,6 @@ const FamilyHealthAppointment =
     "healthappointments"
   );
 
-=======
->>>>>>> kalpani-server-fix
 /* =========================================================
    OTHER SCHEMAS
 ========================================================= */
@@ -648,93 +506,12 @@ const Officer =
     "officers"
   );
 
-<<<<<<< HEAD
-=======
-/* =========================================================
-   VILLAGE ACTIVITIES MODEL
-========================================================= */
-
->>>>>>> kalpani-server-fix
 const villageActivitySchema =
   new mongoose.Schema(
-    {
-      title: {
-        en: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-
-        si: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-
-        ta: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-      },
-
-      description: {
-        en: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-
-        si: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-
-        ta: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-      },
-
-      category: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-
-      date: {
-        type: Date,
-        required: true,
-      },
-
-      location: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-
-      createdBy: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-
-      status: {
-        type: String,
-        default: "Published",
-        trim: true,
-      },
-
-      image: {
-        type: String,
-        default: "",
-      },
-    },
-
+    {},
     {
       timestamps: true,
+      strict: false,
     }
   );
 
@@ -747,7 +524,6 @@ const VillageActivity =
   );
 
 /* =========================================================
-<<<<<<< HEAD
    PORTAL RESOLUTION
 ========================================================= */
 
@@ -799,276 +575,6 @@ function getPortalForUser(user) {
     portalMap[role] ||
     ""
   );
-=======
-   SEED DEFAULT VILLAGE ACTIVITIES
-========================================================= */
-
-async function seedVillageActivities() {
-  try {
-    const count =
-      await VillageActivity.countDocuments();
-
-    if (count > 0) {
-      console.log(
-        `Village activities already exist. Count: ${count}`
-      );
-
-      return;
-    }
-
-    const activities = [
-      {
-        title: {
-          en: "Village Clean-Up Programme",
-
-          si: "ගම් පිරිසිදු කිරීමේ වැඩසටහන",
-
-          ta: "கிராம சுத்தப்படுத்தும் நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Residents work together to keep the village clean and beautiful.",
-
-          si: "ගමේ පිරිසිදුකම සහ අලංකාරය පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
-
-          ta: "கிராமத்தை சுத்தமாகவும் அழகாகவும் வைத்திருக்க மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
-        },
-
-        category: "Community",
-
-        date: new Date(
-          "2026-10-05"
-        ),
-
-        location: "Village",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity1.jpg",
-      },
-
-      {
-        title: {
-          en: "Community Health Programme",
-
-          si: "ප්‍රජා සෞඛ්‍ය වැඩසටහන",
-
-          ta: "சமூக சுகாதார நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Local residents participate in community health activities.",
-
-          si: "ප්‍රදේශවාසීන් ප්‍රජා සෞඛ්‍ය කටයුතුවලට සහභාගී වේ.",
-
-          ta: "உள்ளூர் மக்கள் சமூக சுகாதார நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
-        },
-
-        category: "Health",
-
-        date: new Date(
-          "2026-10-10"
-        ),
-
-        location:
-          "Community Hall",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity2.jpg",
-      },
-
-      {
-        title: {
-          en: "Village Cleaning Programme",
-
-          si: "ගම් පිරිසිදු කිරීමේ වැඩසටහන",
-
-          ta: "கிராம சுத்தப்படுத்தும் நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Local residents work together to maintain the cleanliness of the village.",
-
-          si: "ගමේ පිරිසිදුකම පවත්වා ගැනීමට ප්‍රදේශවාසීන් එක්ව කටයුතු කරයි.",
-
-          ta: "கிராமத்தின் தூய்மையைப் பராமரிக்க உள்ளூர் மக்கள் ஒன்றிணைந்து செயல்படுகின்றனர்.",
-        },
-
-        category: "Environment",
-
-        date: new Date(
-          "2026-10-15"
-        ),
-
-        location:
-          "Village Area",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity3.jpg",
-      },
-
-      {
-        title: {
-          en: "Community Awareness Programme",
-
-          si: "ප්‍රජා දැනුවත් කිරීමේ වැඩසටහන",
-
-          ta: "சமூக விழிப்புணர்வு நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Community members take part in programmes that improve village knowledge and awareness.",
-
-          si: "ගමේ දැනුම හා දැනුවත්භාවය වැඩිදියුණු කරන වැඩසටහන් සඳහා ප්‍රජා සාමාජිකයින් සහභාගී වේ.",
-
-          ta: "கிராம மக்களின் அறிவையும் விழிப்புணர்வையும் மேம்படுத்தும் நிகழ்ச்சிகளில் சமூக உறுப்பினர்கள் பங்கேற்கின்றனர்.",
-        },
-
-        category: "Awareness",
-
-        date: new Date(
-          "2026-10-20"
-        ),
-
-        location:
-          "Community Hall",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity4.jpg",
-      },
-
-      {
-        title: {
-          en: "Aid Distribution Programme",
-
-          si: "සහනාධාර ලබාදීමේ වැඩසටහන",
-
-          ta: "நிவாரண உதவி வழங்கும் நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Aid and support are provided to families who need assistance.",
-
-          si: "ආධාර අවශ්‍ය පවුල් සඳහා සහනාධාර සහ උපකාර ලබා දේ.",
-
-          ta: "உதவி தேவைப்படும் குடும்பங்களுக்கு நிவாரண உதவிகள் வழங்கப்படுகின்றன.",
-        },
-
-        category: "Welfare",
-
-        date: new Date(
-          "2026-10-25"
-        ),
-
-        location:
-          "GN Office",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity5.png",
-      },
-
-      {
-        title: {
-          en: "Women's Self-Employment Awareness Programme",
-
-          si: "කාන්තා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන",
-
-          ta: "பெண்களுக்கான சுயதொழில் விழிப்புணர்வு நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Awareness programmes on self-employment are conducted for women in the village.",
-
-          si: "ගමේ කාන්තාවන් සඳහා ස්වයං රැකියා පිළිබඳ දැනුවත් කිරීමේ වැඩසටහන් පැවැත්වේ.",
-
-          ta: "கிராம பெண்களுக்காக சுயதொழில் தொடர்பான விழிப்புணர்வு நிகழ்ச்சிகள் நடத்தப்படுகின்றன.",
-        },
-
-        category: "Women",
-
-        date: new Date(
-          "2026-10-30"
-        ),
-
-        location:
-          "Community Hall",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity6.png",
-      },
-
-      {
-        title: {
-          en: "Tree Planting Programme",
-
-          si: "රුක් රෝපණ වැඩසටහන",
-
-          ta: "மர நடுகை நிகழ்ச்சி",
-        },
-
-        description: {
-          en: "Residents participate in tree planting activities to improve the village environment.",
-
-          si: "ගමේ පරිසරය වැඩිදියුණු කිරීම සඳහා ප්‍රදේශවාසීන් රුක් රෝපණ කටයුතුවලට සහභාගී වේ.",
-
-          ta: "கிராம சுற்றுச்சூழலை மேம்படுத்த மக்கள் மர நடுகை நடவடிக்கைகளில் பங்கேற்கின்றனர்.",
-        },
-
-        category: "Environment",
-
-        date: new Date(
-          "2026-11-05"
-        ),
-
-        location:
-          "Village Area",
-
-        createdBy: "gnadmin",
-
-        status: "Published",
-
-        image:
-          "/images/activity7.png",
-      },
-    ];
-
-    await VillageActivity.insertMany(
-      activities
-    );
-
-    console.log(
-      "7 default village activities inserted into MongoDB."
-    );
-  } catch (error) {
-    console.error(
-      "Village activity seed error:",
-      error
-    );
-  }
->>>>>>> kalpani-server-fix
 }
 
 /* =========================================================
@@ -1085,7 +591,6 @@ function createToken(user) {
 
       username:
         user.username,
-<<<<<<< HEAD
 
       role:
         user.role,
@@ -1094,10 +599,6 @@ function createToken(user) {
 
         portal,
 
-=======
-      role:
-        user.role,
->>>>>>> kalpani-server-fix
       houseNumber:
         user.houseNumber || "",
       passwordVersion: user.passwordVersion || 0,
@@ -1292,11 +793,6 @@ app.post(
 
       let user = null;
 
-<<<<<<< HEAD
-=======
-      /* USERNAME LOGIN */
-
->>>>>>> kalpani-server-fix
       if (loginUsername) {
         user =
           await User.findOne({
@@ -1305,11 +801,6 @@ app.post(
           });
       }
 
-<<<<<<< HEAD
-=======
-      /* HOUSE NUMBER LOGIN */
-
->>>>>>> kalpani-server-fix
       if (
         !user &&
         loginHouseNumber
@@ -1328,11 +819,6 @@ app.post(
         });
       }
 
-<<<<<<< HEAD
-=======
-      /* PASSWORD */
-
->>>>>>> kalpani-server-fix
       const passwordMatch =
         await bcrypt.compare(
           password,
@@ -1346,15 +832,11 @@ app.post(
         });
       }
 
-<<<<<<< HEAD
       /*
          Resolve portal from MongoDB / role.
       */
       const portal =
         getPortalForUser(user);
-=======
-      /* TOKEN */
->>>>>>> kalpani-server-fix
 
       /*
          Create JWT with portal.
@@ -1362,15 +844,12 @@ app.post(
       const token =
         createToken(user);
 
-<<<<<<< HEAD
       /*
          IMPORTANT:
          Portal information is now sent
          to the frontend.
       */
 
-=======
->>>>>>> kalpani-server-fix
       return res.json({
         success: true,
 
@@ -1817,69 +1296,25 @@ app.post(
 
 /* =========================================================
    COMPLAINTS
-   PUBLIC - NO LOGIN REQUIRED
 ========================================================= */
 
 app.post(
   "/api/complaints",
-<<<<<<< HEAD
   complaintUpload.single(
     "image"
   ),
-=======
-  complaintUpload.single("image"),
->>>>>>> kalpani-server-fix
   async (
     req,
     res
   ) => {
     try {
-      const {
-        type = "",
-        officer = "",
-        location = "",
-        description = "",
-        houseNumber = "",
-      } = req.body;
+      const data = {
+        ...req.body,
 
-<<<<<<< HEAD
         status:
           req.body.status ||
           "Pending",
       };
-=======
-      /* VALIDATION */
-
-      if (
-        !type.trim() ||
-        !officer.trim() ||
-        !location.trim() ||
-        !description.trim()
-      ) {
-        return res.status(400).json({
-          success: false,
-
-          message:
-            "Please fill all required complaint fields.",
-        });
-      }
-
-      /* REFERENCE NUMBER */
-
-      const referenceNo =
-        "CMP-" +
-        Date.now() +
-        "-" +
-        Math.floor(
-          1000 +
-            Math.random() *
-              9000
-        );
-
-      /* IMAGE */
-
-      let imageUrl = "";
->>>>>>> kalpani-server-fix
 
       if (req.user) {
         data.username =
@@ -1900,83 +1335,28 @@ app.post(
       }
 
       if (req.file) {
-        imageUrl =
+        data.imageUrl =
           `/uploads/complaints/${req.file.filename}`;
 
         data.imageName =
           req.file.originalname;
       }
 
-      /* SAVE */
-
-<<<<<<< HEAD
-=======
       const complaint =
-        await Complaint.create({
-          referenceNo,
+        await Complaint.create(
+          data
+        );
 
-          type:
-            type.trim(),
-
-          officer:
-            officer.trim(),
-
-          location:
-            location.trim(),
-
-          description:
-            description.trim(),
-
-          houseNumber:
-            houseNumber.trim(),
-
-          imageUrl,
-
-          status:
-            "Pending",
-
-          isAnonymous:
-            true,
-
-          submittedBy:
-            "Public User",
-        });
-
-      console.log(
-        "================================"
-      );
-
-      console.log(
-        "COMPLAINT SAVED TO MONGODB"
-      );
-
-      console.log(
-        "Reference:",
-        complaint.referenceNo
-      );
-
-      console.log(
-        "================================"
-      );
-
->>>>>>> kalpani-server-fix
       return res.status(201).json({
         success: true,
 
         message:
           "Complaint submitted successfully.",
 
-<<<<<<< HEAD
-=======
-        referenceNo:
-          complaint.referenceNo,
-
->>>>>>> kalpani-server-fix
         complaint,
       });
     } catch (error) {
       console.error(
-<<<<<<< HEAD
         "Create complaint error:",
         error
       );
@@ -2048,20 +1428,8 @@ app.get(
       );
 
       return res.status(500).json({
-=======
-        "COMPLAINT SAVE ERROR:",
-        error
-      );
-
-      return res.status(500).json({
-        success: false,
-
->>>>>>> kalpani-server-fix
         message:
-          "Failed to save complaint to database.",
-
-        error:
-          error.message,
+          "Failed to load complaints.",
       });
     }
   }
@@ -2215,10 +1583,8 @@ app.post(
 );
 
 /* =========================================================
-   VILLAGE ACTIVITIES API
+   VILLAGE ACTIVITIES
 ========================================================= */
-
-/* GET - PUBLIC */
 
 app.get(
   "/api/village-activities",
@@ -2229,18 +1595,11 @@ app.get(
     try {
       const activities =
         await VillageActivity
-          .find({
-            status: "Published",
-          })
+          .find()
           .sort({
-<<<<<<< HEAD
             createdAt: -1,
           })
           .lean();
-=======
-            date: 1,
-          });
->>>>>>> kalpani-server-fix
 
       return res.json(
         activities
@@ -2251,21 +1610,13 @@ app.get(
         error
       );
 
-<<<<<<< HEAD
       return res.status(500).json({
-=======
-      res.status(500).json({
-        success: false,
-
->>>>>>> kalpani-server-fix
         message:
           "Failed to load village activities.",
       });
     }
   }
 );
-
-/* POST - LOGIN REQUIRED */
 
 app.post(
   "/api/village-activities",
@@ -2275,93 +1626,23 @@ app.post(
     res
   ) => {
     try {
-      const {
-        title,
-        description,
-        category,
-        date,
-        location,
-        status,
-        image,
-      } = req.body;
+      const activity =
+        await VillageActivity.create(
+          req.body
+        );
 
-<<<<<<< HEAD
       return res.status(201).json(
         activity
       );
-=======
-      if (
-        !title?.en ||
-        !title?.si ||
-        !title?.ta ||
-        !description?.en ||
-        !description?.si ||
-        !description?.ta ||
-        !category ||
-        !date ||
-        !location
-      ) {
-        return res.status(400).json({
-          success: false,
-
-          message:
-            "Please fill all required activity fields.",
-        });
-      }
-
-      const activity =
-        await VillageActivity.create({
-          title,
-
-          description,
-
-          category:
-            category.trim(),
-
-          date:
-            new Date(date),
-
-          location:
-            location.trim(),
-
-          createdBy:
-            req.user.username,
-
-          status:
-            status?.trim() ||
-            "Published",
-
-          image:
-            image?.trim() || "",
-        });
-
-      res.status(201).json({
-        success: true,
-
-        message:
-          "Village activity created successfully.",
-
-        activity,
-      });
->>>>>>> kalpani-server-fix
     } catch (error) {
       console.error(
         "Create village activity error:",
         error
       );
 
-<<<<<<< HEAD
       return res.status(500).json({
-=======
-      res.status(500).json({
-        success: false,
-
->>>>>>> kalpani-server-fix
         message:
           "Failed to create village activity.",
-
-        error:
-          error.message,
       });
     }
   }
@@ -2445,15 +1726,10 @@ async function getWebsiteContext() {
 
     return {
       offices,
-
       governmentOffices,
-
       forms,
-
       announcements,
-
       officers,
-
       activities,
     };
   } catch (error) {
@@ -2464,15 +1740,10 @@ async function getWebsiteContext() {
 
     return {
       offices: [],
-
       governmentOffices: [],
-
       forms: [],
-
       announcements: [],
-
       officers: [],
-
       activities: [],
     };
   }
@@ -2482,108 +1753,149 @@ async function getWebsiteContext() {
    GEMINI
 ========================================================= */
 
-async function tryGemini(
-  message,
-  context
-) {
+
+
+
+const sleep = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+async function tryGemini(message, context) {
   if (!gemini) {
+    console.error("Gemini client is not initialized.");
     return null;
   }
 
-  const prompt = `
-You are the GramaLK government services assistant.
+  
+const prompt = `
+You are GramaLK AI, an intelligent assistant specializing in
+Grama Niladhari services and village administration in Sri Lanka.
 
-Answer clearly and simply.
+YOUR MAIN GOAL:
+Answer any question related to Grama Niladhari services,
+certificates, applications, documents, eligibility, procedures,
+village administration, and government services handled through
+the GN office.
 
-Use ONLY the information available in the
-GramaLK database when answering questions
-about GramaLK services.
+RULES:
+1. Understand the user's question and answer the actual question.
+2. Answer in the same language as the user: Sinhala or English.
+3. Explain procedures step by step when helpful.
+4. For document questions, provide a clear checklist.
+5. Use the supplied website and database context whenever relevant.
+6. For general questions, use your knowledge to provide a helpful answer.
+7. Never invent official requirements, fees, deadlines, or legal rules.
+8. If requirements vary by GN division or certificate type, explain this.
+9. If information is uncertain, say so and advise the user how to verify it.
+10. Do not claim that an application has been submitted or approved.
+11. Do not return a generic error for an ordinary question when you
+    can answer it reliably.
+12. Keep answers friendly, clear, and easy to understand.
 
-Do not invent offices, officers, forms,
-announcements, activities, contacts,
-or government information.
+GRAMA NILADHARI TOPICS:
+- Character and residence certificates
+- Income, family, and residence-related certificates
+- Birth, death, and marriage-related administrative guidance
+- Application forms and supporting documents
+- GN division identification and office contacts
+- Village administration and public assistance
+- Recommendations, verification, and application follow-ups
+- Complaints and administrative procedures
 
-If the requested information is not available,
-say:
-
-"That information is not currently available
-in the GramaLK database."
-
-Do not guess.
-
-OFFICES:
-${JSON.stringify(
-  context.offices,
-  null,
-  2
-)}
-
-GOVERNMENT OFFICES:
-${JSON.stringify(
-  context.governmentOffices,
-  null,
-  2
-)}
-
-FORMS:
-${JSON.stringify(
-  context.forms,
-  null,
-  2
-)}
-
-ANNOUNCEMENTS:
-${JSON.stringify(
-  context.announcements,
-  null,
-  2
-)}
-
-OFFICERS:
-${JSON.stringify(
-  context.officers,
-  null,
-  2
-)}
-
-VILLAGE ACTIVITIES:
-${JSON.stringify(
-  context.activities,
-  null,
-  2
-)}
+WEBSITE AND DATABASE CONTEXT:
+${JSON.stringify(context)}
 
 USER QUESTION:
 ${message}
 `;
 
-  try {
-    const response =
-      await gemini.models.generateContent({
-        model:
-          "gemini-2.5-flash",
 
-        contents:
-          prompt,
-      });
+  const modelsToTry = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.8-flash",
+]; 
 
-    if (
-      response &&
-      response.text
-    ) {
-      return response.text;
+  for (const model of [...new Set(modelsToTry)]) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        console.log(
+          `Trying Gemini model: ${model}, attempt ${attempt}`
+        );
+
+        
+        const response = await Promise.race([
+          gemini.models.generateContent({
+            model,
+            contents: prompt,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Gemini timeout after 15 seconds")),
+              15000
+            )
+          ),
+        ]);
+
+        const answer = response?.text?.trim();
+
+        if (answer) {
+          console.log(`Gemini answer received from ${model}`);
+          return answer;
+        }
+
+        console.warn(`Empty response from ${model}`);
+        break;
+      } catch (error) {
+        const status = error?.status || error?.code;
+
+        console.error(
+          `Gemini error (${model}, attempt ${attempt}):`,
+          error?.message || error
+        );
+
+        // Retry only temporary server, rate-limit, or timeout errors.
+        const retryable = [408, 429, 500, 502, 503, 504].includes(
+          Number(status)
+        );
+
+        if (!retryable) {
+          break;
+        }
+
+        if (attempt < 2) {
+          await sleep(1500 * attempt);
+        }
+      }
     }
-
-    return null;
-  } catch (error) {
-    console.error(
-      "Gemini error:",
-      error.message
-    );
-
-    return null;
   }
+
+  console.error("All configured Gemini models failed.");
+  return null;
 }
+
+
+function getFallbackAnswer(message) {
+  const q = message.toLowerCase();
+
+  if (
+    q.includes("character certificate") ||
+    q.includes("character cert") ||
+    q.includes("good conduct certificate")
+  ) {
+    return `To apply for a Character Certificate through your Grama Niladhari (GN), you can prepare the following documents:
+
+1. Your National Identity Card (NIC).
+2. Your birth certificate, if requested.
+3. Proof of your current residential address, if available.
+4. A request letter or application form, if required by the GN office.
+5. Any letter from the institution requesting the certificate, if applicable.
+
+Important: The exact requirements may vary depending on your GN division and the purpose of the certificate. Please contact your local Grama Niladhari office to confirm which documents are compulsory before visiting.
+
+Would you like help finding the contact details of your GN office?`;
+  }
+
+  return null;
+} 
 
 /* =========================================================
    CHATBOT
@@ -2621,9 +1933,7 @@ app.post(
       if (answer) {
         return res.json({
           success: true,
-
-          reply:
-            answer,
+          reply: answer,
         });
       }
 
@@ -3119,207 +2429,6 @@ app.get(
   }
 );
 
-
-/* =========================================================
-   HEALTH PORTAL API
-========================================================= */
-
-// Health staff-only access
-function healthStaffOnly(req, res, next) {
-  const role = String(req.user?.role || "").toLowerCase();
-  const portal = String(req.user?.portal || "").toLowerCase();
-
-  if (
-    role !== "health" &&
-    portal !== "health"
-  ) {
-    return res.status(403).json({
-      success: false,
-      message: "Health Portal access required.",
-    });
-  }
-
-  next();
-}
-
-// GET: Health Portal dashboard data
-app.get(
-  "/api/health-portal/dashboard",
-  authMiddleware,
-  healthStaffOnly,
-  async (req, res) => {
-    try {
-      const [mothers, requests, announcements] = await Promise.all([
-        FamilyVillager.find({
-          $or: [
-            { category: /mother/i },
-            { relationship: /mother/i },
-            { isMother: true },
-            { pregnancyStatus: { $exists: true, $ne: "" } },
-          ],
-        }).lean(),
-
-        FamilyHealthAppointment.find({})
-          .sort({ createdAt: -1 })
-          .lean(),
-
-        Announcement.find({
-          $or: [
-            { portal: /health/i },
-            { audience: /health/i },
-            { category: /health/i },
-            { portal: { $exists: false } },
-          ],
-        })
-          .sort({ createdAt: -1 })
-          .lean(),
-      ]);
-
-      res.json({
-        success: true,
-        stats: {
-          mothers: mothers.length,
-          totalRequests: requests.length,
-          pendingRequests: requests.filter(
-            (item) => item.status === "Pending"
-          ).length,
-          announcements: announcements.length,
-        },
-        mothers,
-        requests,
-        announcements,
-      });
-    } catch (error) {
-      console.error("Health dashboard error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to load Health Portal dashboard.",
-      });
-    }
-  }
-);
-
-// GET: All PHI / Midwife appointment requests
-app.get(
-  "/api/health-portal/requests",
-  authMiddleware,
-  healthStaffOnly,
-  async (req, res) => {
-    try {
-      const requests = await FamilyHealthAppointment.find({})
-        .sort({ createdAt: -1 })
-        .lean();
-
-      res.json({
-        success: true,
-        requests,
-      });
-    } catch (error) {
-      console.error("Health requests error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to load health requests.",
-      });
-    }
-  }
-);
-
-// PUT: Update appointment request status
-app.put(
-  "/api/health-portal/requests/:id",
-  authMiddleware,
-  healthStaffOnly,
-  async (req, res) => {
-    try {
-      const allowedStatuses = [
-        "Pending",
-        "Approved",
-        "Resolved",
-        "Rejected",
-      ];
-
-      const status = String(req.body?.status || "");
-
-      if (!allowedStatuses.includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid request status.",
-        });
-      }
-
-      const request = await FamilyHealthAppointment.findByIdAndUpdate(
-        req.params.id,
-        { $set: { status } },
-        { new: true, runValidators: true }
-      );
-
-      if (!request) {
-        return res.status(404).json({
-          success: false,
-          message: "Appointment request not found.",
-        });
-      }
-
-      res.json({
-        success: true,
-        message: "Request status updated.",
-        request,
-      });
-    } catch (error) {
-      console.error("Update health request error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to update request.",
-      });
-    }
-  }
-);
-
-// POST: Create a Health Portal announcement
-app.post(
-  "/api/health-portal/announcements",
-  authMiddleware,
-  healthStaffOnly,
-  async (req, res) => {
-    try {
-      const title = String(req.body?.title || "").trim();
-      const message = String(
-        req.body?.message || req.body?.description || ""
-      ).trim();
-
-      if (!title || !message) {
-        return res.status(400).json({
-          success: false,
-          message: "Title and message are required.",
-        });
-      }
-
-      const announcement = await Announcement.create({
-        title,
-        message,
-        description: message,
-        portal: "Health",
-        audience: "Health",
-        category: "Health",
-        createdBy: req.user.username,
-        createdAt: new Date(),
-      });
-
-      res.status(201).json({
-        success: true,
-        message: "Announcement published.",
-        announcement,
-      });
-    } catch (error) {
-      console.error("Create health announcement error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to publish announcement.",
-      });
-    }
-  }
-); 
-
 /* =========================================================
    GLOBAL ERROR HANDLER
 ========================================================= */
@@ -3345,30 +2454,10 @@ app.use(
 
         message:
           `Upload error: ${error.message}`,
-
-        field:
-          error.field || "",
       });
     }
 
-    if (
-      error &&
-      error.message ===
-        "Only PDF files are allowed."
-    ) {
-      return res.status(400).json({
-        success: false,
-
-        message:
-          error.message,
-      });
-    }
-
-<<<<<<< HEAD
     return res.status(500).json({
-=======
-    res.status(500).json({
->>>>>>> kalpani-server-fix
       success: false,
 
       message:
@@ -3384,7 +2473,6 @@ app.use(
 
 async function startServer() {
   try {
-<<<<<<< HEAD
     await mongoose.connect(
       mongoURI
     );
@@ -3456,102 +2544,6 @@ async function startServer() {
 
     console.error(
       error.message
-=======
-    /* ---------------------------------------------
-       CONNECT TO MONGODB
-    --------------------------------------------- */
-
-    await mongoose.connect(
-      mongoURI
-    );
-
-    console.log(
-      "================================="
-    );
-
-    console.log(
-      "MongoDB Atlas Connected Successfully!"
-    );
-
-    console.log(
-      "Database:",
-      mongoDatabase
-    );
-
-    console.log(
-      "================================="
-    );
-
-    /* ---------------------------------------------
-       CREATE / UPDATE DEFAULT USERS
-    --------------------------------------------- */
-
-    await createDefaultPortalUsers();
-
-    /* ---------------------------------------------
-       INSERT DEFAULT VILLAGE ACTIVITIES
-       ONLY IF COLLECTION IS EMPTY
-    --------------------------------------------- */
-
-    await seedVillageActivities();
-
-    /* ---------------------------------------------
-       START EXPRESS SERVER
-    --------------------------------------------- */
-
-    app.listen(
-      PORT,
-      "0.0.0.0",
-      () => {
-        console.log(
-          "================================"
-        );
-
-        console.log(
-          `GramaLK backend running on port ${PORT}`
-        );
-
-        console.log(
-          `Local: http://localhost:${PORT}`
-        );
-
-        console.log(
-          `Network: http://0.0.0.0:${PORT}`
-        );
-
-        console.log(
-          "MongoDB: Atlas"
-        );
-
-        console.log(
-          "Portals: Enabled"
-        );
-
-        console.log(
-          "Complaints: Public"
-        );
-
-        console.log(
-          "Village Activities: MongoDB"
-        );
-
-        console.log(
-          "================================"
-        );
-      }
-    );
-  } catch (error) {
-    console.error(
-      "================================"
-    );
-
-    console.error(
-      "SERVER STARTUP ERROR"
-    );
-
-    console.error(
-      error
->>>>>>> kalpani-server-fix
     );
 
     console.error(
@@ -3563,14 +2555,7 @@ async function startServer() {
 }
 
 /* =========================================================
-<<<<<<< HEAD
    RUN SERVER
 ========================================================= */
 
 startServer();
-=======
-   START
-========================================================= */
-
-startServer(); 
->>>>>>> kalpani-server-fix
