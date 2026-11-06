@@ -2255,3 +2255,9 @@ a {
   }
 }
 }
+/* Dropdown select options styling */
+select option {
+  background-color: #142822 !important;
+  color: #ffffff !important;
+  padding: 10px !important;
+}

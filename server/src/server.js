@@ -8,11 +8,17 @@ import fs from "fs";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GoogleGenAI } from "@google/genai";
+import { fileURLToPath } from "node:url";
 
 // Optional portal route import
 import gnRoutes from "./routes/gnRoutes.js";
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+const SERVER_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  ".."
+);
+
+dotenv.config({ path: path.join(SERVER_ROOT, ".env") });
 dotenv.config();
 
 /* =========================================================
@@ -23,7 +29,7 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-const ROOT = process.cwd();
+const ROOT = SERVER_ROOT;
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "gramalk-development-secret";
@@ -349,6 +355,86 @@ const FamilyVillager =
       }
     ),
     "villagers"
+  );
+const Mother = 
+mongoose.models.Mother || 
+  mongoose.model(
+    "Mother", 
+    new mongoose.Schema(
+      {}, 
+      { 
+        strict: false, 
+        timestamps: true 
+      }
+    ),
+    "mothers"
+  );
+const Child = 
+  mongoose.models.Child || 
+  mongoose.model(
+    "Child", 
+    new mongoose.Schema(
+      {}, 
+      {
+        strict: false, 
+        timestamps: true 
+      }
+    ),
+    "children"
+  );
+const Member = 
+  mongoose.models.Member || 
+  mongoose.model(
+    "Member", 
+    new mongoose.Schema(
+      {},
+      {
+        strict: false, 
+        timestamps: true 
+      }
+    ), 
+    "members"
+  );
+
+  // --- ESTABLISHMENT SCHEMA ---
+const establishmentSchema = 
+  new mongoose.Schema({
+    name: { 
+      type: String, 
+      required: true 
+    },
+
+    type: { 
+      type: String, 
+      required: true 
+    },
+
+    owner: { 
+      type: String, 
+      required: true 
+    },
+    
+    phone: { 
+      type: String 
+    },
+    
+    status: { 
+      type: String, 
+      required: true 
+    },
+    
+    lastInspected: { 
+      type: String 
+    }
+  }, 
+  { timestamps: true }
+);
+
+const Establishment = 
+  mongoose.models.Establishment || 
+  mongoose.model(
+    'Establishment', 
+    establishmentSchema
   );
 
 // =========================================================
@@ -756,6 +842,7 @@ app.post(
   async (
     req,
     res
+
   ) => {
     try {
       const {
@@ -763,6 +850,9 @@ app.post(
         password = "",
         houseNumber = "",
       } = req.body;
+
+      console.log("=== API LOGIN REQUEST RECEIVED ===");
+      console.log("Username:", username);
 
       const loginUsername =
         String(
@@ -2473,89 +2563,220 @@ app.use(
 
 async function startServer() {
   try {
-    await mongoose.connect(
-      mongoURI
-    );
+    await mongoose.connect(mongoURI);
 
-    console.log(
-      "================================"
-    );
-
-    console.log(
-      "MongoDB Atlas Connected Successfully!"
-    );
-
-    console.log(
-      "Database:",
-      mongoDatabase
-    );
-
-    console.log(
-      "================================"
-    );
+    console.log("================================");
+    console.log("MongoDB Atlas Connected Successfully!");
+    console.log("Database:", mongoDatabase);
+    console.log("================================");
 
     await createDefaultPortalUsers();
 
-    app.listen(
-      PORT,
-      "0.0.0.0",
-      () => {
-        console.log(
-          "================================"
-        );
-
-        console.log(
-          `GramaLK backend running on port ${PORT}`
-        );
-
-        console.log(
-          `Local: http://localhost:${PORT}`
-        );
-
-        console.log(
-          `Network: http://0.0.0.0:${PORT}`
-        );
-
-        console.log(
-          "MongoDB: Atlas"
-        );
-
-        console.log(
-          `Gemini: ${Boolean(gemini)}`
-        );
-
-        console.log(
-          "Portals: Enabled"
-        );
-
-        console.log(
-          "================================"
-        );
+    // --- MOTHERS API ---
+    app.get('/api/mothers', async (req, res) => {
+      try {
+        const mothers = await Mother.find();
+        res.json(mothers);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
       }
-    );
+    });
+
+    app.post('/api/mothers', async (req, res) => {
+      try {
+        const newMother = new Mother(req.body);
+        await newMother.save();
+        res.status(201).json(newMother);
+      } catch (err) {
+        console.error("Mother Save Error:", err.message);
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.put('/api/mothers/:id', async (req, res) => {
+      try {
+        const updated = await Mother.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updated);
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.delete('/api/mothers/:id', async (req, res) => {
+      try {
+        await Mother.findByIdAndDelete(req.params.id);
+        res.json({ message: "Mother record deleted" });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // --- ANNOUNCEMENTS API ---
+    app.get('/api/announcements', async (req, res) => {
+      try {
+        const { role } = req.query;
+        const query = role ? { role } : {};
+        const announcements = await Announcement.find(query).sort({ createdAt: -1 });
+        res.json(announcements);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.post('/api/announcements', async (req, res) => {
+      try {
+        const newAnn = new Announcement(req.body);
+        await newAnn.save();
+        res.status(201).json(newAnn);
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.put('/api/announcements/:id', async (req, res) => {
+      try {
+        const updated = await Announcement.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updated);
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.delete('/api/announcements/:id', async (req, res) => {
+      try {
+        await Announcement.findByIdAndDelete(req.params.id);
+        res.json({ message: "Announcement deleted" });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+    
+    // --- MEMBERS API ---
+    app.get('/api/members', async (req, res) => {
+      try {
+        const members = await Member.find();
+        res.json(members);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.post('/api/members', async (req, res) => {
+      try {
+        const newMember = new Member(req.body);
+        await newMember.save();
+        res.status(201).json(newMember);
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    // --- CHILDREN API ---
+    app.get('/api/children', async (req, res) => {
+      try {
+        const children = await Child.find();
+        res.json(children);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.post('/api/children', async (req, res) => {
+      try {
+        const newChild = new Child(req.body);
+        await newChild.save();
+        res.status(201).json(newChild);
+      } catch (err) {
+        console.error("Child Save Error:", err.message);
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.put('/api/children/:id', async (req, res) => {
+      try {
+        const updated = await Child.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updated);
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.delete('/api/children/:id', async (req, res) => {
+      try {
+        await Child.findByIdAndDelete(req.params.id);
+        res.json({ message: "Child record deleted" });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // --- REQUESTS API ---
+    app.get('/api/requests', async (req, res) => {
+      try {
+        const requests = await FamilyHealthAppointment.find().sort({ createdAt: -1 });
+        res.json(requests);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // --- ESTABLISHMENTS API ---
+    app.get('/api/establishments', async (req, res) => {
+      try {
+        const ests = await Establishment.find();
+        res.json(ests);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    app.post('/api/establishments', async (req, res) => {
+      try {
+        const newEst = new Establishment(req.body);
+        await newEst.save();
+        res.status(201).json(newEst); // මෙහි newEst සෘජුවම යැවීම Frontend එකට පහසුය
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.put('/api/establishments/:id', async (req, res) => {
+      try {
+        const updated = await Establishment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updated);
+      } catch (err) {
+        res.status(400).json({ error: err.message });
+      }
+    });
+
+    app.delete('/api/establishments/:id', async (req, res) => {
+      try {
+        await Establishment.findByIdAndDelete(req.params.id);
+        res.json({ message: "Establishment deleted successfully" });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // --- RUN SERVER ---
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("================================");
+      console.log(`GramaLK backend running on port ${PORT}`);
+      console.log(`Local: http://localhost:${PORT}`);
+      console.log(`Network: http://0.0.0.0:${PORT}`);
+      console.log("MongoDB: Atlas");
+      console.log("Portals: Enabled");
+      console.log("================================");
+    });
+
   } catch (error) {
-    console.error(
-      "================================"
-    );
-
-    console.error(
-      "SERVER STARTUP ERROR:"
-    );
-
-    console.error(
-      error.message
-    );
-
-    console.error(
-      "================================"
-    );
-
+    console.error("================================");
+    console.error("SERVER STARTUP ERROR:");
+    console.error(error.message);
+    console.error("================================");
     process.exit(1);
   }
 }
-
-/* =========================================================
-   RUN SERVER
-========================================================= */
 
 startServer();
