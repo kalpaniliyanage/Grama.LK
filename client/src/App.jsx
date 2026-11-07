@@ -641,28 +641,28 @@ const portals = [
     id: "family",
     title: "portalFamily",
     description: "portalFamilyDesc",
-    image: "/images/activity1.jpg",
+    image: "/images/family.jpg",
     icon: "🏠",
   },
   {
     id: "welfare",
     title: "portalWelfare",
     description: "portalWelfareDesc",
-    image: "/images/samurdhi-officer.jpg",
+    image: "/images/samurdi-officer.jpg",
     icon: "🤝",
   },
   {
     id: "youth",
     title: "portalYouth",
     description: "portalYouthDesc",
-    image: "/images/activity4.jpg",
+    image: "/images/youth.jpg",
     icon: "📄",
   },
   {
     id: "health",
     title: "portalHealth",
     description: "portalHealthDesc",
-    image: "/images/health-office.jpg",
+    image: "/images/health-officers.jpg",
     icon: "🩺",
   },
   {
@@ -707,11 +707,11 @@ const fallbackOffices = [
     personName: "Kanchana Perera",
     position: "Grama Niladhari",
     personImage: "/images/gn-officer.jpg",
-    phone: "+94 XX XXX XXXX",
-    email: "gn-office@example.lk",
-    address: "Colombo 04, Sri Lanka",
-    mapQuery: "Colombo 04, Sri Lanka",
-    image: "/images/gn-office.jpg",
+    phone: "+94 25 569 7894",
+    email: "gn-office@government.lk",
+    address: "Homagama, Sri Lanka",
+    mapQuery: "Pitipana, Sri Lanka",
+    image: "/images/gn-officer.jpg",
     officeDays: "Monday – Friday",
     officeHours: "8:30 AM – 4:15 PM",
     fieldDays: "According to field schedule",
@@ -721,46 +721,46 @@ const fallbackOffices = [
   },
   {
     type: "DS Office",
-    name: "Divisional Secretariat",
-    personName: "Divisional Secretariat Officer",
+    name: "Divisional Secretariat Office",
+    personName: "Gamini Weerasinghe",
     position: "Divisional Secretariat",
-    phone: "+94 XX XXX XXXX",
-    email: "ds-office@example.lk",
-    address: "Divisional Secretariat, Sri Lanka",
-    mapQuery: "Divisional Secretariat, Sri Lanka",
+    phone: "+94 25 789 4102",
+    email: "ds-office@government.lk",
+    address: "Homagama, Sri Lanka",
+    mapQuery: "Homagama, Sri Lanka",
     image: "/images/ds-office.jpg",
   },
   {
     type: "Health",
     name: "Health Office",
-    personName: "Health Officer",
-    position: "MOH / Health Office",
-    phone: "+94 XX XXX XXXX",
-    email: "health@example.lk",
-    address: "MOH Office, Sri Lanka",
-    mapQuery: "MOH Office, Sri Lanka",
-    image: "/images/health-office.jpg",
+    personName: "Roshan Fernando",
+    position: "Public Health Inspector",
+    phone: "+94 25 526 4758",
+    email: "health@government.lk",
+    address: "Homagama, Sri Lanka",
+    mapQuery: "Pitipana, Sri Lanka",
+    image: "/images/health-office1.jpg",
   },
   {
     type: "Community",
     name: "Samurdhi Office",
-    personName: "Samurdhi Officer",
+    personName: "Padma Kumara",
     position: "Community / Welfare Officer",
-    phone: "+94 XX XXX XXXX",
-    email: "samurdhi@example.lk",
-    address: "Samurdhi Office, Sri Lanka",
-    mapQuery: "Samurdhi Office, Sri Lanka",
-    image: "/images/samurdhi-officer.jpg",
+    phone: "+94 25 483 4589",
+    email: "samurdhi@government.lk",
+    address: "Hoamagama, Sri Lanka",
+    mapQuery: "Pitipana, Sri Lanka",
+    image: "/images/samurdi-office1.jpg",
   },
   {
-    type: "Community",
+    type: "Health",
     name: "Public Health Midwife",
-    personName: "Public Health Midwife",
+    personName: "Nadeesha Jayasinghe",
     position: "Public Health Midwife",
-    phone: "+94 XX XXX XXXX",
-    email: "phm@example.lk",
-    address: "Local PHM Area, Sri Lanka",
-    mapQuery: "Sri Lanka",
+    phone: "+94 25 283 4728",
+    email: "phm@government.lk",
+    address: "Hoamagama, Sri Lanka",
+    mapQuery: "Pitipana,Sri Lanka",
     image: "/images/midwife.jpg",
   },
 ];
@@ -1877,7 +1877,7 @@ async function sendMessageToBot(message) {
       <Route
         path="/"
         element={
-          <div className="gramalk-app">
+          <div className="gramalk-app gramalk-redesign">
 
             {/* HEADER */}
             <header className="main-header">
@@ -2648,7 +2648,7 @@ async function sendMessageToBot(message) {
                   {portals.map(
                     (portal) => (
                       <article
-                        className="portal-card"
+                        className={`portal-card portal-card-${portal.id}`}
                         key={
                           portal.id
                         }
@@ -2709,253 +2709,156 @@ async function sendMessageToBot(message) {
                 </div>
               </div>
             </section>
-
+         
+            
             {/* OFFICES */}
-            <section
-              className="content-section offices-section"
-              id="offices"
-            >
+            <section className="content-section offices-section" id="offices">
               <div className="section-container">
-
                 <div className="section-heading">
-
                   <span className="section-kicker">
                     Local Government
                   </span>
 
-                  <h2>
-                    {t(
-                      "offices"
-                    )}
-                  </h2>
-
+                  <h2>{t("offices")}</h2>
                 </div>
 
                 <div className="office-grid">
+                  {fallbackOffices.map((office, index) => {
+                    const officeCategory =
+                      office.category || office.type || "Community Office";
 
-                  {offices.map(
-                    (
-                      office,
-                      index
-                    ) => {
+                    const isGN = String(officeCategory)
+                      .toLowerCase()
+                      .includes("gn");
 
-                      const isGN =
-                        String(
-                          office.type ||
-                            ""
-                        ).toLowerCase() ===
-                        "gn office";
+                    const imageUrl = office.imageUrl
+                      ? office.imageUrl.startsWith("http")
+                        ? office.imageUrl
+                        : `http://localhost:5000${office.imageUrl}`
+                      : office.image || office.personImage || "";
 
-                      return (
-                        <article
-                          className={`office-card ${
-                            isGN
-                              ? "gn-office-card"
-                              : ""
-                          }`}
-                          key={
-                            office._id ||
-                            office.id ||
-                            index
-                          }
-                        >
-
+                    return (
+                      <article
+                        className={`office-card ${isGN ? "gn-office-card" : ""}`}
+                        key={office._id || office.id || index}
+                      >
+                        {imageUrl && (
                           <div className="office-image">
-
                             <img
-                              src={
-                                office.image ||
-                                office.personImage ||
-                                "/images/gn-office.jpg"
-                              }
-                              alt={
-                                office.name ||
-                                office.position ||
-                                "Office"
-                              }
+                              src={imageUrl}
+                              alt={office.name || "Office"}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.style.display = "none";
+                              }}
                             />
-
                           </div>
+                        )}
 
-                          <div className="office-content">
+                        <div className="office-content">
+                          <span className="office-type">
+                            {officeCategory}
+                          </span>
 
-                            <span className="office-type">
-                              {office.type ||
-                                "Community Office"}
-                            </span>
+                          <h3>
+                            {office.name || office.position || "Local Office"}
+                          </h3>
 
-                            <h3>
-                              {office.name ||
-                                office.position ||
-                                "Local Office"}
-                            </h3>
+                          {office.description && (
+                            <p className="office-description">
+                              {office.description}
+                            </p>
+                          )}
 
-                            {office.personName && (
+                          {office.openingHours && (
+                            <p>
+                              <strong>Opening Hours:</strong>{" "}
+                              {office.openingHours}
+                            </p>
+                          )}
+
+                          {office.personName && (
+                            <p>
+                              <strong>{t("name")}:</strong>{" "}
+                              {office.personName}
+                            </p>
+                          )}
+
+                          {office.position && (
+                            <p>
+                              <strong>{t("officer")}:</strong>{" "}
+                              {office.position}
+                            </p>
+                          )}
+
+                          {office.phone && (
+                            <p>
+                              <strong>{t("phone")}:</strong>{" "}
+                              {office.phone}
+                            </p>
+                          )}
+
+                          {office.email && (
+                            <p>
+                              <strong>{t("email")}:</strong>{" "}
+                              {office.email}
+                            </p>
+                          )}
+
+                          {office.address && (
+                            <p>
+                              <strong>{t("location")}:</strong>{" "}
+                              {office.address}
+                            </p>
+                          )}
+
+                          {isGN && (
+                            <div className="gn-schedule">
                               <p>
-                                <strong>
-                                  {t(
-                                    "name"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {
-                                  office.personName
-                                }
+                                <strong>{t("officeDays")}:</strong>{" "}
+                                {office.officeDays || "-"}
                               </p>
-                            )}
 
-                            {office.position && (
                               <p>
-                                <strong>
-                                  {t(
-                                    "officer"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {
-                                  office.position
-                                }
+                                <strong>{t("officeHours")}:</strong>{" "}
+                                {office.officeHours || "-"}
                               </p>
-                            )}
 
-                            {office.phone && (
                               <p>
-                                <strong>
-                                  {t(
-                                    "phone"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {
-                                  office.phone
-                                }
+                                <strong>{t("fieldDays")}:</strong>{" "}
+                                {office.fieldDays || "-"}
                               </p>
-                            )}
 
-                            {office.email && (
                               <p>
-                                <strong>
-                                  {t(
-                                    "email"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {
-                                  office.email
-                                }
+                                <strong>{t("fieldHours")}:</strong>{" "}
+                                {office.fieldHours || "-"}
                               </p>
-                            )}
 
-                            {office.address && (
                               <p>
-                                <strong>
-                                  {t(
-                                    "location"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {
-                                  office.address
-                                }
+                                <strong>{t("serviceDays")}:</strong>{" "}
+                                {office.authorityDates || office.serviceDays || "-"}
                               </p>
-                            )}
 
-                            {isGN && (
-                              <div className="gn-schedule">
+                              <p>
+                                <strong>{t("holidays")}:</strong>{" "}
+                                {office.holidays || "-"}
+                              </p>
+                            </div>
+                          )}
 
-                                <p>
-                                  <strong>
-                                    {t(
-                                      "officeDays"
-                                    )}
-                                    :
-                                  </strong>{" "}
-                                  {office.officeDays ||
-                                    "-"}
-                                </p>
-
-                                <p>
-                                  <strong>
-                                    {t(
-                                      "officeHours"
-                                    )}
-                                    :
-                                  </strong>{" "}
-                                  {office.officeHours ||
-                                    "-"}
-                                </p>
-
-                                <p>
-                                  <strong>
-                                    {t(
-                                      "fieldDays"
-                                    )}
-                                    :
-                                  </strong>{" "}
-                                  {office.fieldDays ||
-                                    "-"}
-                                </p>
-
-                                <p>
-                                  <strong>
-                                    {t(
-                                      "fieldHours"
-                                    )}
-                                    :
-                                  </strong>{" "}
-                                  {office.fieldHours ||
-                                    "-"}
-                                </p>
-
-                                <p>
-                                  <strong>
-                                    {t(
-                                      "serviceDays"
-                                    )}
-                                    :
-                                  </strong>{" "}
-                                  {office.authorityDates ||
-                                    office.serviceDays ||
-                                    "-"}
-                                </p>
-
-                                <p>
-                                  <strong>
-                                    {t(
-                                      "holidays"
-                                    )}
-                                    :
-                                  </strong>{" "}
-                                  {office.holidays ||
-                                    "-"}
-                                </p>
-
-                              </div>
-                            )}
-
-                            {office.mapQuery && (
-                              <button
-                                className="text-button"
-                                onClick={() =>
-                                  scrollToSection(
-                                    "map"
-                                  )
-                                }
-                              >
-                                📍{" "}
-                                {t(
-                                  "map"
-                                )}
-                              </button>
-                            )}
-
-                          </div>
-
-                        </article>
-                      );
-                    }
-                  )}
-
+                          {office.mapQuery && (
+                            <button
+                              type="button"
+                              className="text-button"
+                              onClick={() => scrollToSection("map")}
+                            >
+                              📍 {t("map")}
+                            </button>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             </section>
@@ -3529,7 +3432,7 @@ async function sendMessageToBot(message) {
             </section>
 
             {/* FOOTER */}
-            <footer className="site-footer gramalk-footer">
+            <footer className="site-footer gramalk-footer gramalk-footer-v2" aria-label="GramaLK site footer">
 
               <div className="gramalk-footer-grid">
 

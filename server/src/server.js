@@ -93,8 +93,22 @@ const formUploadDir =
     "forms"
   );
 
+  const officeUploadDir =
+  path.join(
+    ROOT,
+    "uploads",
+    "offices"
+  );
+
 fs.mkdirSync(
   complaintUploadDir,
+  {
+    recursive: true,
+  }
+);
+
+fs.mkdirSync(
+  officeUploadDir,
   {
     recursive: true,
   }
@@ -142,6 +156,56 @@ app.use(
     )
   )
 );
+
+/* =========================================================
+   MULTER - OFFICE IMAGE UPLOAD
+========================================================= */
+
+const officeStorage =
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, officeUploadDir);
+    },
+
+    filename: (req, file, cb) => {
+      const extension =
+        path.extname(file.originalname);
+
+      const filename =
+        `${Date.now()}-${Math.round(
+          Math.random() * 1e9
+        )}${extension}`;
+
+      cb(null, filename);
+    },
+  });
+
+const officeUpload =
+  multer({
+    storage: officeStorage,
+
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+    },
+
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+      ];
+
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            "Only JPG, PNG and WEBP images are allowed."
+          )
+        );
+      }
+    },
+  }); 
 
 /* =========================================================
    MULTER - COMPLAINT IMAGE UPLOAD
@@ -1172,32 +1236,29 @@ app.get(
 app.post(
   "/api/offices",
   authMiddleware,
-  async (
-    req,
-    res
-  ) => {
+  roleMiddleware("gnadmin"),
+  officeUpload.single("image"),
+  async (req, res) => {
     try {
-      const office =
-        await Office.create(
-          req.body
-        );
+      const data = { ...req.body };
 
-      return res.status(201).json(
-        office
-      );
+      if (req.file) {
+        data.imageUrl = `/uploads/offices/${req.file.filename}`;
+        data.imageName = req.file.originalname;
+      }
+
+      const office = await Office.create(data);
+
+      return res.status(201).json(office);
     } catch (error) {
-      console.error(
-        "Create office error:",
-        error
-      );
+      console.error("Create office error:", error);
 
       return res.status(500).json({
-        message:
-          "Failed to create office.",
+        message: "Failed to create office.",
       });
     }
   }
-);
+); 
 
 /* =========================================================
    GOVERNMENT OFFICES
@@ -1384,82 +1445,82 @@ app.post(
   }
 );
 
+
 /* =========================================================
    COMPLAINTS
 ========================================================= */
 
 app.post(
   "/api/complaints",
-  complaintUpload.single(
-    "image"
-  ),
-  async (
-    req,
-    res
-  ) => {
-    try {
-      const data = {
-        ...req.body,
+  complaintUpload.single("image"),
+  async (req, res) => {
+    console.log("========== COMPLAINT REQUEST RECEIVED ==========");
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file || "No image");
 
-        status:
-          req.body.status ||
-          "Pending",
+    try {
+      const type = String(req.body.type || "").trim();
+      const officer = String(req.body.officer || "").trim();
+      const location = String(req.body.location || "").trim();
+      const description = String(req.body.description || "").trim();
+
+      // Validate required fields
+      if (!type || !officer || !location || !description) {
+        return res.status(400).json({
+          success: false,
+          message: "Please fill in all required complaint fields.",
+        });
+      }
+
+      
+      const data = {
+        type,
+        officer,
+        location,
+        description,
+
+        referenceNo: "CMP-" + Date.now(),
+
+        status: "Pending",
+        username: req.user?.username || req.body.username || "Anonymous",
+        houseNumber:
+          req.body.houseNumber || req.user?.houseNumber || "",
       };
 
-      if (req.user) {
-        data.username =
-          req.user.username;
-
-        data.houseNumber =
-          req.body.houseNumber ||
-          req.user.houseNumber ||
-          "";
-      } else {
-        data.username =
-          req.body.username ||
-          "Anonymous";
-
-        data.houseNumber =
-          req.body.houseNumber ||
-          "";
-      }
 
       if (req.file) {
-        data.imageUrl =
-          `/uploads/complaints/${req.file.filename}`;
-
-        data.imageName =
-          req.file.originalname;
+        data.imageUrl = `/uploads/complaints/${req.file.filename}`;
+        data.imageName = req.file.originalname;
       }
 
-      const complaint =
-        await Complaint.create(
-          data
-        );
+      console.log("Complaint data to save:", data);
+
+      const complaint = await Complaint.create(data);
+
+      console.log("Complaint saved successfully:", complaint._id);
 
       return res.status(201).json({
         success: true,
-
-        message:
-          "Complaint submitted successfully.",
-
+        message: "Complaint submitted successfully.",
+        referenceNo: String(complaint._id),
         complaint,
       });
+
     } catch (error) {
-      console.error(
-        "Create complaint error:",
-        error
-      );
+      console.error("========== COMPLAINT SAVE ERROR ==========");
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error code:", error.code);
+      console.error("Full error:", error);
 
       return res.status(500).json({
         success: false,
-
-        message:
-          "Failed to submit complaint.",
+        message: error.message || "Failed to submit complaint.",
       });
     }
   }
 );
+
 
 /* =========================================================
    COMPLAINT LIST

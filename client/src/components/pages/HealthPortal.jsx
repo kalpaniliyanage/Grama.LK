@@ -6,6 +6,100 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const BG_IMAGE_URL =
   "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop";
 
+const translations = {
+  en: {
+    establishments: "Hotels & Restaurants",
+    overview: "Operational Overview",
+    registeredMothers: "Registered Mothers",
+    registeredChildren: "Registered Children",
+    healthRequests: "Health Requests",
+    addNew: "Add New",
+    name: "Name",
+    type: "Type",
+    owner: "Owner",
+    phone: "Phone",
+    status: "Status",
+    actions: "Actions",
+    editProfile: "Edit Profile",
+    saveProfile: "Save Profile",
+    fullName: "Full Name",
+    email: "Email Address",
+    address: "Address",
+    dashboard: "Dashboard",
+    mothers: "Mothers",
+    children: "Children",
+    requests: "Requests",
+    announcements: "Announcements",
+    profile: "Profile",
+    language: "Language",
+    logout: "Logout",
+    loading: "Loading...",
+    noData: "No records found",
+  },
+
+  si: {
+    establishments: "හෝටල් සහ ආපනශාලා",
+    overview: "මෙහෙයුම් සාරාංශය",
+    registeredMothers: "ලියාපදිංචි මව්වරුන්",
+    registeredChildren: "ලියාපදිංචි ළමුන්",
+    healthRequests: "සෞඛ්‍ය ඉල්ලීම්",
+    addNew: "අලුතින් එකතු කරන්න",
+    name: "නම",
+    type: "වර්ගය",
+    owner: "හිමිකරු",
+    phone: "දුරකථන අංකය",
+    status: "තත්ත්වය",
+    actions: "ක්‍රියාමාර්ග",
+    editProfile: "පැතිකඩ සංස්කරණය",
+    saveProfile: "පැතිකඩ සුරකින්න",
+    fullName: "සම්පූර්ණ නම",
+    email: "විද්‍යුත් තැපැල් ලිපිනය",
+    address: "ලිපිනය",
+    dashboard: "උපකරණ පුවරුව",
+    mothers: "මව්වරුන්",
+    children: "ළමුන්",
+    requests: "ඉල්ලීම්",
+    announcements: "නිවේදන",
+    profile: "පැතිකඩ",
+    language: "භාෂාව",
+    logout: "ඉවත් වන්න",
+    loading: "පූරණය වෙමින් පවතී...",
+    noData: "වාර්තා හමු නොවීය",
+  },
+
+  ta: {
+    establishments: "ஹோட்டல்கள் மற்றும் உணவகங்கள்",
+    overview: "செயல்பாட்டு மேலோட்டம்",
+    registeredMothers: "பதிவு செய்யப்பட்ட தாய்மார்கள்",
+    registeredChildren: "பதிவு செய்யப்பட்ட குழந்தைகள்",
+    healthRequests: "சுகாதாரக் கோரிக்கைகள்",
+    addNew: "புதிதாகச் சேர்க்கவும்",
+    name: "பெயர்",
+    type: "வகை",
+    owner: "உரிமையாளர்",
+    phone: "தொலைபேசி எண்",
+    status: "நிலை",
+    actions: "செயல்கள்",
+    editProfile: "சுயவிவரத்தைத் திருத்து",
+    saveProfile: "சுயவிவரத்தைச் சேமி",
+    fullName: "முழுப் பெயர்",
+    email: "மின்னஞ்சல் முகவரி",
+    address: "முகவரி",
+    dashboard: "கட்டுப்பாட்டுப் பலகை",
+    mothers: "தாய்மார்கள்",
+    children: "குழந்தைகள்",
+    requests: "கோரிக்கைகள்",
+    announcements: "அறிவிப்புகள்",
+    profile: "சுயவிவரம்",
+    language: "மொழி",
+    logout: "வெளியேறு",
+    loading: "ஏற்றப்படுகிறது...",
+    noData: "பதிவுகள் எதுவும் இல்லை",
+  },
+};
+
+const t = (key, lang = "en") => translations[lang]?.[key] || key;
+
 const styles = {
   app: {
     minHeight: "100vh",
@@ -267,21 +361,6 @@ const styles = {
   },
 };
 
-const phmSections = [
-  { id: "dashboard", label: "🏠 Dashboard" },
-  { id: "mothers", label: "👩 Mothers Records" },
-  { id: "children", label: "👶 Children Health Records (Infants & 1m-10y)" },
-  { id: "requests", label: "📋 Health Requests" },
-  { id: "announcements", label: "📢 Announcements" },
-  { id: "profile", label: "👤 My Profile" },
-];
-
-const phiSections = [
-  { id: "dashboard", label: "🏠 Dashboard" },
-  { id: "establishments", label: "🏨 Hotels & Restaurants" },
-  { id: "announcements", label: "📢 Announcements" },
-  { id: "profile", label: "👤 My Profile" },
-];
 
 function getToken() {
   return (
@@ -352,12 +431,213 @@ function Field({ label, value, onChange, type = "text", required = false, disabl
   );
 }
 
+
 function HealthPortal() {
   const navigate = useNavigate();
 
+  // Read the Dashboard language setting
+  const [language, setLanguage] = useState(() => {
+    const savedLanguage = localStorage.getItem("gramalk_lang");
+    return ["en", "si", "ta"].includes(savedLanguage)
+      ? savedLanguage
+      : "en";
+  });
+
+  // Read the Dashboard theme setting
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("gramalk_theme") === "dark"
+      ? "dark"
+      : "light";
+  });
+
+  // Derive isDark only after theme has been initialized
+  const isDark = theme === "dark";
+
+  const themeColors = {
+  background: isDark ? "#101c19" : "#f3f7f4",
+  surface: isDark ? "#1b2b26" : "#ffffff",
+  card: isDark ? "#223630" : "#ffffff",
+  text: isDark ? "#f1f5f9" : "#20332b",
+  muted: isDark ? "#bdc9c4" : "#64756c",
+  border: isDark ? "#3b554a" : "#d8e5dc",
+  input: isDark ? "#263b33" : "#ffffff",
+  accent: isDark ? "#6ee7b7" : "#087f5b",
+};
+
+  // Keep this portal synchronized with the language/theme selected on the main dashboard.
+  // The custom event is required for same-tab updates; the storage event covers other tabs.
+  useEffect(() => {
+    const syncSettings = () => {
+      const savedLanguage = localStorage.getItem("gramalk_lang");
+      const savedTheme = localStorage.getItem("gramalk_theme");
+
+      if (["en", "si", "ta"].includes(savedLanguage)) {
+        setLanguage(savedLanguage);
+      }
+      setTheme(savedTheme === "dark" ? "dark" : "light");
+    };
+
+    syncSettings();
+    window.addEventListener("storage", syncSettings);
+    window.addEventListener("gramalk-settings-changed", syncSettings);
+    window.addEventListener("gramalk-language-changed", syncSettings);
+
+    return () => {
+      window.removeEventListener("storage", syncSettings);
+      window.removeEventListener("gramalk-settings-changed", syncSettings);
+      window.removeEventListener("gramalk-language-changed", syncSettings);
+    };
+  }, []);
+
+  // Apply the selected language to the document for correct Sinhala/Tamil rendering.
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.setAttribute("data-language", language);
+  }, [language]);
+
+  const themeCss = `
+  [data-health-theme="light"] {
+    color: #1f2937 !important;
+  }
+
+  [data-health-theme="light"] h1,
+  [data-health-theme="light"] h2,
+  [data-health-theme="light"] h3,
+  [data-health-theme="light"] h4,
+  [data-health-theme="light"] p,
+  [data-health-theme="light"] label,
+  [data-health-theme="light"] td,
+  [data-health-theme="light"] th,
+  [data-health-theme="light"] small,
+  [data-health-theme="light"] strong {
+    color: #24352d !important;
+  }
+
+  [data-health-theme="light"] aside,
+  [data-health-theme="light"] main > div {
+    background: #ffffff !important;
+    border-color: #d7e5dc !important;
+    color: #24352d !important;
+  }
+
+  [data-health-theme="light"] input,
+  [data-health-theme="light"] textarea,
+  [data-health-theme="light"] select {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+    border: 1px solid #b8cbbf !important;
+  }
+
+  [data-health-theme="light"] input::placeholder,
+  [data-health-theme="light"] textarea::placeholder {
+    color: #718078 !important;
+    opacity: 1;
+  }
+
+  [data-health-theme="light"] aside button {
+    color: #34483d !important;
+  }
+
+  [data-health-theme="light"] aside button[aria-current="page"] {
+    color: #087f5b !important;
+  }
+
+  [data-health-theme="dark"] {
+    color: #f1f5f9 !important;
+  }
+
+  [data-health-theme="dark"] h1,
+  [data-health-theme="dark"] h2,
+  [data-health-theme="dark"] h3,
+  [data-health-theme="dark"] h4,
+  [data-health-theme="dark"] p,
+  [data-health-theme="dark"] label,
+  [data-health-theme="dark"] td,
+  [data-health-theme="dark"] th,
+  [data-health-theme="dark"] small,
+  [data-health-theme="dark"] strong {
+    color: #e8f2ed !important;
+  }
+
+  [data-health-theme="dark"] aside,
+  [data-health-theme="dark"] main > div {
+    background: #1b2b26 !important;
+    border-color: #3b554a !important;
+    color: #e8f2ed !important;
+  }
+
+  [data-health-theme="dark"] input,
+  [data-health-theme="dark"] textarea,
+  [data-health-theme="dark"] select {
+    background: #263b33 !important;
+    color: #ffffff !important;
+    border: 1px solid #587466 !important;
+  }
+
+  [data-health-theme="dark"] input::placeholder,
+  [data-health-theme="dark"] textarea::placeholder {
+    color: #bdc9c4 !important;
+    opacity: 1;
+  }
+  
+  [data-health-theme="light"] button {
+  color: #ffffff;
+}
+
+[data-health-theme="light"] aside button {
+  color: #34483d !important;
+}
+
+[data-health-theme="dark"] button {
+  color: #ffffff;
+}
+
+[data-health-theme="dark"] aside button {
+  color: #e8f2ed !important;
+}
+
+  [data-health-theme="light"] aside button {
+    color: #34483d !important;
+  }
+
+  [data-health-theme="light"] table {
+    color: #24352d !important;
+  }
+
+  [data-health-theme="light"] option {
+    background: #ffffff;
+    color: #1f2937;
+  }
+
+  [data-health-theme="dark"] option {
+    background: #263b33;
+    color: #ffffff;
+  }
+`;
+
+  const t = (key) => translations[language]?.[key] || key;
+
+  const phmSections = [
+  { id: "dashboard", label: `🏠 ${t("dashboard")}` },
+  { id: "mothers", label: `👩 ${t("mothers")}` },
+  { id: "children", label: `👶 ${t("children")}` },
+  { id: "requests", label: `📋 ${t("requests")}` },
+  { id: "announcements", label: `📢 ${t("announcements")}` },
+  { id: "profile", label: `👤 ${t("profile")}` },
+];
+
+const phiSections = [
+  { id: "dashboard", label: `🏠 ${t("dashboard")}` },
+  { id: "establishments", label: `🏨 ${t("establishments")}` },
+  { id: "announcements", label: `📢 ${t("announcements")}` },
+  { id: "profile", label: `👤 ${t("profile")}` },
+];
+
+  // Keep your existing useState declarations below this line.
   const [authenticatedRole, setAuthenticatedRole] = useState(() => {
     return localStorage.getItem("authenticatedRole") || null;
   });
+
   const [phiUser, setPhiUser] = useState("healthPhi");
   const [phiPass, setPhiPass] = useState("");
   const [phmUser, setPhmUser] = useState("healthPhm");
@@ -683,6 +963,7 @@ function HealthPortal() {
         // Token එක සහ Role එක LocalStorage එකේ Save කරගැනීම
         localStorage.setItem("token", result.token);
         localStorage.setItem("authenticatedRole", "PHI");
+        window.dispatchEvent(new Event("gramalk-settings-changed"));
         
         setAuthenticatedRole("PHI");
         setActiveSection("dashboard");
@@ -775,10 +1056,20 @@ function HealthPortal() {
 
   if (!authenticatedRole) {
     return (
-      <div style={styles.loginWrapper}>
+      <div
+  data-health-theme={theme}
+  style={{
+    ...styles.loginWrapper,
+    backgroundImage: "none",
+    background: themeColors.background,
+    color: themeColors.text,
+  }}
+>
+
+  <style>{themeCss}</style>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <h1 style={{ color: "#a7f3d0", margin: 0, fontSize: 34, fontWeight: 800 }}>🏥 GramaLK Health Portal</h1>
-          <p style={{ color: "#cbd5e1", marginTop: 8 }}>කරුණාකර ඔබගේ නිලධාරී ගිණුම තෝරා ඇතුළු වන්න.</p>
+          <h1 style={{ color: themeColors.accent, margin: 0, fontSize: 34, fontWeight: 800 }}>🏥 GramaLK Health Portal</h1>
+          <p style={{ color: themeColors.muted, marginTop: 8 }}>කරුණාකර ඔබගේ නිලධාරී ගිණුම තෝරා ඇතුළු වන්න.</p>
         </div>
 
         {error && (
@@ -813,8 +1104,26 @@ function HealthPortal() {
   }
 
   return (
-    <div style={styles.app}>
-      <header style={styles.header}>
+          <div
+              data-health-theme={theme}
+              style={{
+                ...styles.app,
+                backgroundImage: "none",
+                background: themeColors.background,
+                color: themeColors.text,
+              }}
+            >
+          <style>{themeCss}</style>
+
+      <header
+          style={{
+            ...styles.header,
+            background: themeColors.surface,
+            borderBottom: `1px solid ${themeColors.border}`,
+            color: themeColors.text,
+          }}
+        >
+
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {profile?.photoUrl ? (
             <img src={profile.photoUrl} alt="Officer Avatar" style={styles.headerAvatar} />
@@ -839,20 +1148,34 @@ function HealthPortal() {
       </header>
 
       <div style={styles.layout}>
-        <aside style={styles.sidebar}>
+
+        <aside
+          style={{
+            ...styles.sidebar,
+            background: themeColors.surface,
+            border: `1px solid ${themeColors.border}`,
+            color: themeColors.text,
+          }}
+        >
           <h3 style={{ margin: "0 8px 16px", color: "#a7f3d0", fontSize: 15, textTransform: "uppercase" }}>Navigation</h3>
           {sections.map((section) => (
             <button
               key={section.id}
               type="button"
+              data-active={activeSection === section.id ? "true" : "false"}
               onClick={() => {
                 setActiveSection(section.id);
                 if (section.id === "profile") loadProfile();
               }}
               style={{
                 ...styles.navButton,
-                background: activeSection === section.id ? "rgba(167, 243, 208, 0.2)" : "transparent",
-                color: activeSection === section.id ? "#a7f3d0" : "#cbd5e1",
+                background: activeSection === section.id
+                  ? (isDark ? "#263f35" : "#e8f5ee")
+                  : "transparent",
+
+                color: activeSection === section.id
+                  ? themeColors.accent
+                  : themeColors.muted,
                 fontWeight: activeSection === section.id ? 700 : 500,
                 borderLeft: activeSection === section.id ? "4px solid #10b981" : "4px solid transparent",
               }}
