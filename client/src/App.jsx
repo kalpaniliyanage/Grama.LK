@@ -3003,7 +3003,7 @@ async function sendMessageToBot(message) {
 
                 <div className="complaint-form-wrapper">
 
-                  <div className="section-heading left">
+                  <div className="section-heading center">
 
                     <span className="section-kicker">
                       GramaLK
