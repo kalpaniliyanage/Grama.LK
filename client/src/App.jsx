@@ -26,6 +26,7 @@ import FamilyPortal from './components/pages/FamilyPortal';
 import WelfarePortal from './components/pages/WelfarePortal';
 import HealthPortal from './components/pages/HealthPortal';
 import YouthSportsPortal from './components/pages/youthSportsPortal';
+import ChangeFamilyPassword from "./components/pages/ChangeFamilyPassword";
 
 
 /* =========================================================
@@ -4109,6 +4110,11 @@ async function sendMessageToBot(message) {
       />
 
       <Route path="/health-portal" element={<HealthPortal />} /> 
+
+      <Route
+        path="/family/change-password"
+        element={<ChangeFamilyPassword />}
+      />
       
     </Routes>
     </>
