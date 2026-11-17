@@ -106,7 +106,7 @@ const youthTranslations = {
     total_equipment: "පවතින උපකරණ වර්ග",
     total_fees_collected: "එකතු වූ සාමාජික ගාස්තු",
     btn_edit: "✏️ සංස්කරණය",
-    btn_delete: "🗑️️ ඉවත් කරන්න",
+    btn_delete: "🗑 ඉවත් කරන්න",
     logout: "ඉවත් වන්න"
   },
   ta: {
@@ -489,10 +489,11 @@ const YouthSportsPortal = () => {
   const [editInvQty, setEditInvQty] = useState("");
   const [editInvCondition, setEditInvCondition] = useState("");
 
+
   const [editingNotice, setEditingNotice] = useState(null);
   const [editNoticeTitle, setEditNoticeTitle] = useState("");
   const [editNoticeDesc, setEditNoticeDesc] = useState("");
-
+  const [editNoticeImage, setEditNoticeImage] = useState("");
   // Form States - Member Registration
   const [regHouseNo, setRegHouseNo] = useState("");
   const [selectedVillagerName, setSelectedVillagerName] = useState("");
@@ -513,8 +514,10 @@ const YouthSportsPortal = () => {
   const [itemCondition, setItemCondition] = useState("Good");
 
   // Form States - Notices
+  // Form States - Notices
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
+  const [noticeImage, setNoticeImage] = useState("");
 
   const txt = (key) => {
     const lang = youthTranslations[currentLng] ? currentLng : "si";
@@ -566,7 +569,7 @@ const YouthSportsPortal = () => {
     fetchNotices();
   }, []);
 
-  // Villager lookup handlers
+  // Villager lookup handlers (Family Model සමග සම්බන්ද කර ඇත)
   const handleRegHouseChange = async (houseNo) => {
     setRegHouseNo(houseNo);
     setSelectedVillagerName("");
@@ -575,10 +578,10 @@ const YouthSportsPortal = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/villagers?houseNumber=${houseNo.trim()}`);
+      const res = await fetch(`http://localhost:5000/api/villagers/house/${houseNo.trim()}`);
       const data = await res.json();
-      if (Array.isArray(data)) setHouseVillagers(data);
-      else setHouseVillagers([]);
+      const list = Array.isArray(data) ? data : (data.members || data.villagers || []);
+      setHouseVillagers(list);
     } catch (err) {
       setHouseVillagers([]);
     }
@@ -592,10 +595,10 @@ const YouthSportsPortal = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/villagers?houseNumber=${houseNo.trim()}`);
+      const res = await fetch(`http://localhost:5000/api/villagers/house/${houseNo.trim()}`);
       const data = await res.json();
-      if (Array.isArray(data)) setFeeHouseVillagers(data);
-      else setFeeHouseVillagers([]);
+      const list = Array.isArray(data) ? data : (data.members || data.villagers || []);
+      setFeeHouseVillagers(list);
     } catch (err) {
       setFeeHouseVillagers([]);
     }
@@ -616,6 +619,7 @@ const YouthSportsPortal = () => {
         setSelectedVillagerName("");
         setAge("");
         setPhone("");
+        setHouseVillagers([]);
         fetchYouthMembers();
       } else {
         showNotification("ලියාපදිංචි කිරීම අසාර්ථක විය.", "error");
@@ -659,23 +663,42 @@ const YouthSportsPortal = () => {
   };
 
   // CRUD Handlers: Fees
+  // ගාස්තුවක් ඇතුළත් කළ පසු හෝ Update කළ පසු ක්‍රියාත්මක වන ආකාරය:
+  
+  // CRUD Handlers: Fees
   const handleFeeSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/sports/fees", {
+      const response = await fetch("http://localhost:5000/api/sports/fees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ houseNumber: feeHouseNo, memberName: selectedFeeMember, month: feeMonth, amount: Number(feeAmount), status: feeStatus }),
+        body: JSON.stringify({
+          houseNumber: feeHouseNo,
+          memberName: selectedFeeMember,
+          month: feeMonth,
+          amount: Number(feeAmount),
+          status: feeStatus
+        })
       });
-      if (res.ok) {
-        showNotification("සාමාජික ගාස්තුව සටහන් කළා!", "success");
+      
+      const data = await response.json();
+      if (data.success) {
+        // ෆෝම් එක ක්ලියර් කිරීම
         setFeeHouseNo("");
         setSelectedFeeMember("");
-        fetchFees();
+        setFeeMonth("January");
+        setFeeAmount("500");
+        setFeeStatus("Paid");
+        setFeeHouseVillagers([]);
+        
+        // Table එක අප්ඩේට් කිරීම
+        fetchFees(); 
+        showNotification("මාසික ගාස්තුව සාර්ථකව සටහන් විය!", "success");
       } else {
-        showNotification("ගෙවීම සටහන් කිරීම අසාර්ථක විය.", "error");
+        showNotification("ගාස්තුව සටහන් කිරීම අසාර්ථකයි.", "error");
       }
     } catch (err) {
+      console.error("Error saving fee:", err);
       showNotification("Server දෝෂයකි.", "error");
     }
   };
@@ -686,15 +709,21 @@ const YouthSportsPortal = () => {
       const res = await fetch(`http://localhost:5000/api/sports/fees/${editingFee._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: Number(editFeeAmount) }),
+        body: JSON.stringify({ 
+          month: editingFee.month, 
+          amount: Number(editFeeAmount),
+          status: "Paid"
+        }),
       });
       if (res.ok) {
         showNotification("ගාස්තු තොරතුරු යාවත්කාලීන විය!", "success");
         setEditingFee(null);
         fetchFees();
+      } else {
+        showNotification("යාවත්කාලීන කිරීම අසාර්ථකයි.", "error");
       }
     } catch (err) {
-      showNotification("යාවත්කාලීන කිරීම අසාර්ථකයි.", "error");
+      showNotification("Server දෝෂයකි.", "error");
     }
   };
 
@@ -754,7 +783,7 @@ const YouthSportsPortal = () => {
     try {
       const res = await fetch(`http://localhost:5000/api/sports/inventory/${id}`, { method: "DELETE" });
       if (res.ok) {
-        showNotification("ઉപකරණය ඉවත් කළා!", "success");
+        showNotification("උපකරණය ඉවත් කළා!", "success");
         fetchInventory();
       }
     } catch (err) {
@@ -764,24 +793,31 @@ const YouthSportsPortal = () => {
 
   // CRUD Handlers: Notices
   const handleNoticeSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("gramalk_token");
-      const res = await fetch("http://localhost:5000/api/announcements", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title: noticeTitle, description: noticeContent, category: "YouthSports", date: new Date().toISOString() }),
-      });
-      if (res.ok) {
-        showNotification("නිවේදනය ප්‍රධාන පුවරුවට යවන ලදී!", "success");
-        setNoticeTitle("");
-        setNoticeContent("");
-        fetchNotices();
-      }
-    } catch (err) {
-      showNotification("නිවේදනය යැවීම අසාර්ථකයි.", "error");
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem("gramalk_token");
+    const res = await fetch("http://localhost:5000/api/announcements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ 
+        title: noticeTitle, 
+        description: noticeContent, 
+        image: noticeImage, // පින්තූරයේ URL එක
+        category: "YouthSports", 
+        date: new Date().toISOString() 
+      }),
+    });
+    if (res.ok) {
+      showNotification("නිවේදනය ප්‍රධාන පුවරුවට යවන ලදී!", "success");
+      setNoticeTitle("");
+      setNoticeContent("");
+      setNoticeImage(""); // ෆෝම් එක ක්ලියර් කිරීම
+      fetchNotices();
     }
-  };
+  } catch (err) {
+    showNotification("නිවේදනය යැවීම අසාර්ථකයි.", "error");
+  }
+};
 
   const handleUpdateNotice = async (e) => {
     e.preventDefault();
@@ -1166,6 +1202,16 @@ const YouthSportsPortal = () => {
                 <label style={{ ...styles.label, color: theme.text }}>{txt("lbl_notice_desc")}</label>
                 <textarea rows="4" placeholder="Details..." value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)} style={{ ...styles.input, backgroundColor: theme.inputBg, color: theme.inputText, resize: "vertical" }} required />
               </div>
+              <div style={styles.formGroup}>
+  <label style={{ ...styles.label, color: theme.text }}>Image URL (Optional):</label>
+  <input 
+    type="url" 
+    placeholder="https://example.com/image.jpg" 
+    value={noticeImage} 
+    onChange={(e) => setNoticeImage(e.target.value)} 
+    style={{ ...styles.input, backgroundColor: theme.inputBg, color: theme.inputText }} 
+  />
+</div>
               <button type="submit" style={styles.submitBtn}>{txt("btn_post_notice")}</button>
             </form>
           </div>
@@ -1177,15 +1223,20 @@ const YouthSportsPortal = () => {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {notices.map((notice) => (
-                  <div key={notice._id} style={{ padding: "15px", borderRadius: "10px", border: "1px solid #d1d5db", backgroundColor: theme.inputBg }}>
-                    <h4 style={{ margin: "0 0 6px 0", color: "#065f46" }}>{notice.title}</h4>
-                    <p style={{ margin: "0 0 10px 0", fontSize: "14px" }}>{notice.description}</p>
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-                      <button style={styles.editBtn} onClick={() => { setEditingNotice(notice); setEditNoticeTitle(notice.title); setEditNoticeDesc(notice.description); }}>{txt("btn_edit")}</button>
-                      <button style={styles.deleteBtn} onClick={() => handleDeleteNotice(notice._id)}>{txt("btn_delete")}</button>
-                    </div>
-                  </div>
-                ))}
+  <div key={notice._id} style={{ padding: "15px", borderRadius: "10px", border: "1px solid #d1d5db", backgroundColor: theme.inputBg }}>
+    {notice.imageUrl && (
+      <img 
+        src={notice.imageUrl} 
+        alt={notice.title} 
+        style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px", marginBottom: "10px" }} 
+        onError={(e) => { e.target.style.display = "none"; }} // URL එක වැරදි නම් broken icon එක සඟවයි
+      />
+    )}
+    <h4 style={{ margin: "0 0 6px 0", color: darkMode ? "#34d399" : "#065f46" }}>{notice.title}</h4>
+    <p style={{ margin: "0 0 10px 0", fontSize: "14px" }}>{notice.description}</p>
+    {/* Edit & Delete Buttons */}
+  </div>
+))}
               </div>
             )}
           </div>
@@ -1281,7 +1332,6 @@ const YouthSportsPortal = () => {
         </div>
       )}
 
-      
       {/* Logout Modal */}
       {showLogoutModal && (
         <div style={styles.modalOverlay}>
@@ -1325,4 +1375,3 @@ const YouthSportsPortal = () => {
 };
 
 export default YouthSportsPortal;
- 

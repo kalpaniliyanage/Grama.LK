@@ -186,21 +186,46 @@ export default function WelfarePortal() {
     return data;
   }, []);
 
-  const loadAll = useCallback(async () => {
+ const loadAll = useCallback(async () => {
+    // 1. Members ලබාගැනීම
+    try {
+      const res = await request("/api/welfare/members");
+      console.log("Members API Response:", res); // Debug කිරීමට මෙය උදව් වේ
+      
+      // දත්ත Array එකක්ද, නැතහොත් .data / .members වැනි property එකක තිබේදැයි පරීක්ෂා කිරීම
+      let memberList = [];
+      if (Array.isArray(res)) {
+        memberList = res;
+      } else if (res && Array.isArray(res.data)) {
+        memberList = res.data;
+      } else if (res && Array.isArray(res.members)) {
+        memberList = res.members;
+      } else if (res && Array.isArray(res.items)) {
+        memberList = res.items;
+      }
+      
+      setMembers(memberList);
+    } catch (error) { 
+      console.error("Could not load welfare members:", error); 
+    }
+
+    // 2. Claims සහ Funds ලබාගැනීම
     const jobs = [
-      ["/api/welfare/members", setMembers],
       ["/api/welfare/claims", setClaims],
       ["/api/welfare/funds", setFunds],
     ];
     await Promise.all(jobs.map(async ([path, setter]) => {
       try {
         const data = await request(path);
-        setter(Array.isArray(data) ? data : (data.items || data.members || data.claims || data.funds || []));
+        const list = Array.isArray(data) ? data : (data.data || data.items || data.members || data.claims || data.funds || []);
+        setter(list);
       } catch (error) { console.error(`Could not load ${path}:`, error); }
     }));
+
+    // 3. Notices ලබාගැනීම
     try {
       const data = await request("/api/announcements");
-      const list = Array.isArray(data) ? data : (data.announcements || data.items || []);
+      const list = Array.isArray(data) ? data : (data.data || data.announcements || data.items || []);
       setNotices(list.filter((item) => item.category === "Welfare"));
     } catch (error) { console.error("Could not load welfare notices:", error); }
   }, [request]);
@@ -218,15 +243,27 @@ export default function WelfarePortal() {
     try {
       await request(path, { method: "POST", body: JSON.stringify(body) });
       notify(successMessage);
+      await loadAll();
       reset?.();
       refresh();
     } catch (error) { notify(error.message || t("server_error"), "error"); }
   };
 
-  const deleteRecord = async (path, confirmation, refresh = loadAll) => {
-    if (!window.confirm(confirmation)) return;
-    try { await request(path, { method: "DELETE" }); notify("Record deleted successfully."); refresh(); }
-    catch (error) { notify(error.message || t("server_error"), "error"); }
+ const deleteRecord = (path, confirmation, refresh = loadAll) => {
+    setDeleteModal({ path, confirmation, refresh });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteModal) return;
+    try {
+      await request(deleteModal.path, { method: "DELETE" });
+      notify("Record deleted successfully.");
+      deleteModal.refresh();
+      setDeleteModal(null);
+    } catch (error) {
+      notify(error.message || t("server_error"), "error");
+      setDeleteModal(null);
+    }
   };
 
   const openEdit = (kind, item) => {
@@ -273,7 +310,8 @@ const confirmLogout = () => {
   const tableHeader = { background: theme.tableHeader };
   const thStyle = { ...styles.th, color: darkMode ? "#a7f3d0" : "#065f46" };
   const tdStyle = { ...styles.td, borderColor: theme.border, color: theme.text };
-
+  const [deleteModal, setDeleteModal] = useState(null); // මකන්න අවශ්‍ය record එකේ path සහ message එක මෙහි තැන්පත් වේ
+  const [noticeImage, setNoticeImage] = useState("");
   return (
     <main style={{ ...styles.container, background: theme.bg, color: theme.text }}>
       {toast && <div role="status" style={{ ...styles.toast, background: toast.type === "error" ? "#dc2626" : "#059669" }}>{toast.message}</div>}
@@ -324,7 +362,7 @@ const confirmLogout = () => {
           <h2>{t("list_title_reg")}</h2>
           <div style={styles.tableWrap}><table style={styles.table}><thead><tr style={tableHeader}>{["th_house", "th_name", "th_nic", "th_phone", "th_status", "th_action"].map((k) => <th style={thStyle} key={k}>{t(k)}</th>)}</tr></thead>
             <tbody>{members.length === 0 ? <tr><td style={tdStyle} colSpan={6}>{t("no_members")}</td></tr> : members.map((item, index) => <tr key={item._id || index}>
-              <td style={tdStyle}>{item.houseNumber || item.houseNo || "-"}</td><td style={tdStyle}>{item.fullName || item.username || "N/A"}</td><td style={tdStyle}>{item.householdHeadNIC || item.nic || "-"}</td><td style={tdStyle}>{item.phone || "N/A"}</td><td style={tdStyle}>{t("status_registered")}</td>
+              <td style={tdStyle}>{item.houseNumber || item.houseNo || "-"}</td><td style={tdStyle}>{item.fullName || item.username || "N/A"}</td><td style={tdStyle}>{item.householdHeadNIC || item.nic || "-"}</td><td style={tdStyle}>{item.phone || "N/A"}</td><td style={tdStyle}>{item.welfareStatus || item.status || "Registered"}</td>
               <td style={tdStyle}><div style={styles.group}><button type="button" style={{ ...styles.button, background: "#2563eb", color: "#fff" }} onClick={() => openEdit("member", item)}>{t("btn_edit")}</button><button type="button" style={{ ...styles.button, background: "#dc2626", color: "#fff" }} onClick={() => deleteRecord(`/api/welfare/members/${item._id}`, t("confirm_member"), loadAll)}>{t("btn_delete")}</button></div></td>
             </tr>)}</tbody></table></div>
         </div>
@@ -359,15 +397,85 @@ const confirmLogout = () => {
       </section>}
 
       {activeTab === "announcements" && <section style={styles.grid}>
-        <div style={panel}><h2>{t("form_title_notice")}</h2>
-          <form style={styles.form} onSubmit={(e) => handleSubmit(e, "/api/announcements", { title: noticeTitle.trim(), description: noticeContent.trim(), category: "Welfare", date: new Date().toISOString() }, "නිවේදනය පළ කරන ලදී!", () => { setNoticeTitle(""); setNoticeContent(""); }, () => request("/api/announcements").then((d) => setNotices((Array.isArray(d) ? d : []).filter((n) => n.category === "Welfare"))) )}>
-            <label style={styles.label}>{t("lbl_notice_title")}<input style={inputStyle} value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)} required /></label>
-            <label style={styles.label}>{t("lbl_notice_desc")}<textarea rows={4} style={{ ...inputStyle, resize: "vertical" }} value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)} required /></label>
-            <button style={{ ...styles.button, background: "#10b981", color: "#fff" }}>{t("btn_post_notice")}</button>
-          </form>
-        </div>
+        <div style={panel}>
+  <h2>{t("form_title_notice")}</h2>
+  <form
+    style={styles.form}
+    onSubmit={(e) =>
+      handleSubmit(
+        e,
+        "/api/announcements",
+        {
+          title: noticeTitle.trim(),
+          description: noticeContent.trim(),
+          imageUrl: noticeImage.trim(),
+          image: noticeImage.trim(),
+          category: "Welfare",
+          date: new Date().toISOString(),
+        },
+        "නිවේදනය පළ කරන ලදී!",
+        () => {
+          setNoticeTitle("");
+          setNoticeContent("");
+          setNoticeImage("");
+        },
+        () =>
+          request("/api/announcements").then((d) =>
+            setNotices((Array.isArray(d) ? d : []).filter((n) => n.category === "Welfare"))
+          )
+      )
+    }
+  >
+    <label style={styles.label}>
+      {t("lbl_notice_title")}
+      <input style={inputStyle} value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)} required />
+    </label>
+
+    <label style={styles.label}>
+      {t("lbl_notice_desc")}
+      <textarea rows={4} style={{ ...inputStyle, resize: "vertical" }} value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)} required />
+    </label>
+
+    <label style={styles.label}>
+      Image URL (Optional):
+      <input
+        type="url"
+        placeholder="https://example.com/image.jpg"
+        style={inputStyle}
+        value={noticeImage}
+        onChange={(e) => setNoticeImage(e.target.value)}
+      />
+    </label>
+
+    <button style={{ ...styles.button, background: "#10b981", color: "#fff" }}>{t("btn_post_notice")}</button>
+  </form>
+</div>
         <div style={panel}><h2>{t("list_title_notice")}</h2>{notices.length === 0 ? <p>{t("empty_notices")}</p> : <div style={{ display: "grid", gap: 12 }}>{notices.map((notice) => <article key={notice._id} style={{ padding: 15, border: `1px solid ${theme.border}`, borderRadius: 10, background: theme.input }}><h3 style={{ marginTop: 0 }}>{notice.title}</h3><p style={{ whiteSpace: "pre-wrap" }}>{notice.description}</p><div style={{ ...styles.group, justifyContent: "flex-end" }}><button type="button" style={{ ...styles.button, background: "#2563eb", color: "#fff" }} onClick={() => openEdit("notice", notice)}>{t("btn_edit")}</button><button type="button" style={{ ...styles.button, background: "#dc2626", color: "#fff" }} onClick={() => deleteRecord(`/api/announcements/${notice._id}`, t("confirm_notice"), () => request("/api/announcements").then((d) => setNotices((Array.isArray(d) ? d : []).filter((n) => n.category === "Welfare"))))}>{t("btn_delete")}</button></div></article>)}</div>}</div>
       </section>}
+      {deleteModal && (
+        <div style={styles.overlay} role="presentation">
+          <section style={{ ...styles.modal, background: theme.card, color: theme.text }} role="dialog" aria-modal="true">
+            <h2 style={{ marginTop: 0 }}>⚠️ Confirm Deletion</h2>
+            <p style={{ margin: "16px 0", fontSize: 15 }}>{deleteModal.confirmation}</p>
+            <div style={{ ...styles.group, justifyContent: "flex-end", gap: 10 }}>
+              <button 
+                type="button" 
+                style={{ ...styles.button, background: theme.input, color: theme.text, border: `1px solid ${theme.border}` }} 
+                onClick={() => setDeleteModal(null)}
+              >
+                {t("cancel")}
+              </button>
+              <button 
+                type="button" 
+                style={{ ...styles.button, background: "#dc2626", color: "#fff", border: "1px solid #dc2626" }} 
+                onClick={confirmDelete}
+              >
+                {t("btn_delete")}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {editing && <div style={styles.overlay} role="presentation"><section style={{ ...styles.modal, background: theme.card, color: theme.text }} role="dialog" aria-modal="true">
         <h2>{t(editing.kind === "member" ? "edit_member" : editing.kind === "fund" ? "edit_fund" : "edit_notice")}</h2>
@@ -386,6 +494,8 @@ const confirmLogout = () => {
       </section></div>}
 
       {logoutModal && <div style={styles.overlay}><section style={{ ...styles.modal, background: theme.card, color: theme.text }} role="dialog" aria-modal="true"><h2>🚪 {t("logout")}</h2><p>{t("logout_confirm")}</p><div style={{ ...styles.group, justifyContent: "flex-end" }}><button type="button" style={{ ...styles.button, background: theme.input, color: theme.text }} onClick={() => setLogoutModal(false)}>{t("cancel")}</button><button type="button" style={{ ...styles.button, background: "#dc2626", color: "#fff" }} onClick={confirmLogout}>{t("logout")}</button></div></section></div>}
+      
+    
     </main>
   );
 }
