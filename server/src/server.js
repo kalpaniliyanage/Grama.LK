@@ -9,6 +9,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { GoogleGenAI } from "@google/genai";
 import { fileURLToPath } from "node:url";
+import Welfare from '../models/Welfare.js';
+import WelfareFund from '../models/WelfareFund.js';
 
 // Optional portal route import
 import gnRoutes from "./routes/gnRoutes.js";
@@ -93,8 +95,22 @@ const formUploadDir =
     "forms"
   );
 
+  const officeUploadDir =
+  path.join(
+    ROOT,
+    "uploads",
+    "offices"
+  );
+
 fs.mkdirSync(
   complaintUploadDir,
+  {
+    recursive: true,
+  }
+);
+
+fs.mkdirSync(
+  officeUploadDir,
   {
     recursive: true,
   }
@@ -142,6 +158,56 @@ app.use(
     )
   )
 );
+
+/* =========================================================
+   MULTER - OFFICE IMAGE UPLOAD
+========================================================= */
+
+const officeStorage =
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, officeUploadDir);
+    },
+
+    filename: (req, file, cb) => {
+      const extension =
+        path.extname(file.originalname);
+
+      const filename =
+        `${Date.now()}-${Math.round(
+          Math.random() * 1e9
+        )}${extension}`;
+
+      cb(null, filename);
+    },
+  });
+
+const officeUpload =
+  multer({
+    storage: officeStorage,
+
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+    },
+
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+      ];
+
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            "Only JPG, PNG and WEBP images are allowed."
+          )
+        );
+      }
+    },
+  }); 
 
 /* =========================================================
    MULTER - COMPLAINT IMAGE UPLOAD
@@ -394,6 +460,23 @@ const Member =
       }
     ), 
     "members"
+  );
+
+  // --- WELFARE MEMBER SCHEMA & MODEL ---
+const welfareMemberSchema = new mongoose.Schema(
+  {},
+  {
+    strict: false,
+    timestamps: true,
+  }
+);
+
+const WelfareMember =
+  mongoose.models.WelfareMember ||
+  mongoose.model(
+    "WelfareMember",
+    welfareMemberSchema,
+    "welfaremembers" // හරියටම ඔබගේ MongoDB collection නම
   );
 
   // --- ESTABLISHMENT SCHEMA ---
@@ -1172,32 +1255,29 @@ app.get(
 app.post(
   "/api/offices",
   authMiddleware,
-  async (
-    req,
-    res
-  ) => {
+  roleMiddleware("gnadmin"),
+  officeUpload.single("image"),
+  async (req, res) => {
     try {
-      const office =
-        await Office.create(
-          req.body
-        );
+      const data = { ...req.body };
 
-      return res.status(201).json(
-        office
-      );
+      if (req.file) {
+        data.imageUrl = `/uploads/offices/${req.file.filename}`;
+        data.imageName = req.file.originalname;
+      }
+
+      const office = await Office.create(data);
+
+      return res.status(201).json(office);
     } catch (error) {
-      console.error(
-        "Create office error:",
-        error
-      );
+      console.error("Create office error:", error);
 
       return res.status(500).json({
-        message:
-          "Failed to create office.",
+        message: "Failed to create office.",
       });
     }
   }
-);
+); 
 
 /* =========================================================
    GOVERNMENT OFFICES
@@ -1384,82 +1464,82 @@ app.post(
   }
 );
 
+
 /* =========================================================
    COMPLAINTS
 ========================================================= */
 
 app.post(
   "/api/complaints",
-  complaintUpload.single(
-    "image"
-  ),
-  async (
-    req,
-    res
-  ) => {
-    try {
-      const data = {
-        ...req.body,
+  complaintUpload.single("image"),
+  async (req, res) => {
+    console.log("========== COMPLAINT REQUEST RECEIVED ==========");
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file || "No image");
 
-        status:
-          req.body.status ||
-          "Pending",
+    try {
+      const type = String(req.body.type || "").trim();
+      const officer = String(req.body.officer || "").trim();
+      const location = String(req.body.location || "").trim();
+      const description = String(req.body.description || "").trim();
+
+      // Validate required fields
+      if (!type || !officer || !location || !description) {
+        return res.status(400).json({
+          success: false,
+          message: "Please fill in all required complaint fields.",
+        });
+      }
+
+      
+      const data = {
+        type,
+        officer,
+        location,
+        description,
+
+        referenceNo: "CMP-" + Date.now(),
+
+        status: "Pending",
+        username: req.user?.username || req.body.username || "Anonymous",
+        houseNumber:
+          req.body.houseNumber || req.user?.houseNumber || "",
       };
 
-      if (req.user) {
-        data.username =
-          req.user.username;
-
-        data.houseNumber =
-          req.body.houseNumber ||
-          req.user.houseNumber ||
-          "";
-      } else {
-        data.username =
-          req.body.username ||
-          "Anonymous";
-
-        data.houseNumber =
-          req.body.houseNumber ||
-          "";
-      }
 
       if (req.file) {
-        data.imageUrl =
-          `/uploads/complaints/${req.file.filename}`;
-
-        data.imageName =
-          req.file.originalname;
+        data.imageUrl = `/uploads/complaints/${req.file.filename}`;
+        data.imageName = req.file.originalname;
       }
 
-      const complaint =
-        await Complaint.create(
-          data
-        );
+      console.log("Complaint data to save:", data);
+
+      const complaint = await Complaint.create(data);
+
+      console.log("Complaint saved successfully:", complaint._id);
 
       return res.status(201).json({
         success: true,
-
-        message:
-          "Complaint submitted successfully.",
-
+        message: "Complaint submitted successfully.",
+        referenceNo: String(complaint._id),
         complaint,
       });
+
     } catch (error) {
-      console.error(
-        "Create complaint error:",
-        error
-      );
+      console.error("========== COMPLAINT SAVE ERROR ==========");
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error code:", error.code);
+      console.error("Full error:", error);
 
       return res.status(500).json({
         success: false,
-
-        message:
-          "Failed to submit complaint.",
+        message: error.message || "Failed to submit complaint.",
       });
     }
   }
 );
+
 
 /* =========================================================
    COMPLAINT LIST
@@ -1738,6 +1818,49 @@ app.post(
   }
 );
 
+// --- UPDATED WELFARE MEMBER REGISTRATION API ---
+    app.post('/api/welfare/register-member', async (req, res) => {
+      try {
+        const { houseNumber, householdHeadNIC } = req.body;
+
+        if (!houseNumber) {
+          return res.status(400).json({ success: false, message: "House number is required." });
+        }
+
+        // 1. villagers (FamilyVillager) එකතුවෙන් අදාළ නිවසට හෝ NIC එකට අදාළ ගම්වැසියා සෙවීම
+        const villager = await FamilyVillager.findOne({
+          $or: [
+            { houseNumber: houseNumber.trim() },
+            { nic: householdHeadNIC?.trim() },
+            { householdHeadNIC: householdHeadNIC?.trim() }
+          ]
+        }).lean();
+
+        // 2. Database එකට Save කිරීමට අවශ්‍ය දත්ත සකස් කිරීම
+        const memberData = {
+          houseNumber: houseNumber.trim(),
+          householdHeadNIC: householdHeadNIC?.trim() || villager?.nic || villager?.householdHeadNIC || "",
+          fullName: villager?.fullName || villager?.name || "Welfare Resident",
+          phone: villager?.phone || villager?.telephone || "-",
+          status: "Registered",
+          ...req.body
+        };
+
+        const newMember = new WelfareMember(memberData);
+        await newMember.save();
+
+        res.status(201).json({ 
+          success: true, 
+          message: "Welfare member registered successfully", 
+          data: newMember 
+        });
+      } catch (err) {
+        console.error("Register welfare member error:", err);
+        res.status(400).json({ success: false, error: err.message });
+      }
+    });
+
+
 /* =========================================================
    WELFARE FUNDS
 ========================================================= */
@@ -1779,6 +1902,18 @@ app.get(
     }
   }
 );
+
+// --- GET ALL WELFARE MEMBERS ---
+app.get('/api/welfare/members', async (req, res) => {
+  try {
+    const members = await WelfareMember.find().sort({ createdAt: -1 }).lean();
+    // Object එකක් ලෙස නොව, සෘජුවම Array එකක් ලෙස යැවීම
+    res.json(members); 
+  } catch (err) {
+    console.error("Get welfare members error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 /* =========================================================
    GEMINI WEBSITE CONTEXT
@@ -2300,6 +2435,385 @@ app.delete(
     }
   }
 );
+
+// --- 1. DELETE WELFARE MEMBER ---
+app.delete('/api/welfare/members/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await WelfareMember.findByIdAndDelete(id);
+    res.json({ success: true, message: "Member deleted successfully" });
+  } catch (err) {
+    console.error("Delete welfare member error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- 2. UPDATE / EDIT WELFARE MEMBER ---
+app.put('/api/welfare/members/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedMember = await WelfareMember.findByIdAndUpdate(id, req.body, { new: true });
+    res.json({ success: true, message: "Member updated successfully", data: updatedMember });
+  } catch (err) {
+    console.error("Update welfare member error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// --- 1. SAVE RELIEF / EMERGENCY AID CLAIM ---
+app.post('/api/welfare/claims', async (req, res) => {
+  try {
+    const newClaim = new Welfare(req.body);
+    await newClaim.save();
+    res.status(201).json({ success: true, message: "Claim saved successfully", data: newClaim });
+  } catch (err) {
+    console.error("Save welfare claim error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// --- 2. GET ALL RELIEF / EMERGENCY AID CLAIMS ---
+app.get('/api/welfare/claims', async (req, res) => {
+  try {
+    const claims = await Welfare.find().sort({ createdAt: -1 }).lean();
+    res.json(claims);
+  } catch (err) {
+    console.error("Get welfare claims error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+// --- DELETE RELIEF / EMERGENCY AID CLAIM ---
+app.delete('/api/welfare/claims/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Welfare.findByIdAndDelete(id);
+    res.json({ success: true, message: "Claim deleted successfully" });
+  } catch (err) {
+    console.error("Delete welfare claim error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+// --- 1. SAVE MONTHLY FUND PAYMENT ---
+app.post('/api/welfare/funds', async (req, res) => {
+  try {
+    const newFund = new WelfareFund(req.body);
+    await newFund.save();
+    res.status(201).json({ success: true, message: "Fund payment saved successfully", data: newFund });
+  } catch (err) {
+    console.error("Save welfare fund error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// --- 2. GET ALL MONTHLY FUNDS ---
+app.get('/api/welfare/funds', async (req, res) => {
+  try {
+    const funds = await WelfareFund.find().sort({ createdAt: -1 }).lean();
+    res.json(funds);
+  } catch (err) {
+    console.error("Get welfare funds error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- 3. UPDATE MONTHLY FUND PAYMENT ---
+app.put('/api/welfare/funds/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedFund = await WelfareFund.findByIdAndUpdate(id, req.body, { new: true });
+    res.json({ success: true, message: "Fund payment updated successfully", data: updatedFund });
+  } catch (err) {
+    console.error("Update welfare fund error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// --- 4. DELETE MONTHLY FUND PAYMENT ---
+app.delete('/api/welfare/funds/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await WelfareFund.findByIdAndDelete(id);
+    res.json({ success: true, message: "Fund payment deleted successfully" });
+  } catch (err) {
+    console.error("Delete welfare fund error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- GET VILLAGERS BY HOUSE NUMBER DIRECTLY FROM DATABASE ---
+app.get('/api/villagers/house/:houseNumber', async (req, res) => {
+  try {
+    const { houseNumber } = req.params;
+    const db = mongoose.connection.db;
+    
+    // ඩාටාබේස් එකේ 'villagers' collection එකෙන් අදාළ නිවසේ අය සෙවීම
+    const villagersList = await db.collection("villagers")
+      .find({ houseNumber: new RegExp(`^${houseNumber.trim()}$`, 'i') })
+      .toArray();
+    
+    res.json(villagersList);
+  } catch (err) {
+    console.error("Get villagers by house error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- GET ALL YOUTH MEMBERS ---
+app.get('/api/sports/members', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const members = await db.collection("youthmembers").find({}).toArray();
+    res.json(members);
+  } catch (err) {
+    console.error("Get youth members error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- REGISTER YOUTH MEMBER ---
+app.post('/api/sports/members', async (req, res) => {
+  try {
+    const { houseNumber, name, age, sport, phone } = req.body;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("youthmembers").insertOne({
+      houseNumber,
+      name,
+      age: Number(age),
+      sport,
+      phone,
+      createdAt: new Date()
+    });
+    
+    res.status(201).json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    console.error("Register youth member error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- UPDATE YOUTH MEMBER ---
+app.put('/api/sports/members/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { age, sport, phone } = req.body;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("youthmembers").updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { $set: { age: Number(age), sport, phone, updatedAt: new Date() } }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, error: "Member not found" });
+    }
+    
+    res.json({ success: true, message: "Member updated successfully" });
+  } catch (err) {
+    console.error("Update youth member error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- DELETE YOUTH MEMBER ---
+app.delete('/api/sports/members/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("youthmembers").deleteOne({
+      _id: new mongoose.Types.ObjectId(id)
+    });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: "Member not found" });
+    }
+    
+    res.json({ success: true, message: "Member deleted successfully" });
+  } catch (err) {
+    console.error("Delete youth member error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- GET ALL MONTHLY FEES ---
+app.get('/api/sports/fees', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const fees = await db.collection("youthfees").find({}).toArray();
+    res.json(fees);
+  } catch (err) {
+    console.error("Get youth fees error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- GET ALL SPORTS FEES ---
+app.get('/api/sports/fees', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const fees = await db.collection("sports_fees").find({}).toArray();
+    res.json(fees);
+  } catch (err) {
+    console.error("Get sports fees error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- GET ALL YOUTH FEES ---
+app.get('/api/sports/fees', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const fees = await db.collection("youthfees").find({}).toArray();
+    res.json(fees);
+  } catch (err) {
+    console.error("Get youth fees error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- RECORD / ADD YOUTH FEE ---
+app.post('/api/sports/fees', async (req, res) => {
+  try {
+    const { memberId, memberName, houseNumber, month, amount, status } = req.body;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("youthfees").insertOne({
+      memberId: memberId ? new mongoose.Types.ObjectId(memberId) : null,
+      memberName,
+      houseNumber,
+      month,
+      amount: Number(amount),
+      status: status || "Paid",
+      createdAt: new Date()
+    });
+    
+    res.status(201).json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    console.error("Record youth fee error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- UPDATE YOUTH FEE ---
+app.put('/api/sports/fees/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { month, amount, status } = req.body;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("youthfees").updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { $set: { month, amount: Number(amount), status, updatedAt: new Date() } }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, error: "Fee record not found" });
+    }
+    
+    res.json({ success: true, message: "Fee record updated successfully" });
+  } catch (err) {
+    console.error("Update youth fee error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- DELETE YOUTH FEE ---
+app.delete('/api/sports/fees/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("youthfees").deleteOne({
+      _id: new mongoose.Types.ObjectId(id)
+    });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: "Fee record not found" });
+    }
+    
+    res.json({ success: true, message: "Fee record deleted successfully" });
+  } catch (err) {
+    console.error("Delete youth fee error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- GET ALL SPORTS INVENTORY ---
+app.get('/api/sports/inventory', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const items = await db.collection("sportsinventories").find({}).toArray();
+    res.json(items);
+  } catch (err) {
+    console.error("Get sports inventory error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- ADD SPORTS EQUIPMENT ---
+app.post('/api/sports/inventory', async (req, res) => {
+  try {
+    const { itemName, quantity, condition } = req.body;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("sportsinventories").insertOne({
+      itemName,
+      quantity: Number(quantity),
+      condition: condition || "Good",
+      createdAt: new Date()
+    });
+    
+    res.status(201).json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    console.error("Add sports inventory error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- UPDATE SPORTS EQUIPMENT ---
+app.put('/api/sports/inventory/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity, condition } = req.body;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("sportsinventories").updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { $set: { quantity: Number(quantity), condition, updatedAt: new Date() } }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, error: "Equipment not found" });
+    }
+    
+    res.json({ success: true, message: "Equipment updated successfully" });
+  } catch (err) {
+    console.error("Update sports inventory error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- DELETE SPORTS EQUIPMENT ---
+app.delete('/api/sports/inventory/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = mongoose.connection.db;
+    
+    const result = await db.collection("sportsinventories").deleteOne({
+      _id: new mongoose.Types.ObjectId(id)
+    });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: "Equipment not found" });
+    }
+    
+    res.json({ success: true, message: "Equipment deleted successfully" });
+  } catch (err) {
+    console.error("Delete sports inventory error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 
 /* =========================================================
