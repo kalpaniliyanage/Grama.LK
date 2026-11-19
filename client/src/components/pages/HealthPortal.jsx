@@ -271,7 +271,6 @@ const phmSections = [
   { id: "dashboard", label: "🏠 Dashboard" },
   { id: "mothers", label: "👩 Mothers Records" },
   { id: "children", label: "👶 Children Health Records (Infants & 1m-10y)" },
-  { id: "requests", label: "📋 Health Requests" },
   { id: "announcements", label: "📢 Announcements" },
   { id: "profile", label: "👤 My Profile" },
 ];
@@ -944,8 +943,8 @@ function HealthPortal() {
                   <strong style={{ fontSize: 32, color: "#38bdf8" }}>{children.length}</strong>
                 </div>
                 <div style={{ background: "rgba(255, 255, 255, 0.06)", padding: 20, borderRadius: 16, border: "1px solid rgba(167, 243, 208, 0.2)" }}>
-                  <p style={{ margin: 0, color: "#cbd5e1" }}>📋 Health Requests</p>
-                  <strong style={{ fontSize: 32, color: "#facc15" }}>{requests.length}</strong>
+                  <p style={{ margin: 0, color: "#cbd5e1" }}>📢 Announcements</p>
+                  <strong style={{ fontSize: 32, color: "#facc15" }}>{announcements.length}</strong>
                 </div>
               </div>
             </div>
@@ -1243,22 +1242,6 @@ function HealthPortal() {
           <div style={styles.modalContent}>
             <h2 style={{ marginTop: 0, color: "#a7f3d0" }}>{isEditingMother ? "✏️ Edit Mother Record" : "👩 Register New Mother"}</h2>
             <form onSubmit={handleSaveMother}>
-              <label style={styles.label}>
-                Select Member (System Database Integration)
-                <select style={styles.input} onChange={(e) => handleSelectMemberForMother(e.target.value)}>
-                  <option value="">-- Choose Existing Female Member --</option>
-                  {members
-                    .filter((m) => {
-                      const gender = (m.gender || m.sex || "").toLowerCase();
-                      return gender === "female" || gender === "f" || gender === "කාන්තා";
-                    })
-                    .map((m) => (
-                      <option key={m._id || m.id} value={m._id || m.id}>
-                        {m.fullName || m.name} ({m.nic || m.houseNumber})
-                      </option>
-                    ))}
-                </select>
-              </label>
               <Field label="Full Name" value={motherForm.name} onChange={(v) => setMotherForm({ ...motherForm, name: v })} required />
               <Field label="NIC Number" value={motherForm.nic} onChange={(v) => setMotherForm({ ...motherForm, nic: v })} required />
               <Field label="Birth Date (BD)" type="date" value={motherForm.dob} onChange={(v) => setMotherForm({ ...motherForm, dob: v })} required />
@@ -1281,18 +1264,7 @@ function HealthPortal() {
               {isEditingChild ? "✏️ Edit Child Record" : "👶 Add Child Record (Infants / 1m - 10y)"}
             </h2>
             <form onSubmit={handleSaveChild}>
-              <label style={styles.label}>
-                Select Child from Members (1 Month - 10 Years) or Leave Blank for Infants (&lt; 1 Month)
-                <select style={styles.input} onChange={(e) => handleSelectMemberForChild(e.target.value)}>
-                  <option value="">-- Select from Existing Members (1m - 10y) --</option>
-                  {childMembersFilter.map((cm) => (
-                    <option key={cm._id || cm.id} value={cm._id || cm.id}>
-                      {cm.fullName || cm.name} ({calculateAge(cm.dob || cm.birthDate).text})
-                    </option>
-                  ))}
-                </select>
-              </label>
-
+              
               <Field 
                 label="Child Full Name" 
                 value={childForm.childName} 
