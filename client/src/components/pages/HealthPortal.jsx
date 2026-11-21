@@ -618,6 +618,10 @@ function Field({ label, value, onChange, type = "text", required = false, disabl
 function HealthPortal() {
   const navigate = useNavigate();
 
+  const handleDashboard = () => {
+    navigate("/dashboard");
+  };
+
   // Read the Dashboard language setting
   const [language, setLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem("gramalk_lang");
@@ -1164,59 +1168,104 @@ const phiSections = [
 
 
   const handlePhiLogin = async (e) => {
-    e.preventDefault();
-    try {
-      // Backend එකේ /api/login වෙත Request එක යැවීම
-      const result = await apiRequest("/api/login", {
-        method: "POST",
-        body: JSON.stringify({ username: phiUser, password: phiPass }),
-      });
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-      if (result.success && result.token) {
-        // Token එක සහ Role එක LocalStorage එකේ Save කරගැනීම
-        localStorage.setItem("token", result.token);
-        localStorage.setItem("authenticatedRole", "PHI");
-        window.dispatchEvent(new Event("gramalk-settings-changed"));
+  try {
+    const result = await apiRequest("/api/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: phiUser.trim(),
+        password: phiPass,
+      }),
+    });
 
-        setAuthenticatedRole("PHI");
-        setActiveSection("dashboard");
-        loadProfile();
-        setError("");
-      }
-    } catch (err) {
-      setError("PHI Login failed: " + err.message);
+    if (result.success && result.token) {
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("authenticatedRole", "PHI");
+
+      setAuthenticatedRole("PHI");
+      setActiveSection("dashboard");
+      setPhiPass("");
+      setError("");
+
+      await loadProfile();
+    } else {
+      setError(result.message || "Invalid PHI username or password.");
     }
-  };
+  } catch (err) {
+    setError("PHI Login failed: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const handlePhmLogin = async (e) => {
-    e.preventDefault();
-    try {
-      // Backend එකේ /api/login වෙත Request එක යැවීම
-      const result = await apiRequest("/api/login", {
-        method: "POST",
-        body: JSON.stringify({ username: phmUser, password: phmPass }),
-      });
+const handlePhmLogin = async (e) => {
+  e.preventDefault();
 
-      if (result.success && result.token) {
-        // Token එක සහ Role එක LocalStorage එකේ Save කරගැනීම
-        localStorage.setItem("token", result.token);
-        localStorage.setItem("authenticatedRole", "PHM");
+  if (loading) return;
 
-        setAuthenticatedRole("PHM");
-        setActiveSection("dashboard");
-        loadProfile();
-        setError("");
-      }
-    } catch (err) {
-      setError("PHM Login failed: " + err.message);
+  setLoading(true);
+  setError("");
+
+  try {
+    const result = await apiRequest("/api/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: phmUser.trim(),
+        password: phmPass,
+      }),
+    });
+
+    if (result.success && result.token) {
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("authenticatedRole", "PHM");
+
+      setAuthenticatedRole("PHM");
+      setActiveSection("dashboard");
+      setPhmPass("");
+      setError("");
+
+      // Load profile separately without delaying the login transition.
+      loadProfile();
+    } else {
+      setError(result.message || "Invalid PHM username or password.");
     }
-  };
+  } catch (err) {
+    setError("PHM Login failed: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleLogout = () => {
-    localStorage.removeItem("authenticatedRole");
-    setAuthenticatedRole(null);
-    navigate("/", { replace: true });
-  };
+  localStorage.removeItem("authenticatedRole");
+  localStorage.removeItem("token");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("gramalkToken");
+  sessionStorage.removeItem("token");
+
+  setAuthenticatedRole(null);
+  setPhiPass("");
+  setPhmPass("");
+  setShowPhiPass(false);
+  setShowPhmPass(false);
+  setActiveSection("dashboard");
+  setProfile(null);
+  setError("");
+  setMessage("");
+};
+
+const handleBackToDashboard = () => {
+  localStorage.removeItem("authenticatedRole");
+  localStorage.removeItem("token");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("gramalkToken");
+  sessionStorage.removeItem("token");
+
+  navigate("/", { replace: true });
+};
 
   // Select announcement image
 const handleAnnouncementImageChange = (e) => {
@@ -1382,6 +1431,7 @@ const uploadAnnouncementImage = async () => {
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <h1 style={{ color: themeColors.accent, margin: 0, fontSize: 34, fontWeight: 800 }}>🏥 GramaLK Health Portal</h1>
           <p style={{ color: themeColors.muted, marginTop: 8 }}>කරුණාකර ඔබගේ නිලධාරී ගිණුම තෝරා ඇතුළු වන්න.</p>
+          <button type="button" style={styles.logoutButton} onClick={handleBackToDashboard}> ↪ Logout </button>
         </div>
 
         {error && (
@@ -1421,7 +1471,7 @@ const uploadAnnouncementImage = async () => {
               style={{
                 ...styles.app,
                 backgroundImage: "none",
-                background: themeColors.background,
+                backgroundColor: themeColors.background,
                 color: themeColors.text,
               }}
             >
