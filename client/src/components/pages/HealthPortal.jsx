@@ -6,10 +6,12 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const BG_IMAGE_URL =
   "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop";
 
+
 const translations = {
   en: {
     establishments: "Hotels & Restaurants",
     overview: "Operational Overview",
+    operationalOverview: "PHM Operational Overview",
     registeredMothers: "Registered Mothers",
     registeredChildren: "Registered Children",
     healthRequests: "Health Requests",
@@ -33,13 +35,56 @@ const translations = {
     profile: "Profile",
     language: "Language",
     logout: "Logout",
+    darkMode: "Dark Mode",
     loading: "Loading...",
     noData: "No records found",
+    establishmentTitle: "Hotels & Restaurants Records Management",
+    addEstablishment: "Add New Establishment",
+    edit: "Edit",
+    delete: "Delete",
+    warningIssued: "Warning Issued",
+    gradeA: "Grade A",
+    gradeB: "Grade B",
+    notSet: "Not Set",
+    notAvailable: "N/A",
+
+    mothersTitle: "Registered Mothers Records",
+    registerMother: "Register New Mother",
+    birthDate: "Birth Date",
+    pregnancyStatus: "Pregnancy Status",
+    months: "Months",
+
+    childrenTitle: "Children Health Records (Infants & 1 Month - 10 Years)",
+    addChildRecord: "Add New Child Record",
+    childName: "Child Name",
+    motherName: "Mother's Name",
+    calculatedAge: "Calculated Age",
+    weight: "Weight",
+    vaccineStatus: "Vaccine Status",
+    infant: "Infant",
+    upToDate: "Up to Date",
+    birthVaccine: "Birth vaccine",
+    years: "Years",
+
+    announcementTitle: "Publish New Announcement (PHM)",
+    announcementPhoto: "Announcement Photo / Image URL (Optional)",
+    title: "Title",
+    details: "Details",
+    publishAnnouncement: "Publish Announcement",
+
+    profileSettings: "Profile Settings (PHM)",
+    publicHealthMidwife: "Public Health Midwife",
+    houseNumberId: "House Number / ID",
+    saveChanges: "Save Changes",
+
+    publicHealthInspector: "Public Health Inspector",
+    operationaloverview: "PHI Operational Overview"
   },
 
   si: {
     establishments: "හෝටල් සහ ආපනශාලා",
     overview: "මෙහෙයුම් සාරාංශය",
+    operationalOverview: "PHM මෙහෙයුම් සාරාංශය",
     registeredMothers: "ලියාපදිංචි මව්වරුන්",
     registeredChildren: "ලියාපදිංචි ළමුන්",
     healthRequests: "සෞඛ්‍ය ඉල්ලීම්",
@@ -63,13 +108,56 @@ const translations = {
     profile: "පැතිකඩ",
     language: "භාෂාව",
     logout: "ඉවත් වන්න",
+    darkMode: "අඳුරු ප්‍රකාරය",
     loading: "පූරණය වෙමින් පවතී...",
     noData: "වාර්තා හමු නොවීය",
+    establishmentTitle: "හෝටල් සහ ආපනශාලා වාර්තා කළමනාකරණය",
+    addEstablishment: "නව ආයතනයක් එකතු කරන්න",
+    edit: "සංස්කරණය",
+    delete: "මකන්න",
+    warningIssued: "අවවාද නිකුත් කර ඇත",
+    gradeA: "A ශ්‍රේණිය",
+    gradeB: "B ශ්‍රේණිය",
+    notSet: "සඳහන් කර නැත",
+    notAvailable: "නැත",
+
+    mothersTitle: "ලියාපදිංචි මව්වරුන්ගේ වාර්තා",
+    registerMother: "නව මවක් ලියාපදිංචි කරන්න",
+    birthDate: "උපන් දිනය",
+    pregnancyStatus: "ගර්භණී තත්ත්වය",
+    months: "මාස",
+
+    childrenTitle: "ළමා සෞඛ්‍ය වාර්තා (ළදරුවන් සහ මාස 1 සිට අවුරුදු 10 දක්වා)",
+    addChildRecord: "නව ළමා වාර්තාවක් එකතු කරන්න",
+    childName: "දරුවාගේ නම",
+    motherName: "මවගේ නම",
+    calculatedAge: "ගණනය කළ වයස",
+    weight: "බර",
+    vaccineStatus: "එන්නත් තත්ත්වය",
+    infant: "ළදරුවා",
+    upToDate: "එන්නත් යාවත්කාලීනයි",
+    birthVaccine: "උපත් එන්නත",
+    years: "අවුරුදු",
+
+    announcementTitle: "නව නිවේදනයක් පළ කරන්න (PHM)",
+    announcementPhoto: "නිවේදන ඡායාරූපය / රූප URL (අත්‍යවශ්‍ය නොවේ)",
+    title: "මාතෘකාව",
+    details: "විස්තර",
+    publishAnnouncement: "නිවේදනය පළ කරන්න",
+
+    profileSettings: "පැතිකඩ සැකසුම් (PHM)",
+    publicHealthMidwife: "මහජන සෞඛ්‍ය වින්නඹු නිලධාරිනිය",
+    houseNumberId: "නිවාස අංකය / හැඳුනුම් අංකය",
+    saveChanges: "වෙනස්කම් සුරකින්න",
+
+    publicHealthInspector: "මහජන සෞඛ්‍ය පරීක්ෂක",
+    operationaloverview: "PHI මෙහෙයුම් සාරාංශය",
   },
 
   ta: {
     establishments: "ஹோட்டல்கள் மற்றும் உணவகங்கள்",
     overview: "செயல்பாட்டு மேலோட்டம்",
+    operationalOverview: "PHM செயல்பாட்டு மேலோட்டம்",
     registeredMothers: "பதிவு செய்யப்பட்ட தாய்மார்கள்",
     registeredChildren: "பதிவு செய்யப்பட்ட குழந்தைகள்",
     healthRequests: "சுகாதாரக் கோரிக்கைகள்",
@@ -93,9 +181,51 @@ const translations = {
     profile: "சுயவிவரம்",
     language: "மொழி",
     logout: "வெளியேறு",
+    darkMode: "இருண்ட பயன்முறை",
     loading: "ஏற்றப்படுகிறது...",
     noData: "பதிவுகள் எதுவும் இல்லை",
-  },
+    establishmentTitle: "ஹோட்டல்கள் மற்றும் உணவகங்கள் பதிவுகள் மேலாண்மை",
+    addEstablishment: "புதிய நிறுவனத்தைச் சேர்க்கவும்",
+    edit: "திருத்து",
+    delete: "நீக்கு",
+    warningIssued: "எச்சரிக்கை வழங்கப்பட்டது",
+    gradeA: "தரம் A",
+    gradeB: "தரம் B",
+    notSet: "குறிப்பிடப்படவில்லை",
+    notAvailable: "கிடைக்கவில்லை",
+
+    mothersTitle: "பதிவு செய்யப்பட்ட தாய்மார்களின் பதிவுகள்",
+    registerMother: "புதிய தாயைப் பதிவு செய்யவும்",
+    birthDate: "பிறந்த தேதி",
+    pregnancyStatus: "கர்ப்ப நிலை",
+    months: "மாதங்கள்",
+
+    childrenTitle: "குழந்தைகளின் சுகாதாரப் பதிவுகள் (கைக்குழந்தைகள் மற்றும் 1 மாதம் முதல் 10 வயது வரை)",
+    addChildRecord: "புதிய குழந்தைப் பதிவைச் சேர்க்கவும்",
+    childName: "குழந்தையின் பெயர்",
+    motherName: "தாயின் பெயர்",
+    calculatedAge: "கணக்கிடப்பட்ட வயது",
+    weight: "எடை",
+    vaccineStatus: "தடுப்பூசி நிலை",
+    infant: "கைக்குழந்தை",
+    upToDate: "தடுப்பூசிகள் புதுப்பிக்கப்பட்டுள்ளன",
+    birthVaccine: "பிறப்புத் தடுப்பூசி",
+    years: "ஆண்டுகள்",
+
+    announcementTitle: "புதிய அறிவிப்பை வெளியிடவும் (PHM)",
+    announcementPhoto: "அறிவிப்பு புகைப்படம் / பட URL (விருப்பத்தேர்வு)",
+    title: "தலைப்பு",
+    details: "விவரங்கள்",
+    publishAnnouncement: "அறிவிப்பை வெளியிடவும்",
+
+    profileSettings: "சுயவிவர அமைப்புகள் (PHM)",
+    publicHealthMidwife: "பொது சுகாதார மருத்துவச்சி",
+    houseNumberId: "வீட்டு எண் / அடையாள எண்",
+    saveChanges: "மாற்றங்களைச் சேமி",
+
+    publicHealthInspector: "பொது சுகாதார ஆய்வாளர்",
+    operationaloverview: "PHI செயல்பாட்டு மேலோட்டம்",
+  }
 };
 
 const t = (key, lang = "en") => translations[lang]?.[key] || key;
@@ -210,7 +340,11 @@ const styles = {
     color: "#ffffff",
     outline: "none",
   },
-  label: { fontSize: 13, fontWeight: 600, color: "#a7f3d0" },
+  label: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#a7f3d0"
+  },
   navButton: {
     display: "block",
     width: "100%",
@@ -227,7 +361,7 @@ const styles = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    minWidth: 650,
+    tableLayout: "auto",
   },
   cell: {
     textAlign: "left",
@@ -235,6 +369,7 @@ const styles = {
     borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
     fontSize: 14,
     color: "#f1f5f9",
+    whiteSpace: "nowrap",
   },
   loginWrapper: {
     minHeight: "100vh",
@@ -283,8 +418,8 @@ const styles = {
     zIndex: 1000,
     padding: 20,
   },
-  modalContent: {
-    background: "rgba(20, 40, 34, 0.95)",
+    modalContent: {
+    background: "rgba(160, 214, 198, 0.95)",
     border: "1px solid rgba(167, 243, 208, 0.3)",
     borderRadius: 24,
     padding: 28,
@@ -305,8 +440,8 @@ const styles = {
     height: 100,
     borderRadius: "50%",
     objectFit: "cover",
-    border: "3px solid #10b981",
-    boxShadow: "0 4px 15px rgba(16, 185, 129, 0.3)",
+    border: "3px solid #c084fc",
+    boxShadow: "0 4px 15px rgba(168, 85, 247, 0.3)",
   },
   cameraBadge: {
     position: "absolute",
@@ -339,7 +474,7 @@ const styles = {
     marginTop: 20,
   },
   announcementPublicCard: {
-    background: "rgba(20, 40, 34, 0.85)",
+    background: "rgba(204, 248, 235, 0.85)",
     border: "1px solid rgba(167, 243, 208, 0.2)",
     borderRadius: 20,
     overflow: "hidden",
@@ -403,20 +538,24 @@ async function apiRequest(path, options = {}) {
   return result;
 }
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 function calculateAge(dob) {
   if (!dob) return { months: 0, years: 0, text: "N/A" };
   const birth = new Date(dob);
   const now = new Date();
-  
+
   let months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
   if (now.getDate() < birth.getDate()) months--;
-  
+
   const years = Math.floor(months / 12);
   const remMonths = months % 12;
 
   let text = "";
   if (years > 0) {
-    text = `${years} yrs ${remMonths} mos`;
+    text = `${years} years ${remMonths} months`;
   } else {
     text = `${months} mos`;
   }
@@ -424,16 +563,23 @@ function calculateAge(dob) {
   return { months, years, text };
 }
 
-function Field({ label, value, onChange, type = "text", required = false, disabled = false, placeholder = "" }) {
+
+function Field({ label, value, onChange, type = "text", required = false, disabled = false, placeholder = "", isDark = false }) {
   return (
-    <label style={styles.label}>
+    <label style={{
+      ...styles.label,
+      color: isDark ? "#ffffff" : "#000000"
+    }}>
       {label}
       <input
         style={{
           ...styles.input,
+          color: isDark ? "#ffffff" : "#000000",
+          background: isDark ? "#26352f" : "#ffffff",
+          border: isDark ? "1px solid #64748b" : "1px solid #cbd5e1",
           opacity: disabled ? 0.6 : 1,
-          cursor: disabled ? "not-allowed" : "text",
-        }}
+          cursor: disabled ? "not-allowed" : "text"
+       }}
         type={type}
         value={value ?? ""}
         onChange={(event) => onChange(event.target.value)}
@@ -466,6 +612,19 @@ function HealthPortal() {
 
   // Derive isDark only after theme has been initialized
   const isDark = theme === "dark";
+
+  const toggleTheme = () => {
+  const newTheme = isDark ? "light" : "dark";
+  setTheme(newTheme);
+  localStorage.setItem("gramalk_theme", newTheme);
+  window.dispatchEvent(new Event("gramalk-settings-changed"));
+};
+
+const changeLanguage = (newLanguage) => {
+  setLanguage(newLanguage);
+  localStorage.setItem("gramalk_lang", newLanguage);
+  window.dispatchEvent(new Event("gramalk-language-changed"));
+};
 
   const themeColors = {
   background: isDark ? "#101c19" : "#f3f7f4",
@@ -519,7 +678,6 @@ function HealthPortal() {
   [data-health-theme="light"] h3,
   [data-health-theme="light"] h4,
   [data-health-theme="light"] p,
-  [data-health-theme="light"] label,
   [data-health-theme="light"] td,
   [data-health-theme="light"] th,
   [data-health-theme="light"] small,
@@ -565,7 +723,6 @@ function HealthPortal() {
   [data-health-theme="dark"] h3,
   [data-health-theme="dark"] h4,
   [data-health-theme="dark"] p,
-  [data-health-theme="dark"] label,
   [data-health-theme="dark"] td,
   [data-health-theme="dark"] th,
   [data-health-theme="dark"] small,
@@ -593,22 +750,22 @@ function HealthPortal() {
     color: #bdc9c4 !important;
     opacity: 1;
   }
-  
+
   [data-health-theme="light"] button {
   color: #ffffff;
 }
 
-[data-health-theme="light"] aside button {
-  color: #34483d !important;
-}
+  [data-health-theme="light"] aside button {
+    color: #34483d !important;
+  }
 
-[data-health-theme="dark"] button {
-  color: #ffffff;
-}
+  [data-health-theme="dark"] button {
+    color: #ffffff;
+  }
 
-[data-health-theme="dark"] aside button {
-  color: #e8f2ed !important;
-}
+  [data-health-theme="dark"] aside button {
+    color: #e8f2ed !important;
+  }
 
   [data-health-theme="light"] aside button {
     color: #34483d !important;
@@ -635,7 +792,6 @@ function HealthPortal() {
   { id: "dashboard", label: `🏠 ${t("dashboard")}` },
   { id: "mothers", label: `👩 ${t("mothers")}` },
   { id: "children", label: `👶 ${t("children")}` },
-  { id: "requests", label: `📋 ${t("requests")}` },
   { id: "announcements", label: `📢 ${t("announcements")}` },
   { id: "profile", label: `👤 ${t("profile")}` },
 ];
@@ -684,16 +840,16 @@ const phiSections = [
 
   const [showChildModal, setShowChildModal] = useState(false);
   const [isEditingChild, setIsEditingChild] = useState(false);
-  const [childForm, setChildForm] = useState({ 
-    id: null, 
-    childName: "", 
-    motherNic: "", 
-    dob: "", 
-    weight: "", 
-    vaccineStatus: "Up to Date", 
-    latestVaccine: "", 
-    vaccineDate: "" 
-  });   
+  const [childForm, setChildForm] = useState({
+    id: null,
+    childName: "",
+    motherNic: "",
+    dob: "",
+    weight: "",
+    vaccineStatus: "Up to Date",
+    latestVaccine: "",
+    vaccineDate: ""
+  });
 
   const [showEstModal, setShowEstModal] = useState(false);
   const [isEditingEst, setIsEditingEst] = useState(false);
@@ -707,29 +863,38 @@ const phiSections = [
     try {
       // Database eken villagers/members fetch karaganeema (/api/members)
       const membersRes = await apiRequest("/api/members").catch(() => []);
-      setMembers(membersRes);
+      setMembers(asArray(membersRes));
 
       if (authenticatedRole === "PHM") {
         const mothersRes = await apiRequest("/api/mothers").catch(() => []);
         const childrenRes = await apiRequest("/api/children").catch(() => []);
         const requestsRes = await apiRequest("/api/requests").catch(() => []);
 
-        setMothers(mothersRes);
-        setChildren(childrenRes);
-        setRequests(requestsRes);
+        setMothers(asArray(mothersRes));
+        setChildren(asArray(childrenRes));
+        setRequests(asArray(requestsRes));
       } else if (authenticatedRole === "PHI") {
         const estRes = await apiRequest("/api/establishments").catch(() => []);
-        setEstablishments(estRes);
+        setEstablishments(asArray(estRes));
       }
 
-      const annRes = await apiRequest(`/api/announcements?role=${authenticatedRole}`).catch(() => []);
-      setAnnouncements(annRes);
-    } catch (err) {
-      console.error("Database connection failed", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [authenticatedRole]);
+      try {
+        const annRes = await apiRequest(
+          `/api/announcements?role=${authenticatedRole}`
+     );
+
+      console.log("Announcements from database:", annRes);
+        setAnnouncements(asArray(annRes));
+
+      } catch (error) {
+        console.error("Announcements loading error:", error);
+      }
+      } catch (err) {
+        console.error("Database connection failed", err);
+      } finally {
+        setLoading(false);
+      }
+    }, [authenticatedRole]);
 
   useEffect(() => {
     if (authenticatedRole) {
@@ -750,17 +915,19 @@ const phiSections = [
         photoUrl: user.photoUrl || "",
       });
     } catch (err) {
-      const fallbackUser = {
-        fullName: authenticatedRole === "PHI" ? "නිමල් ජයසිංහ (PHI)" : "සුනේත්‍රා රණසිංහ (PHM)",
-        email: authenticatedRole === "PHI" ? "phi.officer@gramalk.lk" : "phm.officer@gramalk.lk",
-        phone: "0771234567",
-        houseNumber: "HN-102",
+      console.error("Profile loading failed:", err);
+
+      setProfile(null);
+
+      setProfileForm({
+        fullName: "",
+        email: "",
+        phone: "",
+        houseNumber: "",
         photoUrl: "",
-      };
-      setProfile(fallbackUser);
-      setProfileForm(fallbackUser);
+      });
     }
-  }, [authenticatedRole]);
+  }, []);
 
   const handlePhotoFileSelect = (e) => {
     const file = e.target.files[0];
@@ -847,16 +1014,16 @@ const phiSections = [
     try {
       const recordId = motherForm._id || motherForm.id;
       if (isEditingMother && recordId) {
-        const updated = await apiRequest(`/api/mothers/${recordId}`, { 
-          method: "PUT", 
-          body: JSON.stringify(motherForm) 
+        const updated = await apiRequest(`/api/mothers/${recordId}`, {
+          method: "PUT",
+          body: JSON.stringify(motherForm)
         });
         setMothers(mothers.map((m) => (String(m._id || m.id) === String(recordId) ? updated : m)));
         setMessage("මව්වරුන්ගේ තොරතුරු සාර්ථකව යාවත්කාලීන විය! 🎉");
       } else {
-        const saved = await apiRequest("/api/mothers", { 
-          method: "POST", 
-          body: JSON.stringify(motherForm) 
+        const saved = await apiRequest("/api/mothers", {
+          method: "POST",
+          body: JSON.stringify(motherForm)
         });
         setMothers([saved, ...mothers]);
         setMessage("අලුත් මවගේ තොරතුරු ඩේටාබේස් එකේ ගබඩා විය! 🎉");
@@ -874,16 +1041,16 @@ const phiSections = [
     try {
       const recordId = childForm._id || childForm.id;
       if (isEditingChild && recordId) {
-        const updated = await apiRequest(`/api/children/${recordId}`, { 
-          method: "PUT", 
-          body: JSON.stringify(childForm) 
+        const updated = await apiRequest(`/api/children/${recordId}`, {
+          method: "PUT",
+          body: JSON.stringify(childForm)
         });
         setChildren(children.map((c) => (String(c._id || c.id) === String(recordId) ? updated : c)));
         setMessage("ළමා සෞඛ්‍ය වාර්තාව යාවත්කාලීන විය! 👶");
       } else {
-        const saved = await apiRequest("/api/children", { 
-          method: "POST", 
-          body: JSON.stringify(childForm) 
+        const saved = await apiRequest("/api/children", {
+          method: "POST",
+          body: JSON.stringify(childForm)
         });
         setChildren([saved, ...children]);
         setMessage("අලුත් ළමා වාර්තාව ඩේටාබේස් එකේ ගබඩා විය! 👶");
@@ -948,21 +1115,27 @@ const phiSections = [
     }
   };
 
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      await apiRequest("/api/me", { method: "PUT", body: JSON.stringify(profileForm) });
+      const result = await apiRequest("/api/me", {
+        method: "PUT",
+        body: JSON.stringify(profileForm),
+      });
+
       setProfile({ ...profile, ...profileForm });
       setMessage("Profile එක සාර්ථකව යාවත්කාලීන විය!");
     } catch (err) {
-      setProfile({ ...profile, ...profileForm });
-      setMessage("Profile එක යාවත්කාලීන විය!");
+      console.error("Profile Save Error:", err);
+      setMessage("Profile එක Save කිරීම අසාර්ථකයි: " + err.message);
     } finally {
-      setIsEditingProfile(false);
       setLoading(false);
     }
   };
+
 
   const handlePhiLogin = async (e) => {
     e.preventDefault();
@@ -978,7 +1151,7 @@ const phiSections = [
         localStorage.setItem("token", result.token);
         localStorage.setItem("authenticatedRole", "PHI");
         window.dispatchEvent(new Event("gramalk-settings-changed"));
-        
+
         setAuthenticatedRole("PHI");
         setActiveSection("dashboard");
         loadProfile();
@@ -1002,7 +1175,7 @@ const phiSections = [
         // Token එක සහ Role එක LocalStorage එකේ Save කරගැනීම
         localStorage.setItem("token", result.token);
         localStorage.setItem("authenticatedRole", "PHM");
-        
+
         setAuthenticatedRole("PHM");
         setActiveSection("dashboard");
         loadProfile();
@@ -1014,7 +1187,7 @@ const phiSections = [
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("authenticatedRole"); 
+    localStorage.removeItem("authenticatedRole");
     setAuthenticatedRole(null);
     navigate("/", { replace: true });
   };
@@ -1071,14 +1244,14 @@ const phiSections = [
   if (!authenticatedRole) {
     return (
       <div
-  data-health-theme={theme}
-  style={{
-    ...styles.loginWrapper,
-    backgroundImage: "none",
-    background: themeColors.background,
-    color: themeColors.text,
-  }}
->
+        data-health-theme={theme}
+        style={{
+        ...styles.loginWrapper,
+        backgroundImage: "none",
+        background: themeColors.background,
+        color: themeColors.text,
+     }}
+    >
 
   <style>{themeCss}</style>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
@@ -1097,8 +1270,8 @@ const phiSections = [
             <h2 style={{ color: "#a7f3d0", marginTop: 0 }}>👨‍⚕️ PHI Login</h2>
             <p style={{ color: "#cbd5e1", fontSize: 13, marginBottom: 20 }}>Public Health Inspector (මහජන සෞඛ්‍ය පරීක්ෂක)</p>
             <form onSubmit={handlePhiLogin}>
-              <Field label="Username" value={phiUser} onChange={setPhiUser} required />
-              <Field label="Password" type="password" value={phiPass} onChange={setPhiPass} required />
+              <Field label="Username" value={phiUser} onChange={setPhiUser} required isDark={isDark}/>
+              <Field label="Password" type="password" value={phiPass} onChange={setPhiPass} required isDark={isDark}/>
               <button type="submit" style={{ ...styles.button, width: "100%", marginTop: 10 }}>Login as PHI</button>
             </form>
           </div>
@@ -1107,8 +1280,8 @@ const phiSections = [
             <h2 style={{ color: "#a7f3d0", marginTop: 0 }}>👩‍⚕️ PHM Login</h2>
             <p style={{ color: "#cbd5e1", fontSize: 13, marginBottom: 20 }}>Public Health Midwife (පවුල් සෞඛ්‍ය නිලධාරිනී)</p>
             <form onSubmit={handlePhmLogin}>
-              <Field label="Username" value={phmUser} onChange={setPhmUser} required />
-              <Field label="Password" type="password" value={phmPass} onChange={setPhmPass} required />
+              <Field label="Username" value={phmUser} onChange={setPhmUser} required isDark={isDark}/>
+              <Field label="Password" type="password" value={phmPass} onChange={setPhmPass} required isDark={isDark}/>
               <button type="submit" style={{ ...styles.button, width: "100%", marginTop: 10 }}>Login as PHM</button>
             </form>
           </div>
@@ -1156,9 +1329,34 @@ const phiSections = [
           </div>
         </div>
 
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+
+        <button
+          type="button"
+          style={styles.secondaryBtn}
+          onClick={toggleTheme}>
+          {isDark ? "☀️ Light Mode" : "🌙 Dark Mode"}
+        </button>
+
+        <select
+          value={language}
+          onChange={(e) => changeLanguage(e.target.value)}
+          style={{
+            ...styles.input,
+            width: "auto",
+            margin: 0,
+            padding: "8px 12px"
+          }}>
+          <option value="en">English</option>
+          <option value="si">සිංහල</option>
+          <option value="ta">தமிழ்</option>
+        </select>
+
         <button type="button" style={styles.logoutButton} onClick={handleLogout}>
           ↪ Logout
         </button>
+
+      </div>
       </header>
 
       <div style={styles.layout}>
@@ -1202,61 +1400,283 @@ const phiSections = [
         <main style={styles.content}>
           {message && <div style={{ ...styles.card, background: "rgba(16, 185, 129, 0.25)", color: "#a7f3d0" }}>{message}</div>}
 
-          {/* PHI DASHBOARD */}
+          {/* PHM DASHBOARD */}
+          {authenticatedRole === "PHM" && activeSection === "dashboard" && (
+            <div style={styles.card} {...hoverProps}>
+              <h2 style={{ color: "#a7f3d0", marginTop: 0 }}>
+                📊 {t("operationalOverview")}
+              </h2>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 18, marginTop: 16 }}>
+
+                <div
+                onClick={() => setActiveSection("mothers")}
+                {...hoverProps}
+                style={{
+                  background: isDark ? "#3b2457" : "#f3e8ff",
+                  padding: 20,
+                  borderRadius: 16,
+                  border: "1px solid #c084fc"
+                }}>
+                  <p style={{ margin: 0, color: isDark ? "#fff" : "#581c87" }}>
+                    👩 {t("registeredMothers")}
+                  </p>
+                  <strong style={{ fontSize: 32, color: isDark ? "#e9d5ff" : "#6b21a8" }}>
+                    {mothers.length}
+                  </strong>
+                </div>
+
+                <div
+                onClick={() => setActiveSection("children")}
+                {...hoverProps}
+                style={{
+                  background: isDark ? "#123b55" : "#e0f2fe",
+                  padding: 20,
+                  borderRadius: 16,
+                  border: "1px solid #38bdf8"
+                }}>
+                  <p style={{ margin: 0, color: isDark ? "#fff" : "#075985" }}>
+                    👶 {t("registeredChildren")}
+                  </p>
+                  <strong style={{ fontSize: 32, color: isDark ? "#bae6fd" : "#0369a1" }}>
+                    {children.length}
+                  </strong>
+                </div>
+
+                <div
+                onClick={() => setActiveSection("announcements")}
+                {...hoverProps}
+                style={{
+                  background: isDark ? "#59451c" : "#fef3c7",
+                  padding: 20,
+                  borderRadius: 16,
+                  border: "1px solid #fbbf24"
+                }}>
+                  <p style={{ margin: 0, color: isDark ? "#fff" : "#92400e" }}>
+                    📢 {t("announcements")}
+                  </p>
+                  <strong style={{ fontSize: 32, color: isDark ? "#fde68a" : "#b45309" }}>
+                    {announcements.length}
+                  </strong>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+                    {/* PHI DASHBOARD */}
           {authenticatedRole === "PHI" && activeSection === "dashboard" && (
             <div style={styles.card} {...hoverProps}>
-              <h2 style={{ color: "#a7f3d0", marginTop: 0 }}>📊 PHI Operational Overview</h2>
+              <h2 style={{ color: "#a7f3d0", marginTop: 0 }}>
+                📊 {t("operationalOverview")}
+              </h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 18, marginTop: 16 }}>
-                <div style={{ background: "rgba(255, 255, 255, 0.06)", padding: 20, borderRadius: 16, border: "1px solid rgba(167, 243, 208, 0.2)" }}>
-                  <p style={{ margin: 0, color: "#cbd5e1" }}>🏨 Establishments</p>
+                <div
+                  style={{
+                    background: isDark ? "#3b2457" : "#f3e8ff",
+                    padding: 20,
+                    borderRadius: 16,
+                    border: "1px solid #c084fc",
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setActiveSection("establishments")}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-8px) scale(1.03)";
+                    e.currentTarget.style.boxShadow = "0 15px 30px rgba(168, 85, 247, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                  >
+                  <p style={{ margin: 0, color: "#cbd5e1" }}>🏨 {t("establishments")}</p>
                   <strong style={{ fontSize: 32, color: "#a7f3d0" }}>{establishments.length}</strong>
                 </div>
-                <div style={{ background: "rgba(255, 255, 255, 0.06)", padding: 20, borderRadius: 16, border: "1px solid rgba(167, 243, 208, 0.2)" }}>
-                  <p style={{ margin: 0, color: "#cbd5e1" }}>📢 Announcements</p>
-                  <strong style={{ fontSize: 32, color: "#facc15" }}>{announcements.length}</strong>
+                <div
+                  style={{
+                    background: isDark ? "#59451c" : "#fef3c7",
+                    padding: 20,
+                    borderRadius: 16,
+                    border: "1px solid #fbbf24",
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setActiveSection("announcements")}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-8px) scale(1.03)";
+                    e.currentTarget.style.boxShadow = "0 15px 30px rgba(251, 191, 36, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                  >
+                  <p style={{ margin: 0, color: isDark ? "#fff" : "#92400e" }}>
+                    📢 {t("announcements")}
+                  </p>
+                  <strong style={{ fontSize: 32, color: isDark ? "#fde68a" : "#b45309" }}>
+                    {announcements.length}
+                  </strong>
                 </div>
               </div>
             </div>
           )}
 
-          {/* PHI - HOTELS & RESTAURANTS */}
+                    {/* PHI - HOTELS & RESTAURANTS */}
           {authenticatedRole === "PHI" && activeSection === "establishments" && (
             <div style={styles.card} {...hoverProps}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-                <h2>🏨 Hotels & Restaurants Records Management</h2>
+                <h2>🏨 {t("establishmentTitle")}</h2>
                 <button type="button" style={styles.button} onClick={() => { setEstForm({ id: null, name: "", type: "Restaurant", owner: "", status: "Grade A", phone: "" }); setIsEditingEst(false); setShowEstModal(true); }}>
-                  ➕ Add New Establishment
+                  ➕ {t("addEstablishment")}
                 </button>
               </div>
 
-              <div style={styles.tableWrap}>
-                <table style={styles.table}>
+              <div style={{
+                ...styles.tableWrap,
+                background: isDark ? "#1e293b" : "#ffffff",
+                border: isDark ? "1px solid #475569" : "1px solid #dbeafe",
+                borderRadius: 16,
+                padding: 12,
+                overflowX: "auto",
+                boxShadow: isDark
+                  ? "0 8px 25px rgba(0,0,0,0.25)"
+                  : "0 8px 25px rgba(30,64,175,0.08)"
+              }}>
+                <table style={{
+                  ...styles.table,
+                  tableLayout: "auto",
+                  width: "100%",
+                  borderCollapse: "separate",
+                  borderSpacing: "0 8px"
+                }}>
                   <thead>
                     <tr>
-                      <th style={styles.cell}>Name</th>
-                      <th style={styles.cell}>Type</th>
-                      <th style={styles.cell}>Owner</th>
-                      <th style={styles.cell}>Phone</th>
-                      <th style={styles.cell}>Status</th>
-                      <th style={styles.cell}>Actions</th>
+                      <th style={{
+                        ...styles.cell,
+                        background: isDark ? "#263f35" : "#d1fae5",
+                        color: isDark ? "#a7f3d0" : "#065f46",
+                        padding: "16px 12px",
+                        fontWeight: 700,
+                        borderBottom: "2px solid #10b981",
+                        whiteSpace: "nowrap"
+                      }}>{t("name")}</th>
+                      <th style={{
+                        ...styles.cell,
+                        background: isDark ? "#263f35" : "#d1fae5",
+                        color: isDark ? "#a7f3d0" : "#065f46",
+                        padding: "16px 12px",
+                        fontWeight: 700,
+                        borderBottom: "2px solid #10b981",
+                        whiteSpace: "nowrap"
+                      }}>{t("type")}</th>
+                      <th style={{
+                        ...styles.cell,
+                        background: isDark ? "#263f35" : "#d1fae5",
+                        color: isDark ? "#a7f3d0" : "#065f46",
+                        padding: "16px 12px",
+                        fontWeight: 700,
+                        borderBottom: "2px solid #10b981",
+                        whiteSpace: "nowrap"
+                      }}>{t("owner")}</th>
+                      <th style={{
+                        ...styles.cell,
+                        background: isDark ? "#263f35" : "#d1fae5",
+                        color: isDark ? "#a7f3d0" : "#065f46",
+                        padding: "16px 12px",
+                        fontWeight: 700,
+                        borderBottom: "2px solid #10b981",
+                        whiteSpace: "nowrap"
+                      }}>{t("phone")}</th>
+                      <th style={{
+                        ...styles.cell,
+                        background: isDark ? "#263f35" : "#d1fae5",
+                        color: isDark ? "#a7f3d0" : "#065f46",
+                        padding: "16px 12px",
+                        fontWeight: 700,
+                        borderBottom: "2px solid #10b981",
+                        whiteSpace: "nowrap"
+                      }}>{t("status")}</th>
+                      <th style={{
+                        ...styles.cell,
+                        background: isDark ? "#263f35" : "#d1fae5",
+                        color: isDark ? "#a7f3d0" : "#065f46",
+                        padding: "16px 12px",
+                        fontWeight: 700,
+                        borderBottom: "2px solid #10b981",
+                        whiteSpace: "nowrap"
+                      }}>{t("actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {establishments.map((est) => (
                       <tr key={est._id || est.id}>
-                        <td style={styles.cell}><strong>{est.name}</strong></td>
-                        <td style={styles.cell}>{est.type}</td>
-                        <td style={styles.cell}>{est.owner}</td>
-                        <td style={styles.cell}>{est.phone || "N/A"}</td>
-                        <td style={styles.cell}>
-                          <span style={{ padding: "4px 10px", borderRadius: 8, background: est.status.includes("Grade A") ? "rgba(16, 185, 129, 0.25)" : "rgba(239, 68, 68, 0.25)", color: est.status.includes("Grade A") ? "#a7f3d0" : "#fca5a5" }}>
-                            {est.status}
+                        <td style={{
+                          ...styles.cell,
+                          background: isDark ? "#263445" : "#f8fafc",
+                          color: isDark ? "#e2e8f0" : "#334155",
+                          padding: "15px 12px",
+                          borderBottom: isDark ? "1px solid #475569" : "1px solid #e2e8f0"
+                        }}><strong>{est.name}</strong></td>
+                        <td style={{
+                          ...styles.cell,
+                          background: isDark ? "#263445" : "#f8fafc",
+                          color: isDark ? "#e2e8f0" : "#334155",
+                          padding: "15px 12px",
+                          borderBottom: isDark ? "1px solid #475569" : "1px solid #e2e8f0"
+                        }}>{est.type === "Restaurant" ? t("restaurant") : est.type === "Food Store" ? t("foodStore") : est.type === "Bakery" ? t("bakery") : est.type}</td>
+                        <td style={{
+                          ...styles.cell,
+                          background: isDark ? "#263445" : "#f8fafc",
+                          color: isDark ? "#e2e8f0" : "#334155",
+                          padding: "15px 12px",
+                          borderBottom: isDark ? "1px solid #475569" : "1px solid #e2e8f0"
+                        }}>{est.owner}</td>
+                        <td style={{
+                          ...styles.cell,
+                          background: isDark ? "#263445" : "#f8fafc",
+                          color: isDark ? "#e2e8f0" : "#334155",
+                          padding: "15px 12px",
+                          borderBottom: isDark ? "1px solid #475569" : "1px solid #e2e8f0"
+                        }}>{est.phone || t("notAvailable")}</td>
+                        <td style={{
+                          ...styles.cell,
+                          background: isDark ? "#263445" : "#f8fafc",
+                          color: isDark ? "#e2e8f0" : "#334155",
+                          padding: "15px 12px",
+                          borderBottom: isDark ? "1px solid #475569" : "1px solid #e2e8f0"
+                        }}>
+                          <span style={{
+                            padding: "6px 12px",
+                            borderRadius: 20,
+                            display: "inline-block",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            background: String(est.status || "").includes("Grade A")
+                              ? (isDark ? "#14532d" : "#dcfce7")
+                              : String(est.status || "").includes("Grade B")
+                              ? (isDark ? "#713f12" : "#fef3c7")
+                              : (isDark ? "#7f1d1d" : "#fee2e2"),
+                            color: String(est.status || "").includes("Grade A")
+                              ? (isDark ? "#bbf7d0" : "#166534")
+                              : String(est.status || "").includes("Grade B")
+                              ? (isDark ? "#fde68a" : "#92400e")
+                              : (isDark ? "#fecaca" : "#991b1b")
+                          }}>
+                            {est.status === "Grade A" ? t("gradeA") : est.status === "Grade B" ? t("gradeB") : est.status === "Warning Issued" ? t("warningIssued") : est.status || t("notSet")}
                           </span>
                         </td>
-                        <td style={styles.cell}>
+                        <td style={{
+                          ...styles.cell,
+                          background: isDark ? "#263445" : "#f8fafc",
+                          color: isDark ? "#e2e8f0" : "#334155",
+                          padding: "15px 12px",
+                          borderBottom: isDark ? "1px solid #475569" : "1px solid #e2e8f0"
+                        }}>
                           <div style={{ display: "flex", gap: 8 }}>
-                            <button type="button" style={{ ...styles.secondaryBtn, padding: "5px 10px", fontSize: 12 }} onClick={() => { setEstForm(est); setIsEditingEst(true); setShowEstModal(true); }}>✏️ Edit</button>
-                            <button type="button" style={styles.dangerBtn} onClick={() => handleDeleteEst(est._id || est.id)}>🗑️ Delete</button>
+                            <button type="button" style={{ ...styles.secondaryBtn, padding: "5px 10px", fontSize: 12, color: "#000000"}} onClick={() => { setEstForm(est); setIsEditingEst(true); setShowEstModal(true); }}>✏️ {t("edit")}</button>
+                            <button type="button" style={styles.dangerBtn} onClick={() => handleDeleteEst(est._id || est.id)}>🗑️ {t("delete")}</button>
                           </div>
                         </td>
                       </tr>
@@ -1267,65 +1687,71 @@ const phiSections = [
             </div>
           )}
 
-          {/* PHM DASHBOARD */}
-          {authenticatedRole === "PHM" && activeSection === "dashboard" && (
-            <div style={styles.card} {...hoverProps}>
-              <h2 style={{ color: "#a7f3d0", marginTop: 0 }}>📊 PHM Health Overview</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 18, marginTop: 16 }}>
-                <div style={{ background: "rgba(255, 255, 255, 0.06)", padding: 20, borderRadius: 16, border: "1px solid rgba(167, 243, 208, 0.2)" }}>
-                  <p style={{ margin: 0, color: "#cbd5e1" }}>👩 Registered Mothers</p>
-                  <strong style={{ fontSize: 32, color: "#a7f3d0" }}>{mothers.length}</strong>
-                </div>
-                <div style={{ background: "rgba(255, 255, 255, 0.06)", padding: 20, borderRadius: 16, border: "1px solid rgba(167, 243, 208, 0.2)" }}>
-                  <p style={{ margin: 0, color: "#cbd5e1" }}>👶 Registered Children</p>
-                  <strong style={{ fontSize: 32, color: "#38bdf8" }}>{children.length}</strong>
-                </div>
-                <div style={{ background: "rgba(255, 255, 255, 0.06)", padding: 20, borderRadius: 16, border: "1px solid rgba(167, 243, 208, 0.2)" }}>
-                  <p style={{ margin: 0, color: "#cbd5e1" }}>📢 Announcements</p>
-                  <strong style={{ fontSize: 32, color: "#facc15" }}>{announcements.length}</strong>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* MOTHERS SECTION (PHM) */}
+                    {/* MOTHERS SECTION (PHM) */}
           {authenticatedRole === "PHM" && activeSection === "mothers" && (
-            <div style={styles.card} {...hoverProps}>
+            <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2>👩 Registered Mothers Records</h2>
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>👩 {t("mothersTitle")}</h2>
+
                 <button type="button" style={styles.button} onClick={() => { setMotherForm({ id: null, memberId: "", name: "", nic: "", dob: "", phone: "", pregnancyMonths: "", address: "" }); setIsEditingMother(false); setShowMotherModal(true); }}>
-                  ➕ Register New Mother
+                  ➕ {t("registerMother")}
                 </button>
               </div>
 
-              <div style={styles.tableWrap}>
-                <table style={styles.table}>
+              <div style={{ ...styles.tableWrap, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc", borderRadius: 12 }}>
+                <table style={{ ...styles.table, tableLayout: "auto", width: "100%" }}>
                   <thead>
                     <tr>
-                      <th style={styles.cell}>Name</th>
-                      <th style={styles.cell}>NIC</th>
-                      <th style={styles.cell}>Birth Date (BD)</th>
-                      <th style={styles.cell}>Pregnancy Status</th>
-                      <th style={styles.cell}>Phone</th>
-                      <th style={styles.cell}>Actions</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("name")}</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>NIC</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("birthDate")}</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("pregnancyStatus")}</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("phone")}</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("actions")}</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {mothers.map((m) => (
                       <tr key={m._id || m.id}>
-                        <td style={styles.cell}><strong>{m.name}</strong></td>
-                        <td style={styles.cell}>{m.nic}</td>
-                        <td style={styles.cell}>{m.dob || "N/A"}</td>
-                        <td style={styles.cell}>
-                          <span style={{ padding: "4px 10px", borderRadius: 8, background: "rgba(16, 185, 129, 0.25)", color: "#a7f3d0" }}>
-                            {m.pregnancyMonths ? `${m.pregnancyMonths} Months` : "N/A"}
+                        <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                          <strong>{m.name}</strong>
+                        </td>
+
+                        <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                          {m.nic}
+                        </td>
+
+                        <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                          {m.dob || "N/A"}
+                        </td>
+
+                        <td style={{ ...styles.cell, borderBottom: "1px solid #c084fc" }}>
+                          <span style={{
+                            padding: "4px 10px",
+                            borderRadius: 8,
+                            background: isDark ? "#59451c" : "#fef3c7",
+                            color: isDark ? "#fde68a" : "#92400e",
+                            fontWeight: 500
+                          }}>
+                            {m.pregnancyMonths ? `${m.pregnancyMonths} ${t("months")}` : "N/A"}
                           </span>
                         </td>
-                        <td style={styles.cell}>{m.phone}</td>
-                        <td style={styles.cell}>
+
+                        <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                          {m.phone}
+                        </td>
+
+                        <td style={{ ...styles.cell, borderBottom: "1px solid #c084fc" }}>
                           <div style={{ display: "flex", gap: 8 }}>
-                            <button type="button" style={{ ...styles.secondaryBtn, padding: "5px 10px", fontSize: 12 }} onClick={() => { setMotherForm(m); setIsEditingMother(true); setShowMotherModal(true); }}>✏️ Edit</button>
-                            <button type="button" style={styles.dangerBtn} onClick={() => handleDeleteMother(m._id || m.id)}>🗑️ Delete</button>
+                            <button type="button" style={{ ...styles.secondaryBtn, padding: "5px 10px", fontSize: 12, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", border: "1px solid #c084fc" }} onClick={() => { setMotherForm(m); setIsEditingMother(true); setShowMotherModal(true); }}>
+                              ✏️ {t("edit")}
+                            </button>
+
+                            <button type="button" style={styles.dangerBtn} onClick={() => handleDeleteMother(m._id || m.id)}>
+                              🗑️ {t("delete")}
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1336,53 +1762,87 @@ const phiSections = [
             </div>
           )}
 
-          {/* CHILDREN SECTION (PHM - Infants & 1 Month to 10 Years) */}
+                    {/* CHILDREN SECTION (PHM - Infants & 1 Month to 10 Years) */}
           {authenticatedRole === "PHM" && activeSection === "children" && (
-            <div style={styles.card} {...hoverProps}>
+            <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2>👶 Children Health Records (Infants & 1 Month - 10 Years)</h2>
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>
+                  👶 {t("childrenTitle")}
+                </h2>
+
                 <button type="button" style={styles.button} onClick={() => { setChildForm({ id: null, childName: "", motherNic: "", dob: "", weight: "", vaccineStatus: "Up to Date" }); setIsEditingChild(false); setShowChildModal(true); }}>
-                  ➕ Add New Child Record
+                  ➕ {t("addChildRecord")}
                 </button>
               </div>
 
-              <div style={styles.tableWrap}>
-                <table style={styles.table}>
+              <div style={{ ...styles.tableWrap, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc", borderRadius: 12 }}>
+                <table style={{ ...styles.table, tableLayout: "auto", width: "100%" }}>
                   <thead>
                     <tr>
-                      <th style={styles.cell}>Child Name</th>
-                      <th style={styles.cell}>Mother's NIC / Name</th>
-                      <th style={styles.cell}>Birth Date (BD)</th>
-                      <th style={styles.cell}>Calculated Age</th>
-                      <th style={styles.cell}>Weight</th>
-                      <th style={styles.cell}>Vaccine Status</th>
-                      <th style={styles.cell}>Actions</th>
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("childName")}</th>
+
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("motherName")}</th>
+
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("birthDate")}</th>
+
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("calculatedAge")}</th>
+
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("weight")}</th>
+
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("vaccineStatus")}</th>
+
+                      <th style={{ ...styles.cell, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", borderBottom: "1px solid #c084fc" }}>{t("actions")}</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {children.map((c) => {
                       const matchedMother = mothers.find((m) => m.nic === c.motherNic);
                       const ageInfo = calculateAge(c.dob);
+
                       return (
                         <tr key={c._id || c.id}>
-                          <td style={styles.cell}><strong>{c.childName}</strong></td>
-                          <td style={styles.cell}>{matchedMother ? `${matchedMother.name} (${c.motherNic})` : c.motherNic || "N/A"}</td>
-                          <td style={styles.cell}>{c.dob}</td>
-                          <td style={styles.cell}>
-                            <span style={{ padding: "4px 8px", borderRadius: 6, background: "rgba(255,255,255,0.1)", color: "#a7f3d0" }}>
-                              {ageInfo.text} {ageInfo.months < 12 ? "(Infant)" : ""}
+                          <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                            <strong>{c.childName}</strong>
+                          </td>
+
+                          <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                            {matchedMother ? matchedMother.name : "N/A"}
+                          </td>
+
+                          <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                            {c.dob}
+                          </td>
+
+                          <td style={{ ...styles.cell, borderBottom: "1px solid #c084fc" }}>
+                            <span style={{ padding: "4px 8px", borderRadius: 6, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87" }}>
+                              {ageInfo.text} {ageInfo.months < 12 ? `(${t("infant")})` : ""}
                             </span>
                           </td>
-                          <td style={styles.cell}>{c.weight} kg</td>
-                          <td style={styles.cell}>
-                            <span style={{ padding: "4px 10px", borderRadius: 8, background: "rgba(56, 189, 248, 0.25)", color: "#38bdf8" }}>
-                              {c.vaccineStatus}
+
+                          <td style={{ ...styles.cell, color: isDark ? "#f3e8ff" : "#581c87", borderBottom: "1px solid #c084fc" }}>
+                            {c.weight} kg
+                          </td>
+
+                          <td style={{ ...styles.cell, borderBottom: "1px solid #c084fc" }}>
+                            <span style={{ padding: "4px 10px", borderRadius: 8, background: isDark ? "#123b55" : "#e0f2fe", color: isDark ? "#bae6fd" : "#075985" }}>
+                              {c.vaccineStatus === "Up to Date"
+                                ? t("upToDate")
+                                : c.vaccineStatus === "Birth vaccine"
+                                  ? t("birthVaccine")
+                                  : c.vaccineStatus}
                             </span>
                           </td>
-                          <td style={styles.cell}>
+
+                          <td style={{ ...styles.cell, borderBottom: "1px solid #c084fc" }}>
                             <div style={{ display: "flex", gap: 8 }}>
-                              <button type="button" style={{ ...styles.secondaryBtn, padding: "5px 10px", fontSize: 12 }} onClick={() => { setChildForm(c); setIsEditingChild(true); setShowChildModal(true); }}>✏️ Edit</button>
-                              <button type="button" style={styles.dangerBtn} onClick={() => handleDeleteChild(c._id || c.id)}>🗑️ Delete</button>
+                              <button type="button" style={{ ...styles.secondaryBtn, padding: "5px 10px", fontSize: 12, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", border: "1px solid #c084fc" }} onClick={() => { setChildForm(c); setIsEditingChild(true); setShowChildModal(true); }}>
+                                ✏️ {t("edit")}
+                              </button>
+
+                              <button type="button" style={styles.dangerBtn} onClick={() => handleDeleteChild(c._id || c.id)}>
+                                🗑️ {t("delete")}
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1394,26 +1854,28 @@ const phiSections = [
             </div>
           )}
 
-          {/* ANNOUNCEMENTS SECTION */}
+                    {/* ANNOUNCEMENTS SECTION */}
           {activeSection === "announcements" && (
             <>
-              <div style={styles.card} {...hoverProps}>
-                <h2>📢 {isEditingAnnouncement ? "Edit Announcement" : `Publish New Announcement (${authenticatedRole})`}</h2>
+              <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }} {...hoverProps}>
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>📢 {isEditingAnnouncement ? t("edit") + " " + t("announcements") : t("announcementTitle").replace("(PHM)", `(${authenticatedRole})`)}</h2>
                 <form onSubmit={handleSaveAnnouncement}>
-                  <Field 
-                    label="Announcement Photo / Image URL (Optional)" 
-                    value={announcementForm.imageUrl} 
-                    onChange={(v) => setAnnouncementForm({ ...announcementForm, imageUrl: v })} 
-                    placeholder="Paste image URL here..." 
+                  <Field
+                    label={t("announcementPhoto")}
+                    value={announcementForm.imageUrl}
+                    onChange={(v) => setAnnouncementForm({ ...announcementForm, imageUrl: v })}
+                    placeholder={t("Paste Image Url")}
+                    isDark={isDark}
                   />
-                  <Field 
-                    label="Title" 
-                    value={announcementForm.title} 
-                    onChange={(v) => setAnnouncementForm({ ...announcementForm, title: v })} 
-                    required 
+                  <Field
+                    label={t("title")}
+                    value={announcementForm.title}
+                    onChange={(v) => setAnnouncementForm({ ...announcementForm, title: v })}
+                    required
+                    isDark={isDark}
                   />
-                  <label style={styles.label}>
-                    Details
+                  <label style={{ ...styles.label, color: isDark ? "#ffffff" : "#581c87" }}>
+                    {t("details")}
                     <textarea
                       style={{ ...styles.input, minHeight: 90, resize: "vertical" }}
                       value={announcementForm.content}
@@ -1423,7 +1885,7 @@ const phiSections = [
                   </label>
                   <div style={{ display: "flex", gap: 12 }}>
                     <button style={styles.button} type="submit">
-                      {isEditingAnnouncement ? "💾 Update Announcement" : "📢 Publish Announcement"}
+                      {isEditingAnnouncement ? "💾 " + t("updateAnnouncement") : "📢 " + t("publishAnnouncement")}
                     </button>
                     {isEditingAnnouncement && (
                       <button
@@ -1434,42 +1896,58 @@ const phiSections = [
                           setAnnouncementForm({ id: null, title: "", content: "", imageUrl: "" });
                         }}
                       >
-                        Cancel
+                        {t("cancel")}
                       </button>
                     )}
                   </div>
                 </form>
               </div>
 
-              <div style={styles.card} {...hoverProps}>
-                <h2>📌 Published Announcements ({authenticatedRole})</h2>
-                
+              <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }} {...hoverProps}>
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>📌 {t("publishedAnnouncements")} ({authenticatedRole})</h2>
+
                 <div style={styles.announcementGrid}>
                   {announcements.map((item) => (
-                    <div key={item._id || item.id} style={styles.announcementPublicCard}>
+                    <div
+                      key={item._id || item.id}
+                      style={{
+                        ...styles.announcementPublicCard,
+                        background: isDark ? "#2d1b42" : "#faf5ff",
+                        border: "1px solid #c084fc",
+                        borderRadius: 14,
+                        overflow: "hidden",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-7px)";
+                        e.currentTarget.style.boxShadow = "0 12px 25px rgba(168, 85, 247, 0.3)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    >
                       {item.imageUrl ? (
                         <img src={item.imageUrl} alt={item.title} style={styles.announcementImage} />
                       ) : (
-                        <div style={{ ...styles.announcementImage, background: "rgba(16, 185, 129, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#a7f3d0", fontSize: 24 }}>
+                        <div style={{ ...styles.announcementImage, background: isDark ? "#594078" : "#e9d5ff", display: "flex", alignItems: "center", justifyContent: "center", color: isDark ? "#e9d5ff" : "#6b21a8", fontSize: 24 }}>
                           📢
                         </div>
                       )}
 
-                      <div style={styles.announcementCardBody}>
-                        <span style={{ fontSize: 11, background: "rgba(16, 185, 129, 0.2)", color: "#a7f3d0", padding: "2px 8px", borderRadius: 6, fontWeight: 600, width: "fit-content" }}>
-                          {item.role || authenticatedRole}
-                        </span>
-                        <h3 style={{ margin: "4px 0", color: "#fff", fontSize: 18 }}>{item.title}</h3>
-                        <p style={{ color: "#cbd5e1", margin: 0, fontSize: 13, flex: 1, whiteSpace: "pre-wrap" }}>{item.content}</p>
-                        
-                        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 10, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <small style={{ color: "#94a3b8", fontSize: 12 }}>📅 Date: {item.createdAt ? new Date(item.createdAt).toISOString().slice(0, 10) : "Recent"}</small>
+                      <div style={{ ...styles.announcementCardBody, background: isDark ? "#2d1b42" : "#faf5ff", padding: 16 }}>
+                        <h3 style={{ margin: "4px 0", color: isDark ? "#e9d5ff" : "#581c87", fontSize: 18 }}>{item.title}</h3>
+                        <p style={{ color: isDark ? "#e2d5f0" : "#6b21a8", margin: 0, fontSize: 13, flex: 1, whiteSpace: "pre-wrap" }}>{item.content}</p>
+
+                        <div style={{ borderTop: "1px solid #c084fc", paddingTop: 10, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <small style={{ color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 12 }}>📅 {t("date")}: {item.createdAt ? new Date(item.createdAt).toISOString().slice(0, 10) : t("recent")}</small>
                           <div style={{ display: "flex", gap: 6 }}>
-                            <button type="button" style={{ ...styles.secondaryBtn, padding: "4px 8px", fontSize: 11 }} onClick={() => { setAnnouncementForm(item); setIsEditingAnnouncement(true); }}>
-                              ✏️ Edit
+                            <button type="button" style={{ ...styles.secondaryBtn, padding: "4px 8px", fontSize: 11, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", border: "1px solid #c084fc" }} onClick={() => { setAnnouncementForm(item); setIsEditingAnnouncement(true); }}>
+                              ✏️ {t("edit")}
                             </button>
                             <button type="button" style={{ ...styles.dangerBtn, padding: "4px 8px", fontSize: 11 }} onClick={() => handleDeleteAnnouncement(item._id || item.id)}>
-                              🗑️ Delete
+                              🗑️ {t("delete")}
                             </button>
                           </div>
                         </div>
@@ -1481,60 +1959,73 @@ const phiSections = [
             </>
           )}
 
-          {/* PROFILE SECTION */}
+                    {/* PROFILE SECTION */}
           {activeSection === "profile" && (
-            <div style={styles.card} {...hoverProps}>
+            <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }} {...hoverProps}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2>👤 Profile Settings ({authenticatedRole})</h2>
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>👤 {t("profileSettings").replace("(PHM)", `(${authenticatedRole})`)}</h2>
                 {!isEditingProfile && (
                   <button type="button" style={styles.button} onClick={() => setIsEditingProfile(true)}>
-                    ✏️ Edit Profile
+                    ✏️ {t("editProfile")}
                   </button>
                 )}
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 24, padding: 20, borderRadius: 14, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc" }}>
                 <div style={styles.avatarContainer}>
                   {profileForm.photoUrl ? (
                     <img src={profileForm.photoUrl} alt="Officer Profile" style={styles.avatar} />
                   ) : (
-                    <div style={{ ...styles.avatar, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, color: "#a7f3d0" }}>
+                    <div style={{ ...styles.avatar, background: isDark ? "#594078" : "#e9d5ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, color: isDark ? "#e9d5ff" : "#6b21a8" }}>
                       👤
                     </div>
                   )}
 
-                  <div style={styles.cameraBadge} title="Change or Edit Photo" onClick={() => setShowPhotoModal(true)}>
+                  <div style={styles.cameraBadge} title={t("changeEditPhoto")} onClick={() => setShowPhotoModal(true)}>
                     📷
                   </div>
                 </div>
 
                 <div>
-                  <h3 style={{ margin: 0, color: "#a7f3d0", fontSize: 20 }}>{profileForm.fullName || "Officer Profile"}</h3>
-                  <p style={{ margin: "4px 0 8px 0", color: "#cbd5e1", fontSize: 13 }}>{authenticatedRole === "PHI" ? "Public Health Inspector" : "Public Health Midwife"}</p>
+                  <h3 style={{ margin: 0, color: isDark ? "#e9d5ff" : "#6b21a8", fontSize: 20 }}>{profileForm.fullName || t("officerProfile")}</h3>
+                  <p style={{ margin: "4px 0 8px 0", color: isDark ? "#d8b4fe" : "#7e22ce", fontSize: 13 }}>{authenticatedRole === "PHI" ? t("publicHealthInspector") : t("publicHealthMidwife")}</p>
                 </div>
               </div>
 
               {profile && !isEditingProfile ? (
-                <div style={{ marginTop: 16, lineHeight: "1.8" }}>
-                  <p><strong>Full Name:</strong> {profile.fullName}</p>
-                  <p><strong>Email:</strong> {profile.email}</p>
-                  <p><strong>Phone:</strong> {profile.phone}</p>
-                  <p><strong>House Number / ID:</strong> {profile.houseNumber}</p>
+                <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+                  <div style={{ padding: 16, borderRadius: 12, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc" }}>
+                    <p style={{ margin: 0, color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 13 }}>👤 {t("fullName")}</p>
+                    <strong style={{ color: isDark ? "#f3e8ff" : "#581c87" }}>{profile.fullName}</strong>
+                  </div>
+                  <div style={{ padding: 16, borderRadius: 12, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc" }}>
+                    <p style={{ margin: 0, color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 13 }}>📧 {t("email")}</p>
+                    <strong style={{ color: isDark ? "#f3e8ff" : "#581c87" }}>{profile.email}</strong>
+                  </div>
+                  <div style={{ padding: 16, borderRadius: 12, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc" }}>
+                    <p style={{ margin: 0, color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 13 }}>📞 {t("phone")}</p>
+                    <strong style={{ color: isDark ? "#f3e8ff" : "#581c87" }}>{profile.phone}</strong>
+                  </div>
+                  <div style={{ padding: 16, borderRadius: 12, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc" }}>
+                    <p style={{ margin: 0, color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 13 }}>🏠 {t("houseNumberId")}</p>
+                    <strong style={{ color: isDark ? "#f3e8ff" : "#581c87" }}>{profile.houseNumber}</strong>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSaveProfile}>
-                  <Field label="Full Name" value={profileForm.fullName} onChange={(v) => setProfileForm({ ...profileForm, fullName: v })} required />
-                  <Field label="Email Address" value={profileForm.email} onChange={(v) => setProfileForm({ ...profileForm, email: v })} required />
-                  <Field label="Phone Number" value={profileForm.phone} onChange={(v) => setProfileForm({ ...profileForm, phone: v })} required />
-                  <Field label="House Number / Official ID" value={profileForm.houseNumber} onChange={(v) => setProfileForm({ ...profileForm, houseNumber: v })} />
+                  <Field label={t("fullName")} value={profileForm.fullName} onChange={(v) => setProfileForm({ ...profileForm, fullName: v })} required isDark={isDark} />
+                  <Field label={t("emailAddress")} value={profileForm.email} onChange={(v) => setProfileForm({ ...profileForm, email: v })} required isDark={isDark} />
+                  <Field label={t("phoneNumber")} value={profileForm.phone} onChange={(v) => setProfileForm({ ...profileForm, phone: v })} required isDark={isDark} />
+                  <Field label={t("officialHouseNumberId")} value={profileForm.houseNumber} onChange={(v) => setProfileForm({ ...profileForm, houseNumber: v })} isDark={isDark} />
                   <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                    <button type="submit" style={styles.button}>💾 Save Profile</button>
-                    <button type="button" style={styles.secondaryBtn} onClick={() => setIsEditingProfile(false)}>Cancel</button>
+                    <button type="submit" style={styles.button}>💾 {t("saveProfile")}</button>
+                    <button type="button" style={styles.secondaryBtn} onClick={() => setIsEditingProfile(false)}>{t("cancel")}</button>
                   </div>
                 </form>
               )}
             </div>
           )}
+
         </main>
       </div>
 
@@ -1580,12 +2071,12 @@ const phiSections = [
           <div style={styles.modalContent}>
             <h2 style={{ marginTop: 0, color: "#a7f3d0" }}>{isEditingMother ? "✏️ Edit Mother Record" : "👩 Register New Mother"}</h2>
             <form onSubmit={handleSaveMother}>
-              <Field label="Full Name" value={motherForm.name} onChange={(v) => setMotherForm({ ...motherForm, name: v })} required />
-              <Field label="NIC Number" value={motherForm.nic} onChange={(v) => setMotherForm({ ...motherForm, nic: v })} required />
-              <Field label="Birth Date (BD)" type="date" value={motherForm.dob} onChange={(v) => setMotherForm({ ...motherForm, dob: v })} required />
-              <Field label="Pregnancy Status (Months/මාස ගණන)" type="number" value={motherForm.pregnancyMonths} onChange={(v) => setMotherForm({ ...motherForm, pregnancyMonths: v })} placeholder="e.g. 5" />
-              <Field label="Phone Number" value={motherForm.phone} onChange={(v) => setMotherForm({ ...motherForm, phone: v })} required />
-              <Field label="Address" value={motherForm.address} onChange={(v) => setMotherForm({ ...motherForm, address: v })} required />
+              <Field label="Full Name" value={motherForm.name} onChange={(v) => setMotherForm({ ...motherForm, name: v })} required isDark={isDark} />
+              <Field label="NIC Number" value={motherForm.nic} onChange={(v) => setMotherForm({ ...motherForm, nic: v })} required isDark={isDark} />
+              <Field label="Birth Date (BD)" type="date" value={motherForm.dob} onChange={(v) => setMotherForm({ ...motherForm, dob: v })} required isDark={isDark} />
+              <Field label="Pregnancy Status (Months/මාස ගණන)" type="number" value={motherForm.pregnancyMonths} onChange={(v) => setMotherForm({ ...motherForm, pregnancyMonths: v })} placeholder="e.g. 5" isDark={isDark} />
+              <Field label="Phone Number" value={motherForm.phone} onChange={(v) => setMotherForm({ ...motherForm, phone: v })} required isDark={isDark} />
+              <Field label="Address" value={motherForm.address} onChange={(v) => setMotherForm({ ...motherForm, address: v })} required isDark={isDark} />
               <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
                 <button type="submit" style={styles.button}>💾 Save Record</button>
                 <button type="button" style={styles.secondaryBtn} onClick={() => setShowMotherModal(false)}>Cancel</button>
@@ -1594,7 +2085,7 @@ const phiSections = [
           </div>
         </div>
       )}
-      
+
       {showChildModal && (
         <div style={styles.modalBackdrop}>
           <div style={styles.modalContent}>
@@ -1602,21 +2093,23 @@ const phiSections = [
               {isEditingChild ? "✏️ Edit Child Record" : "👶 Add Child Record (Infants / 1m - 10y)"}
             </h2>
             <form onSubmit={handleSaveChild}>
-              
-              <Field 
-                label="Child Full Name" 
-                value={childForm.childName} 
-                onChange={(v) => setChildForm({ ...childForm, childName: v })} 
-                required 
+
+              <Field
+                label="Child Full Name"
+                value={childForm.childName}
+                onChange={(v) => setChildForm({ ...childForm, childName: v })}
+                required
+                isDark={isDark}
               />
 
-              <label style={styles.label}>
+              <label style={{ ...styles.label, color: isDark ? "#ffffff" : "#000000" }}>
                 Select Mother (Mother's NIC)
-                <select 
-                  style={styles.input} 
-                  value={childForm.motherNic} 
-                  onChange={(e) => setChildForm({ ...childForm, motherNic: e.target.value })} 
+                <select
+                  style={styles.input}
+                  value={childForm.motherNic}
+                  onChange={(e) => setChildForm({ ...childForm, motherNic: e.target.value })}
                   required
+                  isDark={isDark}
                 >
                   <option value="">-- Choose Mother --</option>
                   {mothers.map((m) => (
@@ -1627,41 +2120,46 @@ const phiSections = [
                 </select>
               </label>
 
-              <Field 
-                label="Birth Date (BD)" 
-                type="date" 
-                value={childForm.dob} 
-                onChange={(v) => setChildForm({ ...childForm, dob: v })} 
-                required 
+              <Field
+                label="Birth Date (BD)"
+                type="date"
+                value={childForm.dob}
+                onChange={(v) => setChildForm({ ...childForm, dob: v })}
+                required
+                isDark={isDark}
               />
 
-              <Field 
-                label="Weight (kg)" 
-                value={childForm.weight} 
-                onChange={(v) => setChildForm({ ...childForm, weight: v })} 
-                required 
+              <Field
+                label="Weight (kg)"
+                value={childForm.weight}
+                onChange={(v) => setChildForm({ ...childForm, weight: v })}
+                required
+                isDark={isDark}
               />
 
-              <Field 
-                label="Vaccine Status" 
-                value={childForm.vaccineStatus} 
-                onChange={(v) => setChildForm({ ...childForm, vaccineStatus: v })} 
-                placeholder="e.g. Up to Date / BCG Done" 
-                required 
+              <Field
+                label="Vaccine Status"
+                value={childForm.vaccineStatus}
+                onChange={(v) => setChildForm({ ...childForm, vaccineStatus: v })}
+                placeholder="e.g. Up to Date / BCG Done"
+                required
+                isDark={isDark}
               />
 
-              <Field 
-                label="Recently Administered Vaccine (ලඟදි ගහපු Vaccine එක)" 
-                value={childForm.latestVaccine} 
-                onChange={(v) => setChildForm({ ...childForm, latestVaccine: v })} 
-                placeholder="e.g. MMR, DTaP, OPV" 
+              <Field
+                label="Recently Administered Vaccine (ලඟදි ගහපු Vaccine එක)"
+                value={childForm.latestVaccine}
+                onChange={(v) => setChildForm({ ...childForm, latestVaccine: v })}
+                placeholder="e.g. MMR, DTaP, OPV"
+                isDark={isDark}
               />
 
-              <Field 
-                label="Vaccination Date (එක ගහපු දිනය)" 
-                type="date" 
-                value={childForm.vaccineDate} 
-                onChange={(v) => setChildForm({ ...childForm, vaccineDate: v })} 
+              <Field
+                label="Vaccination Date (එක ගහපු දිනය)"
+                type="date"
+                value={childForm.vaccineDate}
+                onChange={(v) => setChildForm({ ...childForm, vaccineDate: v })}
+                isDark={isDark}
               />
 
               <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
@@ -1678,8 +2176,8 @@ const phiSections = [
           <div style={styles.modalContent}>
             <h2 style={{ marginTop: 0, color: "#a7f3d0" }}>{isEditingEst ? "✏️ Edit Establishment" : "🏨 Add New Establishment"}</h2>
             <form onSubmit={handleSaveEstablishment}>
-              <Field label="Establishment Name" value={estForm.name} onChange={(v) => setEstForm({ ...estForm, name: v })} required />
-              <label style={styles.label}>
+              <Field label="Establishment Name" value={estForm.name} onChange={(v) => setEstForm({ ...estForm, name: v })} required isDark={isDark} />
+              <label style={{ ...styles.label, color: isDark ? "#ffffff" : "#000000" }}>
                 Type
                 <select style={styles.input} value={estForm.type} onChange={(e) => setEstForm({ ...estForm, type: e.target.value })}>
                   <option value="Restaurant">Restaurant</option>
@@ -1688,9 +2186,9 @@ const phiSections = [
                   <option value="Food Store">Food Store</option>
                 </select>
               </label>
-              <Field label="Owner Name" value={estForm.owner} onChange={(v) => setEstForm({ ...estForm, owner: v })} required />
-              <Field label="Contact Phone" value={estForm.phone} onChange={(v) => setEstForm({ ...estForm, phone: v })} />
-              <label style={styles.label}>
+              <Field label="Owner Name" value={estForm.owner} onChange={(v) => setEstForm({ ...estForm, owner: v })} required isDark={isDark}/>
+              <Field label="Contact Phone" value={estForm.phone} onChange={(v) => setEstForm({ ...estForm, phone: v })} isDark={isDark} />
+              <label style={{ ...styles.label, color: isDark ? "#ffffff" : "#000000" }}>
                 Health Status
                 <select style={styles.input} value={estForm.status} onChange={(e) => setEstForm({ ...estForm, status: e.target.value })}>
                   <option value="Grade A">Grade A (Excellent)</option>
@@ -1710,4 +2208,4 @@ const phiSections = [
   );
 }
 
-export default HealthPortal; 
+export default HealthPortal;
