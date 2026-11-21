@@ -2520,8 +2520,8 @@ async function sendMessageToBot(message) {
 
                             <img
                               src={
-                                announcement.image ||
                                 announcement.imageUrl ||
+                                announcement.image ||
                                 "/images/activity3.jpg"
                               }
                               alt={
@@ -2533,6 +2533,12 @@ async function sendMessageToBot(message) {
                                 announcement.title ||
                                 "Announcement"
                               }
+                              onError={(e) => {
+                                console.log(
+                                  "Announcement image failed:",
+                                  e.currentTarget.src
+                                );
+                              }}
                             />
 
                           </div>
@@ -2557,15 +2563,13 @@ async function sendMessageToBot(message) {
                             </h3>
 
                             <p>
-                              {localized(
-                                announcement,
-                                lang,
-                                "description"
-                              ) ||
+                              {localized(announcement, lang, "description") ||
                                 announcement.description ||
+                                localized(announcement, lang, "content") ||
+                                announcement.content ||
                                 ""}
                             </p>
-
+                            
                             <div className="announcement-meta">
 
                               <span>

@@ -106,6 +106,47 @@ const formUploadDir =
     "offices"
   );
 
+  // HEALTH PORTAL ANNOUNCEMENT IMAGE UPLOAD
+const healthAnnouncementUploadDir = path.join(
+  ROOT,
+  "uploads",
+  "health-announcements"
+);
+
+fs.mkdirSync(healthAnnouncementUploadDir, { recursive: true });
+
+const healthAnnouncementStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, healthAnnouncementUploadDir);
+  },
+
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname);
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extension}`;
+    cb(null, filename);
+  }
+});
+
+const healthAnnouncementUpload = multer({
+  storage: healthAnnouncementStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only JPG, PNG and WEBP images are allowed."));
+    }
+  }
+});
+
 fs.mkdirSync(
   complaintUploadDir,
   {
@@ -3319,6 +3360,36 @@ async function startServer() {
         });
       }
     });
+
+    // HEALTH PORTAL ANNOUNCEMENT IMAGE UPLOAD API
+app.post(
+  "/api/health-portal/announcement-image",
+  authMiddleware,
+  healthAnnouncementUpload.single("image"),
+  (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          message: "Please select an image."
+        });
+      }
+
+      const imageUrl =
+        `${req.protocol}://${req.get("host")}/uploads/health-announcements/${req.file.filename}`;
+
+      return res.status(200).json({
+        imageUrl
+      });
+
+    } catch (error) {
+      console.error("Health announcement image upload error:", error);
+
+      return res.status(500).json({
+        message: "Image upload failed."
+      });
+    }
+  }
+);
 
 
     // --- RUN SERVER ---
