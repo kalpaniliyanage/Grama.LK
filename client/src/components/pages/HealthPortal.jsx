@@ -19,7 +19,7 @@ const translations = {
     name: "Name",
     type: "Type",
     owner: "Owner",
-    phone: "Phone",
+    phone: "Phone Number",
     status: "Status",
     actions: "Actions",
     editProfile: "Edit Profile",
@@ -521,20 +521,43 @@ function getToken() {
   );
 }
 
+
 async function apiRequest(path, options = {}) {
   const token = getToken();
+
+  const isFormData =
+    options.body instanceof FormData;
+
   const headers = {
-    ...(options.body ? { "Content-Type": "application/json" } : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(
+      options.body && !isFormData
+        ? { "Content-Type": "application/json" }
+        : {}
+    ),
+    ...(token
+      ? { Authorization: `Bearer ${token}` }
+      : {}),
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const response = await fetch(
+    `${API_URL}${path}`,
+    {
+      ...options,
+      headers,
+    }
+  );
+
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(result.message || result.error || `Request failed (${response.status})`);
+    throw new Error(
+      result.message ||
+      result.error ||
+      `Request failed (${response.status})`
+    );
   }
+
   return result;
 }
 
@@ -855,8 +878,11 @@ const phiSections = [
   const [isEditingEst, setIsEditingEst] = useState(false);
   const [estForm, setEstForm] = useState({ id: null, name: "", type: "Restaurant", owner: "", status: "Grade A", phone: "" });
 
-  const [announcementForm, setAnnouncementForm] = useState({ id: null, title: "", content: "", imageUrl: "" });
+  const [announcementForm, setAnnouncementForm] = useState({ id: null, title: "", content: "", imageUrl: "",date: "", time: "", location: "" });
   const [isEditingAnnouncement, setIsEditingAnnouncement] = useState(false);
+
+  const [announcementImageFile, setAnnouncementImageFile] = useState(null);
+  const [announcementImagePreview, setAnnouncementImagePreview] = useState("");
 
   const fetchAllData = useCallback(async () => {
     setLoading(true);
@@ -1192,27 +1218,126 @@ const phiSections = [
     navigate("/", { replace: true });
   };
 
-  const handleSaveAnnouncement = async (e) => {
-    e.preventDefault();
-    try {
-      const recordId = announcementForm._id || announcementForm.id;
-      if (isEditingAnnouncement && recordId) {
-        const updated = await apiRequest(`/api/announcements/${recordId}`, { method: "PUT", body: JSON.stringify(announcementForm) });
-        setAnnouncements(announcements.map((a) => (String(a._id || a.id) === String(recordId) ? updated : a)));
-        setMessage("නිවේදනය සාර්ථකව සංස්කරණය විය!");
-      } else {
-        const newAnn = { role: authenticatedRole, title: announcementForm.title, content: announcementForm.content, imageUrl: announcementForm.imageUrl };
-        const saved = await apiRequest("/api/announcements", { method: "POST", body: JSON.stringify(newAnn) });
-        setAnnouncements([saved, ...announcements]);
-        setMessage("නව නිවේදනය සාර්ථකව පළ විය!");
-      }
-      setAnnouncementForm({ id: null, title: "", content: "", imageUrl: "" });
-      setIsEditingAnnouncement(false);
-      fetchAllData();
-    } catch (err) {
-      alert("දත්ත සුරැකීම අසමත් විය: " + err.message);
+  // Select announcement image
+const handleAnnouncementImageChange = (e) => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert("Please select a JPG, PNG or WEBP image.");
+    e.target.value = "";
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Image size must be less than 5MB.");
+    e.target.value = "";
+    return;
+  }
+
+  setAnnouncementImageFile(file);
+  setAnnouncementImagePreview(URL.createObjectURL(file));
+};
+
+// Upload announcement image
+const uploadAnnouncementImage = async () => {
+  if (!announcementImageFile) {
+    return announcementForm.imageUrl;
+  }
+
+  const formData = new FormData();
+  formData.append("image", announcementImageFile);
+
+  const result = await apiRequest(
+    "/api/health-portal/announcement-image",
+    {
+      method: "POST",
+      body: formData
     }
-  };
+  );
+
+  return result.imageUrl;
+};
+
+  const handleSaveAnnouncement = async (e) => {
+  e.preventDefault();
+
+  try {
+    // Upload image if a new image is selected
+    const uploadedImageUrl = await uploadAnnouncementImage();
+
+    const announcementData = {
+      ...announcementForm,
+      imageUrl: uploadedImageUrl
+    };
+
+    const recordId = announcementForm._id || announcementForm.id;
+
+    if (isEditingAnnouncement && recordId) {
+      const updated = await apiRequest(
+        `/api/announcements/${recordId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(announcementData)
+        }
+      );
+
+      setAnnouncements(
+        announcements.map((a) =>
+          String(a._id || a.id) === String(recordId)
+            ? updated
+            : a
+        )
+      );
+
+      setMessage("නිවේදනය සාර්ථකව සංස්කරණය විය!");
+
+    } else {
+      const newAnn = {
+        role: authenticatedRole,
+        title: announcementForm.title,
+        content: announcementForm.content,
+        imageUrl: uploadedImageUrl,
+        date: announcementForm.date,
+        time: announcementForm.time,
+        location: announcementForm.location
+      };
+
+      const saved = await apiRequest(
+        "/api/announcements",
+        {
+          method: "POST",
+          body: JSON.stringify(newAnn)
+        }
+      );
+
+      setAnnouncements([saved, ...announcements]);
+
+      setMessage("නව නිවේදනයක් සාර්ථකව පළ විය!");
+    }
+
+    // Reset form
+    setAnnouncementForm({
+      id: null,
+      title: "",
+      content: "",
+      imageUrl: ""
+    });
+
+    setAnnouncementImageFile(null);
+    setAnnouncementImagePreview("");
+
+    setIsEditingAnnouncement(false);
+
+    fetchAllData();
+
+  } catch (err) {
+    alert("දත්ත සුරැකීම අසමත් විය: " + err.message);
+  }
+};
 
   const handleDeleteAnnouncement = async (id) => {
     if (window.confirm("ඔබට මෙම නිවේදනය ඉවත් කිරීමට අවශ්‍යද?")) {
@@ -1854,46 +1979,195 @@ const phiSections = [
             </div>
           )}
 
-                    {/* ANNOUNCEMENTS SECTION */}
+                    
+          {/* ANNOUNCEMENTS SECTION */}
           {activeSection === "announcements" && (
             <>
-              <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }} {...hoverProps}>
-                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>📢 {isEditingAnnouncement ? t("edit") + " " + t("announcements") : t("announcementTitle").replace("(PHM)", `(${authenticatedRole})`)}</h2>
+              <div
+                style={{
+                  ...styles.card,
+                  background: isDark ? "#3b2457" : "#f3e8ff",
+                  border: "1px solid #c084fc"
+                }}
+                {...hoverProps}
+              >
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>
+                  📢 {isEditingAnnouncement
+                    ? t("edit") + " " + t("announcements")
+                    : t("announcementTitle").replace("(PHM)", `(${authenticatedRole})`)}
+                </h2>
+
                 <form onSubmit={handleSaveAnnouncement}>
                   <Field
                     label={t("announcementPhoto")}
                     value={announcementForm.imageUrl}
-                    onChange={(v) => setAnnouncementForm({ ...announcementForm, imageUrl: v })}
+                    onChange={(v) =>
+                      setAnnouncementForm({ ...announcementForm, imageUrl: v })
+                    }
                     placeholder={t("Paste Image Url")}
                     isDark={isDark}
                   />
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label
+                      style={{
+                        ...styles.label,
+                          color: isDark ? "#ffffff" : "#581c87"
+                        }}
+                      >
+                        📷 Upload Announcement Image
+                      </label>
+
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleAnnouncementImageChange}
+                        style={{
+                          ...styles.input,
+                          padding: 10,
+                          cursor: "pointer"
+                        }}
+                      />
+
+                      {(announcementImagePreview || announcementForm.imageUrl) && (
+                        <div style={{ marginTop: 12 }}>
+                          <img
+                            src={announcementImagePreview || announcementForm.imageUrl}
+                            alt="Announcement Preview"
+                            style={{
+                              width: "100%",
+                              maxWidth: 350,
+                              maxHeight: 220,
+                              objectFit: "contain",
+                              borderRadius: 10,
+                              border: "1px solid #c084fc"
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
                   <Field
                     label={t("title")}
                     value={announcementForm.title}
-                    onChange={(v) => setAnnouncementForm({ ...announcementForm, title: v })}
+                    onChange={(v) =>
+                      setAnnouncementForm({ ...announcementForm, title: v })
+                    }
                     required
                     isDark={isDark}
                   />
-                  <label style={{ ...styles.label, color: isDark ? "#ffffff" : "#581c87" }}>
+
+                  <label
+                    style={{
+                      ...styles.label,
+                      color: isDark ? "#ffffff" : "#581c87"
+                    }}
+                  >
                     {t("details")}
+
                     <textarea
-                      style={{ ...styles.input, minHeight: 90, resize: "vertical" }}
+                      style={{
+                        ...styles.input,
+                        minHeight: 90,
+                        resize: "vertical"
+                      }}
                       value={announcementForm.content}
-                      onChange={(e) => setAnnouncementForm({ ...announcementForm, content: e.target.value })}
+                      onChange={(e) =>
+                        setAnnouncementForm({
+                          ...announcementForm,
+                          content: e.target.value
+                        })
+                      }
                       required
                     />
                   </label>
+
+                  {/* ANNOUNCEMENT DATE */}
+                  <label
+                    style={{
+                      ...styles.label,
+                      color: isDark ? "#ffffff" : "#581c87"
+                    }}
+                  >
+                    📅 Date
+
+                    <input
+                      type="date"
+                      style={styles.input}
+                      value={announcementForm.date || ""}
+                      onChange={(e) =>
+                        setAnnouncementForm({
+                          ...announcementForm,
+                          date: e.target.value
+                        })
+                      }
+                    />
+                  </label>
+
+                  {/* ANNOUNCEMENT TIME */}
+                  <label
+                    style={{
+                      ...styles.label,
+                      color: isDark ? "#ffffff" : "#581c87"
+                    }}
+                  >
+                    🕒 Time
+
+                    <input
+                      type="time"
+                      style={styles.input}
+                      value={announcementForm.time || ""}
+                      onChange={(e) =>
+                        setAnnouncementForm({
+                          ...announcementForm,
+                          time: e.target.value
+                        })
+                      }
+                    />
+                  </label>
+
+                  {/* ANNOUNCEMENT LOCATION */}
+                  <label
+                    style={{
+                      ...styles.label,
+                      color: isDark ? "#ffffff" : "#581c87"
+                    }}
+                  >
+                    📍 Location
+
+                    <input
+                      type="text"
+                      style={styles.input}
+                      placeholder="Enter location"
+                      value={announcementForm.location || ""}
+                      onChange={(e) =>
+                        setAnnouncementForm({
+                          ...announcementForm,
+                          location: e.target.value
+                        })
+                      }
+                    />
+                  </label>
+
                   <div style={{ display: "flex", gap: 12 }}>
                     <button style={styles.button} type="submit">
-                      {isEditingAnnouncement ? "💾 " + t("updateAnnouncement") : "📢 " + t("publishAnnouncement")}
+                      {isEditingAnnouncement
+                        ? "💾 " + t("updateAnnouncement")
+                        : "📢 " + t("publishAnnouncement")}
                     </button>
+
                     {isEditingAnnouncement && (
                       <button
                         type="button"
                         style={styles.secondaryBtn}
                         onClick={() => {
                           setIsEditingAnnouncement(false);
-                          setAnnouncementForm({ id: null, title: "", content: "", imageUrl: "" });
+                          setAnnouncementForm({
+                            id: null,
+                            title: "",
+                            content: "",
+                            imageUrl: ""
+                          });
                         }}
                       >
                         {t("cancel")}
@@ -1903,8 +2177,17 @@ const phiSections = [
                 </form>
               </div>
 
-              <div style={{ ...styles.card, background: isDark ? "#3b2457" : "#f3e8ff", border: "1px solid #c084fc" }} {...hoverProps}>
-                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>📌 {t("publishedAnnouncements")} ({authenticatedRole})</h2>
+              <div
+                style={{
+                  ...styles.card,
+                  background: isDark ? "#3b2457" : "#f3e8ff",
+                  border: "1px solid #c084fc"
+                }}
+                {...hoverProps}
+              >
+                <h2 style={{ color: isDark ? "#e9d5ff" : "#6b21a8" }}>
+                  📌 {t("publishedAnnouncements")} ({authenticatedRole})
+                </h2>
 
                 <div style={styles.announcementGrid}>
                   {announcements.map((item) => (
@@ -1917,11 +2200,14 @@ const phiSections = [
                         borderRadius: 14,
                         overflow: "hidden",
                         transition: "all 0.3s ease",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        minWidth: 0,
+                        maxWidth: "100%"
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "translateY(-7px)";
-                        e.currentTarget.style.boxShadow = "0 12px 25px rgba(168, 85, 247, 0.3)";
+                        e.currentTarget.style.boxShadow =
+                          "0 12px 25px rgba(168, 85, 247, 0.3)";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = "translateY(0)";
@@ -1929,24 +2215,120 @@ const phiSections = [
                       }}
                     >
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.title} style={styles.announcementImage} />
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          style={styles.announcementImage}
+                        />
                       ) : (
-                        <div style={{ ...styles.announcementImage, background: isDark ? "#594078" : "#e9d5ff", display: "flex", alignItems: "center", justifyContent: "center", color: isDark ? "#e9d5ff" : "#6b21a8", fontSize: 24 }}>
+                        <div
+                          style={{
+                            ...styles.announcementImage,
+                            background: isDark ? "#594078" : "#e9d5ff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: isDark ? "#e9d5ff" : "#6b21a8",
+                            fontSize: 24
+                          }}
+                        >
                           📢
                         </div>
                       )}
 
-                      <div style={{ ...styles.announcementCardBody, background: isDark ? "#2d1b42" : "#faf5ff", padding: 16 }}>
-                        <h3 style={{ margin: "4px 0", color: isDark ? "#e9d5ff" : "#581c87", fontSize: 18 }}>{item.title}</h3>
-                        <p style={{ color: isDark ? "#e2d5f0" : "#6b21a8", margin: 0, fontSize: 13, flex: 1, whiteSpace: "pre-wrap" }}>{item.content}</p>
+                      <div
+                        style={{
+                          ...styles.announcementCardBody,
+                          background: isDark ? "#2d1b42" : "#faf5ff",
+                          padding: 16,
+                          minWidth: 0,
+                          maxWidth: "100%",
+                          boxSizing: "border-box"
+                        }}
+                      >
+                        <h3
+                          style={{
+                            margin: "4px 0 10px",
+                            color: isDark ? "#e9d5ff" : "#581c87",
+                            fontSize: 18,
+                            lineHeight: 1.5,
+                            whiteSpace: "normal",
+                            overflowWrap: "anywhere",
+                            wordBreak: "normal",
+                            maxWidth: "100%"
+                          }}
+                        >
+                          {item.title}
+                        </h3>
 
-                        <div style={{ borderTop: "1px solid #c084fc", paddingTop: 10, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <small style={{ color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 12 }}>📅 {t("date")}: {item.createdAt ? new Date(item.createdAt).toISOString().slice(0, 10) : t("recent")}</small>
+                        <p
+                          style={{
+                            color: isDark ? "#e2d5f0" : "#6b21a8",
+                            margin: 0,
+                            fontSize: 13,
+                            flex: 1,
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "anywhere",
+                            wordBreak: "normal"
+                          }}
+                        >
+                          {item.content}
+                        </p>
+
+                        <div
+                          style={{
+                            borderTop: "1px solid #c084fc",
+                            paddingTop: 10,
+                            marginTop: 10,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: 10
+                          }}
+                        >
+                          <small
+                            style={{
+                              color: isDark ? "#c4b5fd" : "#7e22ce",
+                              fontSize: 12
+                            }}
+                          >
+                            📅 {t("date")}:{" "}
+                            {item.createdAt
+                              ? new Date(item.createdAt).toISOString().slice(0, 10)
+                              : t("recent")}
+                          </small>
+
                           <div style={{ display: "flex", gap: 6 }}>
-                            <button type="button" style={{ ...styles.secondaryBtn, padding: "4px 8px", fontSize: 11, background: isDark ? "#594078" : "#e9d5ff", color: isDark ? "#ffffff" : "#581c87", border: "1px solid #c084fc" }} onClick={() => { setAnnouncementForm(item); setIsEditingAnnouncement(true); }}>
+                            <button
+                              type="button"
+                              style={{
+                                ...styles.secondaryBtn,
+                                padding: "4px 8px",
+                                fontSize: 11,
+                                background: isDark ? "#594078" : "#e9d5ff",
+                                color: isDark ? "#ffffff" : "#581c87",
+                                border: "1px solid #c084fc"
+                              }}
+                              onClick={() => {
+                                setAnnouncementForm(item);
+                                setIsEditingAnnouncement(true);
+                              }}
+                            >
                               ✏️ {t("edit")}
                             </button>
-                            <button type="button" style={{ ...styles.dangerBtn, padding: "4px 8px", fontSize: 11 }} onClick={() => handleDeleteAnnouncement(item._id || item.id)}>
+
+                            <button
+                              type="button"
+                              style={{
+                                ...styles.dangerBtn,
+                                padding: "4px 8px",
+                                fontSize: 11
+                              }}
+                              onClick={() =>
+                                handleDeleteAnnouncement(item._id || item.id)
+                              }
+                            >
                               🗑️ {t("delete")}
                             </button>
                           </div>
@@ -2006,17 +2388,12 @@ const phiSections = [
                     <p style={{ margin: 0, color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 13 }}>📞 {t("phone")}</p>
                     <strong style={{ color: isDark ? "#f3e8ff" : "#581c87" }}>{profile.phone}</strong>
                   </div>
-                  <div style={{ padding: 16, borderRadius: 12, background: isDark ? "#2d1b42" : "#faf5ff", border: "1px solid #c084fc" }}>
-                    <p style={{ margin: 0, color: isDark ? "#c4b5fd" : "#7e22ce", fontSize: 13 }}>🏠 {t("houseNumberId")}</p>
-                    <strong style={{ color: isDark ? "#f3e8ff" : "#581c87" }}>{profile.houseNumber}</strong>
-                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSaveProfile}>
                   <Field label={t("fullName")} value={profileForm.fullName} onChange={(v) => setProfileForm({ ...profileForm, fullName: v })} required isDark={isDark} />
-                  <Field label={t("emailAddress")} value={profileForm.email} onChange={(v) => setProfileForm({ ...profileForm, email: v })} required isDark={isDark} />
-                  <Field label={t("phoneNumber")} value={profileForm.phone} onChange={(v) => setProfileForm({ ...profileForm, phone: v })} required isDark={isDark} />
-                  <Field label={t("officialHouseNumberId")} value={profileForm.houseNumber} onChange={(v) => setProfileForm({ ...profileForm, houseNumber: v })} isDark={isDark} />
+                  <Field label={t("email")} value={profileForm.email} onChange={(v) => setProfileForm({ ...profileForm, email: v })} required isDark={isDark} />
+                  <Field label={t("phone")} value={profileForm.phone} onChange={(v) => setProfileForm({ ...profileForm, phone: v })} required isDark={isDark} />
                   <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
                     <button type="submit" style={styles.button}>💾 {t("saveProfile")}</button>
                     <button type="button" style={styles.secondaryBtn} onClick={() => setIsEditingProfile(false)}>{t("cancel")}</button>
