@@ -23,6 +23,10 @@ const SERVER_ROOT = path.resolve(
 dotenv.config({ path: path.join(SERVER_ROOT, ".env") });
 dotenv.config();
 
+import dns from "node:dns";
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 /* =========================================================
    APP CONFIGURATION
 ========================================================= */
@@ -132,6 +136,8 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://127.0.0.1:5173",
+      "http://localhost:5174",
+      "http://127.0.0.1:5174",
     ],
     credentials: true,
   })
@@ -3271,6 +3277,49 @@ async function startServer() {
         res.status(500).json({ error: err.message });
       }
     });
+    app.put("/api/me", authMiddleware, async (req, res) => {
+      try {
+        const { fullName, email, phone, houseNumber, photoUrl } = req.body;
+
+        console.log("Profile update user ID:", req.user.id);
+
+        const updatedUser = await User.findByIdAndUpdate(
+          req.user.id,
+          {
+            $set: {
+              fullName,
+              email,
+              phone,
+              houseNumber,
+              photoUrl,
+           },
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        ).select("-password");
+
+        if (!updatedUser) {
+          console.log("No user found for ID:", req.user.id);
+            return res.status(404).json({
+            message: "User not found.",
+          });
+        }
+
+        return res.json({
+          success: true,
+          user: updatedUser,
+          message: "Profile updated successfully.",
+        });
+      } catch (error) {
+        console.error("Update profile error:", error);
+        return res.status(500).json({
+          message: "Failed to update profile.",
+        });
+      }
+    });
+
 
     // --- RUN SERVER ---
     const PORT = process.env.PORT || 5000;
